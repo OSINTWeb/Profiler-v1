@@ -95,11 +95,6 @@ export const Header = () => {
   const handleLogin = () => {
     window.location.href = "/auth/login";
   };
-
-  const handleLogout = () => {
-    window.location.href = "/auth/logout";
-  };
-
   // Show loading state
   if (isLoading) {
     return (
