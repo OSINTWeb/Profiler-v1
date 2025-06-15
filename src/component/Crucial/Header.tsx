@@ -10,7 +10,6 @@ export const Header = () => {
   const { user, isLoading, error } = useUser();
   const Api_url = process.env.NEXT_PUBLIC_AUTH_BACKEND;
 
-  console.log("Header user:", user);
 
   // Fetch user credits when user is available
   useEffect(() => {
