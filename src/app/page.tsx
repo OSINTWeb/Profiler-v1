@@ -376,12 +376,19 @@ export default function Profile() {
                     alert("Please select a search type first");
                     return;
                   }
-                  const params = new URLSearchParams({
+                  
+                  // Prepare data to send
+                  const data = {
                     query: "45206164641316463216463164",
-                    type: "Adv xance",
+                    type: "Advance",
                     PaidSearch: PaidSearch,
-                  });
-                  window.open(`/result/Advance?${params.toString()}`, "_blank");
+                  };
+                  
+                  // Store data in localStorage for the new window to access
+                  localStorage.setItem('searchData', JSON.stringify(data));
+                  
+                  // Open new window
+                  window.open('/result/Advance', '_blank');
                 }}
               >
                 <span className="relative z-10 flex items-center gap-2">
@@ -404,12 +411,19 @@ export default function Profile() {
                     alert("Please select a search type first");
                     return;
                   }
-                  const params = new URLSearchParams({
+                  
+                  // Prepare data to send
+                  const data = {
                     query: "dheerajydv19@proton.me",
                     type: "Basic",
                     PaidSearch: PaidSearch,
-                  });
-                  window.open(`/result/Basic?${params.toString()}`, "_blank");
+                  };
+                  
+                  // Store data in localStorage for the new window to access
+                  localStorage.setItem('searchData', JSON.stringify(data));
+                  
+                  // Open new window
+                  window.open('/result/Basic', '_blank');
                 }}
               >
                 <span className="relative z-10 flex items-center gap-2">

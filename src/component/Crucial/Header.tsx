@@ -298,7 +298,7 @@ export const Header = () => {
               <>
                 <button
                   onClick={PricingPage}
-                  className="px-3 sm:px-4 md:px-5 lg:px-6 py-2 md:py-3 text-xs sm:text-sm md:text-base font-medium rounded-xl bg-stone-300 text-black btn-hover-effect"
+                  className="px-3 sm:px-4 md:px-5 lg:px-6 py-2 md:py-3 text-xs sm:text-sm md:text-base font-medium rounded-xl bg-stone-300 text-black btn-hover-effect cursor-pointer"
                 >
                   <div className="text-roll-container">
                     <div className="text-roll">
@@ -310,7 +310,7 @@ export const Header = () => {
                 </button>
                 <button
                   onClick={toProfile}
-                  className="px-3 sm:px-4 md:px-5 lg:px-6 py-2 md:py-3 text-xs sm:text-sm md:text-base font-medium rounded-xl bg-stone-300 text-black btn-hover-effect"
+                  className="px-3 sm:px-4 md:px-5 lg:px-6 py-2 md:py-3 text-xs sm:text-sm md:text-base font-medium rounded-xl bg-stone-300 text-black btn-hover-effect cursor-pointer"
                 >
                   <div className="text-roll-container">
                     <div className="text-roll">
@@ -326,7 +326,7 @@ export const Header = () => {
             {!isAuthenticated && (
               <button
                 onClick={handleLogin}
-                className="px-3 sm:px-4 md:px-5 lg:px-6 py-2 md:py-3 text-xs sm:text-sm md:text-base font-medium rounded-xl bg-stone-300 text-black btn-hover-effect"
+                className="px-3 sm:px-4 md:px-5 lg:px-6 py-2 md:py-3 text-xs sm:text-sm md:text-base font-medium rounded-xl bg-stone-300 text-black btn-hover-effect cursor-pointer "
               >
                 <div className="text-roll-container">
                   <div className="text-roll">
@@ -469,7 +469,7 @@ export const Header = () => {
                       toProfile();
                       setMenuOpen(false);
                     }}
-                    className="px-4 py-3 rounded-lg bg-stone-300 text-black font-medium text-center"
+                    className="px-4 py-3 rounded-lg bg-stone-300 text-black font-medium text-center "
                   >
                     Account
                   </button>
