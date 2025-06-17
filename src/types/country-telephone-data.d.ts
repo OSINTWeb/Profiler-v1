@@ -8,7 +8,10 @@ declare module 'country-telephone-data' {
   }
 
   export const allCountries: Country[];
-  export default {
+  
+  const countryTelephoneData: {
     allCountries: Country[];
   };
+  
+  export default countryTelephoneData;
 } 

@@ -1,15 +1,11 @@
 import React, { useState } from "react";
-import { Phone, Mail, Image } from "lucide-react";
-
-import { SearchTypesProps, Tool, SearchOption } from "@/types/types";
-
+import { SearchTypesProps, Tool, SearchOption } from "src/types/types";
+  
 export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchTypesProps) {
-  const [selectedOption, setSelectedOption] = useState<SearchOption | null>(null);
   const [openDrawer, setOpenDrawer] = useState<SearchOption | null>(null);
 
   const toggleDrawer = (type: SearchOption) => {
     settypeofsearch(type);
-    setSelectedOption(type);
     if (selected === "Free") {
       setOpenDrawer(openDrawer === type ? null : type);
     }
@@ -75,37 +71,30 @@ export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchT
     },
   ];
 
-  const drawerOptions = {
-    "Phone Number Search": [
-      "Ignorent",
-      "Phomber",
-      "Hudson rock intelligence",
-      "Phoneinfoga",
-      "Phone number to line type (twilio API)",
-      "Phone number to UPI IDs (UPI INT Github Repo)",
-      "Phone number to names",
-    ],
-    "Email Search": [
-      "Holehe",
-      "Mailcat",
-      "Postle",
-      "Mosint",
-      "H8mail",
-      "Hudson rock intelligence",
-      "Check if email exists (by reacher)",
-      "Email reputation check by emailrep.io (initially free plain)",
-      "Gitshield",
-      "Email to username, username to email",
-    ],
-    "Reverse Image Search": ["Google Lens", "Yandex Image", "Bing Visual Search", "TinEye"],
-  };
-
-  // Icon mapping
-  const iconMap = {
-    "Phone Number Search": <Phone size={18} />,
-    "Email Search": <Mail size={18} />,
-    "Reverse Image Search": <Image size={18} />,
-  };
+  // const drawerOptions = {
+  //   "Phone Number Search": [
+  //     "Ignorent",
+  //     "Phomber",
+  //     "Hudson rock intelligence",
+  //     "Phoneinfoga",
+  //     "Phone number to line type (twilio API)",
+  //     "Phone number to UPI IDs (UPI INT Github Repo)",
+  //     "Phone number to names",
+  //   ],
+  //   "Email Search": [
+  //     "Holehe",
+  //     "Mailcat",
+  //     "Postle",
+  //     "Mosint",
+  //     "H8mail",
+  //     "Hudson rock intelligence",
+  //     "Check if email exists (by reacher)",
+  //     "Email reputation check by emailrep.io (initially free plain)",
+  //     "Gitshield",
+  //     "Email to username, username to email",
+  //   ],
+  //   "Reverse Image Search": ["Google Lens", "Yandex Image", "Bing Visual Search", "TinEye"],
+  // };
 
   return (
     <div
@@ -136,9 +125,10 @@ export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchT
                 `}
               >
                 <div className="flex items-center gap-2 w-full justify-center">
-                  <span className="text-gray-400 group-hover:text-gray-300 transition-colors">
+                  {/* Remove icon for 'Basic' and 'Advance' since iconMap does not have these keys */}
+                  {/* <span className="text-gray-400 group-hover:text-gray-300 transition-colors">
                     {iconMap[type as SearchOption]}
-                  </span>
+                  </span> */}
                   <span className="whitespace-nowrap">{type}</span>
                 </div>
               </button>

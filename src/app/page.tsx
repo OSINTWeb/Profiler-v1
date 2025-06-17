@@ -25,7 +25,7 @@ export default function Profile() {
   const [emailError, setEmailError] = useState<string>(""); // State for email validation error
   const [query, setQuery] = useState("");
   const [phoneError, setPhoneError] = useState<string>(""); // State for phone validation
-  const [typeofsearch, settypeofsearch] = useState<"Basic" | "Advance">("Advance");
+  const [typeofsearch, settypeofsearch] = useState<string>("Advance");
   const [userCredits, setUserCredits] = useState(0);
   const [userData, setUserData] = useState({
     _id: "",
@@ -272,9 +272,7 @@ export default function Profile() {
                           onChange={(e) => {
                             if (userCredits >= miniCredits) {
                               setInput((prev) => ({ ...prev, value: e.target.value }));
-                              if (selected === "Free") {
-                                setQuery(e.target.value);
-                              } else if (PaidSearch === "Username") {
+                              if (PaidSearch === "Username") {
                                 setQuery(e.target.value);
                                 setEmailError("");
                                 setPhoneError("");
