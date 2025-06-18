@@ -123,7 +123,7 @@
 }
 
 .btn-hover-effect::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -207,6 +207,18 @@
 
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-out;
+}
+
+/* Slide in from right animation for SSE modules */
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 
 @theme inline {
@@ -325,3 +337,60 @@
   }
 }
 
+.custom-scrollbar {
+  -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(75, 85, 99, 0.2);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.5);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 85, 99, 0.7);
+}
+
+/* Mobile touch targets */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  .custom-scrollbar {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    overscroll-behavior: contain; /* Prevent overscroll bounce */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  /* Better touch area for mobile */
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  /* Improve scrolling performance on mobile */
+  .custom-scrollbar {
+    transform: translateZ(0); /* Enable hardware acceleration */
+    will-change: scroll-position;
+  }
+}

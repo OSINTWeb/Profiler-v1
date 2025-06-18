@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Header } from "@/component/Crucial/Header";
-import { Footer } from "@/component/Crucial/Footer";
+import { Header } from "@/components/Crucial/Header";
+import { Footer } from "@/components/Crucial/Footer";
 
 export const metadata: Metadata = {
   title: "My Auth0 App",

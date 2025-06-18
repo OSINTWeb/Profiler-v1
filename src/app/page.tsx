@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { SearchTypeSelector } from "@/component/paidcomponents/SearchTypeselect";
-import { SearchOptions } from "@/component/paidcomponents/Options";
-import { SearchTypes } from "@/component/paidcomponents/SearchTypes";
+import { SearchTypeSelector } from "@/components/paidcomponents/SearchTypeselect";
+import { SearchOptions } from "@/components/paidcomponents/Options";
+import { SearchTypes } from "@/components/paidcomponents/SearchTypes";
 import { X, ExternalLink } from "lucide-react";
 
 import "@/app/globals.css";
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useUser } from "@auth0/nextjs-auth0";
-import CountrySelect from "@/component/paidcomponents/contryselect";
+import CountrySelect from "@/components/paidcomponents/contryselect";
 import { Button } from "@/components/ui/button";
 
 export default function Profile() {
