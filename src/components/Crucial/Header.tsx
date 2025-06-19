@@ -9,8 +9,7 @@ export const Header = () => {
   const [UserCredits, setUserCredits] = useState(0);
   const { user, isLoading, error } = useUser();
   const Api_url = process.env.NEXT_PUBLIC_AUTH_BACKEND;
-
-
+  // console.log(Api_url,user?.email);
   // Fetch user credits when user is available
   useEffect(() => {
     if (user?.email) {

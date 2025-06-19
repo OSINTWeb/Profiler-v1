@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import InfoCardsContainer  from "@/components/AdvanceComponent/StatsCard";
+import InfoCardsContainer from "@/components/AdvanceComponent/StatsCard";
 import type { PlatformData } from "@/components/AdvanceComponent/StatsCard";
+import NewTimeline from "@/components/AdvanceComponent/NewTimeline";
+import ActivityProfileCard from "@/components/AdvanceComponent/ActivityProfileCard";
 
 interface ModuleData {
   module: string;
@@ -26,7 +28,7 @@ interface SearchData {
 }
 
 interface SSEEvent {
-  type: 'init' | 'module' | 'complete' | 'error';
+  type: "init" | "module" | "complete" | "error";
   total?: number;
   module?: ModuleData;
   index?: number;
@@ -53,7 +55,7 @@ function mapModuleToPlatformData(module: ModuleData): PlatformData {
     spec_format: module.spec_format as PlatformData["spec_format"],
     front_schemas: module.front_schemas as PlatformData["front_schemas"],
     status: module.status,
-    module: module.module,
+    module: module.module || "Unknown",
   };
 }
 
@@ -64,109 +66,118 @@ export default function AdvanceResultPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [totalModules, setTotalModules] = useState(0);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<string>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState<string>("disconnected");
   const [retryCount, setRetryCount] = useState(0);
   const eventSourceRef = useRef<EventSource | null>(null);
   const maxRetries = 3;
 
-  const connectSSE = useCallback((attempt: number = 0) => {
-    if (attempt > 0) {
-      setRetryCount(attempt);
-      setConnectionStatus('retrying');
-    }
+  const connectSSE = useCallback(
+    (attempt: number = 0) => {
+      if (attempt > 0) {
+        setRetryCount(attempt);
+        setConnectionStatus("retrying");
+      }
 
-    if (!searchData?.query || !searchData?.type || !searchData?.PaidSearch) {
-      return;
-    }
+      if (!searchData?.query || !searchData?.type || !searchData?.PaidSearch) {
+        return;
+      }
 
-    console.log(`Starting SSE stream (attempt ${attempt + 1}) for searchData`, searchData);
-    setIsStreaming(true);
-    
-    if (attempt === 0) {
-      setModules([]);
-      setCurrentIndex(0);
-      setRetryCount(0);
-    }
-    
-    setConnectionStatus('connecting');
-    
-    // Close any existing EventSource
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-    }
-    
-    // Create SSE URL with search parameters
-    const sseUrl = `/api/stream-data?query=${encodeURIComponent(searchData.query)}&type=${encodeURIComponent(searchData.type)}&PaidSearch=${encodeURIComponent(searchData.PaidSearch)}`;
-    
-    // Create new EventSource
-    const eventSource = new EventSource(sseUrl);
-    eventSourceRef.current = eventSource;
-    
-    eventSource.onopen = () => {
-      console.log('SSE connection opened');
-      setConnectionStatus('connected');
-      setRetryCount(0);
-    };
-    
-    eventSource.onmessage = (event) => {
-      try {
-        const data: SSEEvent = JSON.parse(event.data);
-        console.log('SSE event received:', data);
-        
-        switch (data.type) {
-          case 'init':
-            setTotalModules(data.total || 0);
-            break;
-            
-          case 'module':
-            if (data.module && typeof data.index === 'number') {
-              setCurrentIndex(data.index + 1);
-              setModules(prev => [...prev, data.module!]);
-            }
-            break;
-            
-          case 'complete':
-            setIsStreaming(false);
-            setConnectionStatus('completed');
-            eventSource.close();
-            break;
-            
-          case 'error':
-            console.error('SSE error:', data.message);
-            setIsStreaming(false);
-            setConnectionStatus('error');
-            eventSource.close();
-            break;
+      console.log(`Starting SSE stream (attempt ${attempt + 1}) for searchData`, searchData);
+      setIsStreaming(true);
+
+      if (attempt === 0) {
+        setModules([]);
+        setCurrentIndex(0);
+        setRetryCount(0);
+      }
+
+      setConnectionStatus("connecting");
+
+      // Close any existing EventSource
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+      }
+
+      // Create SSE URL with search parameters
+      const sseUrl = `/api/stream-data?query=${encodeURIComponent(
+        searchData.query
+      )}&type=${encodeURIComponent(searchData.type)}&PaidSearch=${encodeURIComponent(
+        searchData.PaidSearch
+      )}`;
+
+      // Create new EventSource
+      const eventSource = new EventSource(sseUrl);
+      eventSourceRef.current = eventSource;
+
+      eventSource.onopen = () => {
+        console.log("SSE connection opened");
+        setConnectionStatus("connected");
+        setRetryCount(0);
+      };
+
+      eventSource.onmessage = (event) => {
+        try {
+          const data: SSEEvent = JSON.parse(event.data);
+          console.log("SSE event received:", data);
+
+          switch (data.type) {
+            case "init":
+              setTotalModules(data.total || 0);
+              break;
+
+            case "module":
+              if (data.module && typeof data.index === "number") {
+                setCurrentIndex(data.index + 1);
+                setModules((prev) => [...prev, data.module!]);
+              }
+              break;
+
+            case "complete":
+              setIsStreaming(false);
+              setConnectionStatus("completed");
+              eventSource.close();
+              break;
+
+            case "error":
+              console.error("SSE error:", data.message);
+              setIsStreaming(false);
+              setConnectionStatus("error");
+              eventSource.close();
+              break;
+          }
+        } catch (error) {
+          console.error("Error parsing SSE data:", error);
         }
-      } catch (error) {
-        console.error('Error parsing SSE data:', error);
-      }
-    };
-    
-    eventSource.onerror = (error) => {
-      console.error('SSE connection error:', error);
-      setConnectionStatus('error');
-      setIsStreaming(false);
-      eventSource.close();
-      
-      // Retry logic
-      if (attempt < maxRetries) {
-        console.log(`Retrying SSE connection in 2 seconds... (attempt ${attempt + 2}/${maxRetries + 1})`);
-        setTimeout(() => {
-          connectSSE(attempt + 1);
-        }, 2000);
-      } else {
-        console.error('Max retry attempts reached');
-        setConnectionStatus('failed');
-      }
-    };
-  }, [searchData, maxRetries]);
+      };
+
+      eventSource.onerror = (error) => {
+        console.error("SSE connection error:", error);
+        setConnectionStatus("error");
+        setIsStreaming(false);
+        eventSource.close();
+
+        // Retry logic
+        if (attempt < maxRetries) {
+          console.log(
+            `Retrying SSE connection in 2 seconds... (attempt ${attempt + 2}/${maxRetries + 1})`
+          );
+          setTimeout(() => {
+            connectSSE(attempt + 1);
+          }, 2000);
+        } else {
+          console.error("Max retry attempts reached");
+          setConnectionStatus("failed");
+        }
+      };
+    },
+    [searchData, maxRetries]
+  );
 
   useEffect(() => {
     if (searchData?.query && searchData?.type && searchData?.PaidSearch) {
       connectSSE();
     }
-    
+
     // Cleanup function
     return () => {
       if (eventSourceRef.current) {
@@ -211,33 +222,74 @@ export default function AdvanceResultPage() {
 
   return (
     <div className="min-h-screen bg-black text-white p-8">
-      <InfoCardsContainer data={modules.map(mapModuleToPlatformData)} />
+      <div className="flex flex-col gap-4">
+        <InfoCardsContainer data={modules.map(mapModuleToPlatformData)} />
+        <div className="flex justify-between w-full">
+          <NewTimeline
+            data={modules.map(mapModuleToPlatformData)}
+            isStreaming={isStreaming}
+            currentIndex={currentIndex}
+            totalModules={totalModules}
+            connectionStatus={connectionStatus}
+          />
+        </div>
+        <ActivityProfileCard 
+          userData={modules.map(mapModuleToPlatformData)} 
+          isStreaming={isStreaming}
+          currentIndex={currentIndex}
+          totalModules={totalModules}
+          connectionStatus={connectionStatus}
+        />
+        {/* <div className="flex justify-between w-full">
+      </div>
+      <div id="breached-account" className="flex justify-between w-full">
+        <BreachedAccount userData={hibpData} />
+      </div>
+      <div className="w-full">
+        <InfoCardList
+          users={nonHibpData}
+          hidebutton={hidebutton}
+          PaidSearch={PaidSearch}
+          sethidebutton={sethidebutton}
+        />
+      </div> */}
+      </div>
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">
           Advanced Search Results
         </h1>
-        
+
         {/* Streaming Progress */}
         <div className="bg-gray-900 rounded-lg p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-teal-400">SSE Streaming Progress:</h2>
             <div className="text-white">
               {currentIndex} of {totalModules} modules loaded
-              {isStreaming && <span className="ml-2 text-yellow-400 animate-pulse">Streaming...</span>}
+              {isStreaming && (
+                <span className="ml-2 text-yellow-400 animate-pulse">Streaming...</span>
+              )}
             </div>
           </div>
           <div className="flex items-center justify-between mb-2">
             <span className="text-gray-400">Connection Status:</span>
             <div className="flex items-center gap-2">
-              <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                connectionStatus === 'connected' ? 'bg-green-600 text-white' :
-                connectionStatus === 'connecting' ? 'bg-yellow-600 text-white' :
-                connectionStatus === 'retrying' ? 'bg-orange-600 text-white' :
-                connectionStatus === 'completed' ? 'bg-blue-600 text-white' :
-                connectionStatus === 'error' ? 'bg-red-600 text-white' :
-                connectionStatus === 'failed' ? 'bg-red-800 text-white' :
-                'bg-gray-600 text-white'
-              }`}>
+              <span
+                className={`px-2 py-1 rounded text-xs font-semibold ${
+                  connectionStatus === "connected"
+                    ? "bg-green-600 text-white"
+                    : connectionStatus === "connecting"
+                    ? "bg-yellow-600 text-white"
+                    : connectionStatus === "retrying"
+                    ? "bg-orange-600 text-white"
+                    : connectionStatus === "completed"
+                    ? "bg-blue-600 text-white"
+                    : connectionStatus === "error"
+                    ? "bg-red-600 text-white"
+                    : connectionStatus === "failed"
+                    ? "bg-red-800 text-white"
+                    : "bg-gray-600 text-white"
+                }`}
+              >
                 {connectionStatus.toUpperCase()}
               </span>
               {retryCount > 0 && (
@@ -248,9 +300,9 @@ export default function AdvanceResultPage() {
             </div>
           </div>
           <div className="bg-gray-800 rounded-full h-2 mb-4">
-            <div 
+            <div
               className="bg-gradient-to-r from-teal-400 to-blue-500 h-2 rounded-full transition-all duration-300"
-              style={{ width: totalModules > 0 ? `${(currentIndex / totalModules) * 100}%` : '0%' }}
+              style={{ width: totalModules > 0 ? `${(currentIndex / totalModules) * 100}%` : "0%" }}
             ></div>
           </div>
         </div>
@@ -260,23 +312,28 @@ export default function AdvanceResultPage() {
           <h2 className="text-xl font-semibold mb-4 text-teal-400">Live SSE Module Feed:</h2>
           <div className="space-y-3">
             {modules.map((module, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="bg-gray-800 p-4 rounded-md border-l-4 border-teal-400 animate-pulse hover:animate-none transition-all duration-300 transform hover:scale-105"
                 style={{
-                  animation: `slideInFromRight 0.5s ease-out ${index * 0.1}s both`
+                  animation: `slideInFromRight 0.5s ease-out ${index * 0.1}s both`,
                 }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-white font-bold">{module.module}</span>
-                  <span className={`px-2 py-1 rounded text-xs ${
-                    module.status === 'found' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
-                  }`}>
+                  <span
+                    className={`px-2 py-1 rounded text-xs ${
+                      module.status === "found"
+                        ? "bg-green-600 text-white"
+                        : "bg-red-600 text-white"
+                    }`}
+                  >
                     {module.status}
                   </span>
                 </div>
                 <div className="text-gray-300 text-sm">
-                  <span className="text-teal-300">{module.category.name}</span> - {module.category.description}
+                  <span className="text-teal-300">{module.category.name}</span> -{" "}
+                  {module.category.description}
                 </div>
                 {Object.keys(module.data).length > 0 && (
                   <div className="text-xs text-gray-400 mt-2">
@@ -287,7 +344,7 @@ export default function AdvanceResultPage() {
             ))}
           </div>
         </div>
-        
+
         <div className="bg-gray-900 rounded-lg p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4 text-teal-400">Received Search Parameters:</h2>
           <div className="space-y-3">
@@ -320,7 +377,7 @@ export default function AdvanceResultPage() {
         </div>
 
         <div className="mt-8 text-center space-x-4">
-          {(connectionStatus === 'failed' || connectionStatus === 'error') && (
+          {(connectionStatus === "failed" || connectionStatus === "error") && (
             <button
               onClick={() => connectSSE()}
               className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-3 rounded-lg hover:from-orange-500 hover:to-red-500 transition-all duration-300"
