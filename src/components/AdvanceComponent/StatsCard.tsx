@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Copy, Info } from "lucide-react";
 import CompanyLogo from "../ActivityComponent/Logo";
 import { motion } from "framer-motion";
-import { Expand } from "../ActivityComponent/expand";
+import { Expand, PlatformData as ExpandPlatformData } from "../ActivityComponent/expand";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
@@ -34,7 +34,7 @@ export interface PlatformData {
     image?: string;
   }[];
   status?: string;
-  module?: string;
+  module: string;
 }
 
 interface InfoCardProps {
@@ -64,6 +64,26 @@ const formatDate = (dateString: string): string => {
   }
 };
 
+// Type conversion function
+const convertToExpandFormat = (item: PlatformData): ExpandPlatformData => {
+  return {
+    module: item.module,
+    pretty_name: item.pretty_name,
+    query: item.query,
+    category: item.category,
+    spec_format: (item.spec_format || []).map(spec => {
+      const converted: { [key: string]: { value: string | boolean | number } } = {};
+      Object.entries(spec).forEach(([key, valueObj]) => {
+        if (valueObj && typeof valueObj === 'object' && 'value' in valueObj) {
+          converted[key] = { value: valueObj.value };
+        }
+      });
+      return converted;
+    }),
+    front_schemas: item.front_schemas,
+  };
+};
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const InfoCard = ({
   icon,
@@ -76,7 +96,7 @@ const InfoCard = ({
   const [copied, setCopied] = useState<number | null>(null);
   const [animatedCount, setAnimatedCount] = useState(0);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [curritem, setcurritem] = useState<PlatformData | null>(null);
+  const [curritem, setcurritem] = useState<ExpandPlatformData | null>(null);
   useEffect(() => {
     if (count > 0) {
       const duration = 2000;
@@ -109,12 +129,8 @@ const InfoCard = ({
 
   const handleImageClick = (item: PlatformData) => {
     // Convert PlatformData to the format expected by Expand component
-    const expandItem = {
-      ...item,
-      module: item.module || "Unknown",
-      spec_format: item.spec_format || []
-    };
-    setcurritem(expandItem as PlatformData);
+    const expandItem = convertToExpandFormat(item);
+    setcurritem(expandItem);
     setIsDetailsOpen(true);
   };
 
@@ -342,7 +358,7 @@ const InfoCard = ({
 
 const InfoCardsContainer = ({ data }: { data: PlatformData[] }): React.JSX.Element => {
   const [copied, setCopied] = useState<number | null>(null);
-  const [curritem, setcurritem] = useState<PlatformData | null>(null);
+  const [curritem, setcurritem] = useState<ExpandPlatformData | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("sources_found");
 
@@ -354,13 +370,8 @@ const InfoCardsContainer = ({ data }: { data: PlatformData[] }): React.JSX.Eleme
 
   const handleImageClick = (item: PlatformData) => {
     // Convert PlatformData to the format expected by Expand component
-    const expandItem = {
-      ...item,
-      module: item.module || "Unknown",
-      spec_format: item.spec_format || []
-    };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setcurritem(expandItem as any);
+    const expandItem = convertToExpandFormat(item);
+    setcurritem(expandItem);
     setIsDetailsOpen(true);
   };
 
