@@ -1,24 +1,12 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Copy, X, Download, Calendar, Globe, Clock, CheckCircle, Circle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Copy, X, Globe } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import CompanyLogo from "../Logo";
-import DateObject from "react-date-object";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import JSONPretty from "react-json-pretty";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { spec } from "node:test/reporters";
 import { Expand, PlatformData, SpecFormatValue } from "@/components/ActivityComponent/expand";
-
+import "./ProfileSection.css"
 interface InfoCardProps {
   userData: PlatformData;
   hidebutton?: boolean;

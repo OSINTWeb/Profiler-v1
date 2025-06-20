@@ -211,7 +211,7 @@ const CategoryCard: React.FC<CategoryCardProps> = memo(({ CardData }) => {
             <CardContent className="card-content-scrollable custom-scrollbar">
               <div className="scrollable-grid">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
-                  {data.items.map((item, index) => (
+                  {data.items.map((item) => (
                     <div
                       key={`${item.module}-${item.pretty_name}`}
                       className="scroll-item group/item relative flex flex-col items-center justify-center p-4 rounded-xl hover:bg-gradient-to-br hover:from-white/[0.04] hover:to-slate-500/[0.03] transition-all duration-300 border border-transparent hover:border-slate-600/30 hover:shadow-lg hover:shadow-slate-500/10 cursor-pointer transform hover:scale-[1.02]"

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import InfoCard from "./ProfileSection";
 import SelectInfo from "./SelectInfo";
+import CategoryCard from "./categoryCard";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,7 +14,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
 interface PlatformVariable {
   key: string;
   proper_key?: string;
@@ -82,11 +82,22 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
   const [enableselect, setenableselect] = useState(false);
   const [deletebutton, setdeletebutton] = useState(false);
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
-  const [allUsers, setAllUsers] = useState<PlatformData[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<PlatformData[]>([]);
+  const [Cards, setCards] = useState<PlatformData[]>([]);
 
-  // Show all users without any filtering
+  // Function to check if spec_format has only registered and platform_variables
+  const hasSimpleSpecFormat = (specFormat: SpecFormatItem[]) => {
+    return specFormat.every(
+      (item) =>
+        Object.keys(item).length === 2 && "registered" in item && "platform_variables" in item
+    );
+  };
+  // Filter users when component mounts or users prop changes
   useEffect(() => {
-    setAllUsers(users);
+    const filtered = users.filter((user) => hasSimpleSpecFormat(user.spec_format));
+    const withoutCard = users.filter((user) => !hasSimpleSpecFormat(user.spec_format));
+    setFilteredUsers(withoutCard);
+    setCards(filtered);
     // Reset selection when data changes
     setSelectedIndices([]);
   }, [users]);
@@ -100,28 +111,28 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
 
   // Function to permanently delete selected cards
   const permanentlyDeleteSelectedCards = () => {
-    const updatedUsers = allUsers.filter((_, index) => !selectedIndices.includes(index));
-    setAllUsers(updatedUsers);
+    const updatedUsers = filteredUsers.filter((_, index) => !selectedIndices.includes(index));
+    setFilteredUsers(updatedUsers);
     setSelectedIndices([]);
     setenableselect(false);
     setdeletebutton(false);
   };
 
   const handleDelete = (index: number) => {
-    setAllUsers(allUsers.filter((_, i) => i !== index));
+    setFilteredUsers(filteredUsers.filter((_, i) => i !== index));
   };
 
   // Get data for export based on mode
   const getExportData = () => {
     if (enableselect && selectedIndices.length > 0) {
       // Select mode: export ONLY selected items
-      return selectedIndices.map((index) => allUsers[index]).filter(Boolean);
+      return selectedIndices.map((index) => filteredUsers[index]).filter(Boolean);
     } else if (deletebutton && selectedIndices.length > 0) {
       // Delete mode: export ALL items EXCEPT selected ones
-      return allUsers.filter((_, index) => !selectedIndices.includes(index));
+      return filteredUsers.filter((_, index) => !selectedIndices.includes(index));
     } else {
       // Default: export all items
-      return allUsers;
+      return filteredUsers;
     }
   };
 
@@ -161,7 +172,7 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
         sethidebutton={sethidebutton}
         setenableselect={setenableselect}
         enableselect={enableselect}
-        filteredUsers={allUsers}
+        filteredUsers={filteredUsers}
         selectedCount={selectedCount}
         exportMode={enableselect ? "selected" : deletebutton ? "excluding_deleted" : "all"}
         exportCount={exportCount}
@@ -278,7 +289,7 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
               ) : selectedCount > 0 ? (
                 <span className="flex items-center gap-2">
                   <span className="text-lg">📤</span>
-                  Export will include {allUsers.length - selectedCount} record(s) (excluding{" "}
+                  Export will include {filteredUsers.length - selectedCount} record(s) (excluding{" "}
                   {selectedCount} selected)
                 </span>
               ) : (
@@ -327,8 +338,8 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
 
       {/* Cards Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-4">
-        {allUsers.length > 0 ? (
-          allUsers.map((user, index) => (
+        {filteredUsers.length > 0 ? (
+          filteredUsers.map((user, index) => (
             <div key={index} className="relative">
               {/* Single selection circle - only show when in selection mode */}
               {(enableselect || deletebutton) && (
@@ -410,7 +421,8 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
         )}
       </div>
 
-      {/* All cards are now shown in the main grid above */}
+      {/* Category Cards */}
+      {Cards.length > 0 && <CategoryCard CardData={Cards} />}
     </div>
   );
 };
