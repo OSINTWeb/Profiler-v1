@@ -188,7 +188,7 @@ const ViewMoreModal = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 flex items-center justify-center p-4"
+        className="fixed inset-0  backdrop-blur-xl z-50 flex items-center justify-center p-4"
         onClick={onClose}
       >
         <motion.div
@@ -270,13 +270,13 @@ const BreachedAccount = ({ userData }: BreachedAccountProps) => {
     <div className="w-full h-full animate-scale-in p-4">
       <div className="relative rounded-2xl border border-white/50 overflow-hidden">
         {/* Glassmorphism background */}
-        <div className="absolute inset-0 bg-[#131315] backdrop-blur-2xl backdrop-saturate-150 " />
+        <div className="absolute inset-0 backdrop-blur-2xl backdrop-saturate-150 " />
 
         {/* Content */}
         <div className="relative p-8">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
-              <div className="h-8 w-1 bg-gradient-to-b from-blue-400 to-purple-400 rounded-full" />
+              <div className="h-8 w-1 bg-gradient-to-b from-slate-400 to-slate-900 rounded-full" />
               <h2 className="text-2xl font-medium text-white">Breached Accounts</h2>
             </div>
             {hasMoreItems && (

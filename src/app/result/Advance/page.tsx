@@ -166,6 +166,10 @@ export default function AdvanceResultPage() {
     (item) => !item.spec_format.some((spec) => spec.breach?.value === true)
   );
 
+  const hibpdata = modules
+    .map(mapModuleToUserData)
+    .filter((item) => item.spec_format?.some((spec) => spec.breach?.value === true));
+  
   // Get all converted data for fulldata prop
   const allConvertedData = convertToInfoCardListData(modules);
 
@@ -317,10 +321,10 @@ export default function AdvanceResultPage() {
   return (
     <div className="min-h-screen bg-black text-white p-8">
       <div className="flex flex-col gap-4">
-        <InfoCardsContainer data={modules} />
+        <InfoCardsContainer data={nonHibpData} />
         <div className="flex justify-between w-full">
           <NewTimeline
-            data={modules}
+            data={nonHibpData}
             isStreaming={isStreaming}
             currentIndex={currentIndex}
             totalModules={totalModules}
@@ -328,7 +332,7 @@ export default function AdvanceResultPage() {
           />
         </div>
         <ActivityProfileCard
-          userData={modules}
+          userData={nonHibpData}
           isStreaming={isStreaming}
           currentIndex={currentIndex}
           totalModules={totalModules}
@@ -336,7 +340,7 @@ export default function AdvanceResultPage() {
         />
       </div>
       <div id="breached-account" className="flex justify-between w-full">
-        <BreachedAccount userData={modules.map(mapModuleToUserData)} />
+        <BreachedAccount userData={hibpdata} />
       </div>
       <div className="w-full">
         <InfoCardList

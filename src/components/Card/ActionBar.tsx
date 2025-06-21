@@ -912,7 +912,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
 
   return (
     <div className="flex w-full max-w-full items-stretch gap-5 font-medium text-center flex-wrap justify-between px-2 max-md:max-w-full mb-4">
-      <div className="bg-gradient-to-br from-[#0f0f12] to-[#14141f] border flex w-full items-stretch gap-5 text-xl text-[rgba(84,143,155,1)] font-medium text-center leading-none flex-wrap justify-between px-[35px] py-[34px] rounded-lg border-[rgba(51,53,54,1)] border-solid max-md:max-w-full max-md:mr-2.5 max-md:px-5">
+      <div className=" border flex w-full items-stretch gap-5 text-xl text-[rgba(84,143,155,1)] font-medium text-center leading-none flex-wrap justify-between px-[35px] py-[34px] rounded-lg border-[rgba(51,53,54,1)] border-solid max-md:max-w-full max-md:mr-2.5 max-md:px-5">
         <div className="flex gap-[9px] items-center justify-center max-md:text-lg">
           <img
             src="https://cdn.builder.io/api/v1/image/assets/08f1489d1012429aa8532f7dba7fd4a0/e03434cdb0512efa4dac167482ef1507f4ba547658fc4e584099d26d4362fd4a?placeholderIfAbsent=true"
