@@ -6,7 +6,7 @@ interface SearchTypeSelectorProps {
 }
 
 export function SearchTypeSelector({ selected, setSelected }: SearchTypeSelectorProps) {
-  const types = ["Free", "Paid", "Freemium", "Offers"];
+  const types = ["Free", "Paid", "Freemium"];
 
   return (
     <section className="relative w-full max-w-md mx-auto my-6">
@@ -16,8 +16,8 @@ export function SearchTypeSelector({ selected, setSelected }: SearchTypeSelector
         <div 
           className="absolute top-1 bottom-1 transition-all duration-300 ease-out bg-gradient-to-r from-gray-700 to-gray-800 rounded-xl shadow-lg border border-gray-600"
           style={{
-            width: `calc(25% - 4px)`,
-            left: `calc(${types.indexOf(selected) * 25}% + 2px)`,
+            width: `calc(33.333% - 4px)`,
+            left: `calc(${types.indexOf(selected) * 33.333}% + 2px)`,
           }}
         />
         
@@ -60,12 +60,7 @@ export function SearchTypeSelector({ selected, setSelected }: SearchTypeSelector
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-transparent via-gray-600 to-transparent rounded-full" />
       </div>
       
-      {/* Optional label or description */}
-      <div className="text-center mt-3">
-        <p className="text-xs text-gray-500 font-medium">
-          Filter by pricing type
-        </p>
-      </div>
+     
     </section>
   );
 }

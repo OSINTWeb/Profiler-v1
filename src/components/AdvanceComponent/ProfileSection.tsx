@@ -1,10 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Copy, Globe } from "lucide-react";
+import { Copy, Globe, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import CompanyLogo from "@/components/ActivityComponent/Logo";
 import { useState } from "react";
-import JSONPretty from "react-json-pretty";
+
 import { Expand, PlatformData, SpecFormatValue } from "@/components/ActivityComponent/expand";
 import "./ProfileSection.css"
 interface InfoCardProps {
@@ -17,16 +17,9 @@ interface InfoCardProps {
   onDelete?: () => void;
 }
 
-interface SpecFormatItem {
-  key: string;
-  value: string | number | boolean;
-  type: string;
-}
 
-interface ProfileSectionProps {
-  data: PlatformData[];
-  onDelete?: () => void;
-}
+
+
 
 // Helper function to format titles
 const formatTitle = (title: string): string => {
@@ -49,98 +42,42 @@ const formatDate = (dateString: string): string => {
       minute: "2-digit",
       hour12: true,
     }).format(date);
-  } catch (error) {
+  } catch {
     return dateString;
   }
 };
 
 const InfoCard: React.FC<InfoCardProps> = ({
-  userData,
-  hidebutton,
-  PaidSearch,
-  isSelected = false,
-  onSelect,
-  enableselect,
-  onDelete,
+  userData, 
+
 }) => {
-  const { module, pretty_name, query, spec_format, front_schemas } = userData;
+  const { module, pretty_name, spec_format } = userData;
   const isBreached = spec_format?.[0]?.breach?.value || false;
   const verified = spec_format?.[0]?.verified?.value || false;
   const premium = spec_format?.[0]?.premium?.value || false;
 
   const platformName = module;
-  const name = (spec_format?.[0]?.name?.value as string) || "";
   const websiteValue = spec_format?.[0]?.website?.value;
   const website = typeof websiteValue === 'string' ? websiteValue : platformName;
-  const id = (spec_format?.[0]?.id?.value as string) || "#";
-  const bio = (spec_format?.[0]?.bio?.value as string) || "#";
-  const creation_date = (spec_format?.[0]?.creation_date?.value as string) || "#";
-  const gender = (spec_format?.[0]?.gender?.value as string) || "";
-  const last_seen = (spec_format?.[0]?.last_seen?.value as string) || "";
-  const username = (spec_format?.[0]?.username?.value as string) || "";
-  const registered = spec_format?.[0]?.registered?.value || false;
-  const location = (spec_format?.[0]?.location?.value as string) || "";
-  const phone_number = (spec_format?.[0]?.phone_number?.value as string) || "";
   const profileURL = (spec_format?.[0]?.profile_url?.value as string) || "";
-  const language = (spec_format?.[0]?.language?.value as string) || "";
-  const age = spec_format?.[0]?.age?.value || 0;
-  const logo = (spec_format?.[0]?.picture_url?.value as string) || "";
   const [isOpen, setIsOpen] = useState(false);
-  const platform_variables = (spec_format?.[0]?.platform_variables || []) as SpecFormatItem[];
-  const countryCode = platform_variables.find(
-    (item) => item.key === "country_code"
-  )?.value as string;
+  const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
 
-  const city = platform_variables.find((item) => item.key === "city")?.value as string;
-
-  const dob = platform_variables.find((item) => item.key === "dob")?.value as string;
-
-  const CodeBlock = ({ data }) => {
-    const [toggle, settoggle] = useState(true);
-    const handleCopy = () => {
-      const jsonString = JSON.stringify(data, null, 2);
-      navigator.clipboard
-        .writeText(jsonString)
-        .then(() => {
-          alert("JSON copied to clipboard!");
-        })
-        .catch((err) => {
-          console.error("Failed to copy JSON: ", err);
-        });
-    };
-
-    return toggle === true ? (
-      <>
-        <button
-          onClick={() => settoggle(!toggle)}
-          className="rounded-lg border border-gray-700 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 font-semibold text-white text-sm px-4  transition-all duration-300"
-          >
-          Show JSON
-        </button>
-      </>
-    ) : (
-      <div className="relative p-4 bg-gradient-to-br from-black to-gray-900 text-white rounded-xl overflow-hidden border border-gray-700 mt-4">
-        <div className="flex flex-col sm:flex-row gap-3 mb-4">
-          <button
-            onClick={() => settoggle(!toggle)}
-            className="rounded-lg border border-gray-700 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 font-semibold text-white text-sm px-4  transition-all duration-300"
-            >
-            Hide JSON
-          </button>
-          <button
-            onClick={handleCopy}
-            className="rounded-lg border border-gray-700 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 text-white px-4  flex items-center gap-2 text-sm font-semibold transition-all duration-300"
-          >
-            <Copy size={16} />
-            Copy JSON
-          </button>
-        </div>
-        <div className="overflow-x-auto bg-black rounded-lg p-4 border border-gray-800">
-          <JSONPretty id="json-pretty" data={data}></JSONPretty>
-        </div>
-      </div>
-    );
+  const handleCopyWithEffect = (text: string, key: string) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setCopiedStates(prev => ({ ...prev, [key]: true }));
+        setTimeout(() => {
+          setCopiedStates(prev => ({ ...prev, [key]: false }));
+        }, 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+      });
   };
+
+
 
   return (
     <Card className="bg-gradient-to-br from-[#0f0f12] to-[#131315] border border-gray-700 flex flex-col w-full rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-black/40 hover:border-gray-600 h-[700px] relative">
@@ -272,13 +209,22 @@ const InfoCard: React.FC<InfoCardProps> = ({
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() =>
-                                navigator.clipboard.writeText(
-                                  (value as SpecFormatValue).value.toString()
+                                handleCopyWithEffect(
+                                  (value as SpecFormatValue).value.toString(),
+                                  `${index}-${key}-id`
                                 )
                               }
-                              className="hover:bg-gray-800 rounded-lg transition-colors p-2 border border-gray-700"
+                              className={`rounded-lg transition-all duration-300 p-2 border border-gray-700 ${
+                                copiedStates[`${index}-${key}-id`] 
+                                  ? 'bg-green-800 hover:bg-green-700' 
+                                  : 'hover:bg-gray-800'
+                              }`}
                             >
-                              <Copy size={14} className="text-gray-300" />
+                              {copiedStates[`${index}-${key}-id`] ? (
+                                <Check size={14} className="text-green-300" />
+                              ) : (
+                                <Copy size={14} className="text-gray-300" />
+                              )}
                             </motion.button>
                           </>
                         ) : key === "last_seen" || key === "creation_date" ? (
@@ -290,13 +236,22 @@ const InfoCard: React.FC<InfoCardProps> = ({
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() =>
-                                navigator.clipboard.writeText(
-                                  (value as SpecFormatValue).value.toString()
+                                handleCopyWithEffect(
+                                  (value as SpecFormatValue).value.toString(),
+                                  `${index}-${key}-date`
                                 )
                               }
-                              className="hover:bg-gray-800 rounded-lg transition-colors p-2 border border-gray-700"
+                              className={`rounded-lg transition-all duration-300 p-2 border border-gray-700 ${
+                                copiedStates[`${index}-${key}-date`] 
+                                  ? 'bg-green-800 hover:bg-green-700' 
+                                  : 'hover:bg-gray-800'
+                              }`}
                             >
-                              <Copy size={14} className="text-gray-300" />
+                              {copiedStates[`${index}-${key}-date`] ? (
+                                <Check size={14} className="text-green-300" />
+                              ) : (
+                                <Copy size={14} className="text-gray-300" />
+                              )}
                             </motion.button>
                           </div>
                         ) : typeof (value as SpecFormatValue).value === "boolean" ? (
@@ -328,7 +283,7 @@ const InfoCard: React.FC<InfoCardProps> = ({
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full bg-[#131315] hover:from-gray-600 hover:to-gray-700 border border-gray-600 text-white text-lg font-semibold py-3 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+          className="w-full bg-[#131315] cursor-pointer hover:from-gray-600 hover:to-gray-700 border border-gray-600 text-white text-lg font-semibold py-3 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
           onClick={() => setIsOpen(true)}
         >
           Expand

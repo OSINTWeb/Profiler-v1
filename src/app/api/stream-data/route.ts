@@ -130,13 +130,31 @@ async function* fetchDataFromRealAPI(query: string, type: string, paidSearch: st
   }
 }
 
+// Global counter to track API calls
+let apiCallCounter = 0;
+
 export async function GET(request: NextRequest) {
+  // Increment and log API call count
+  apiCallCounter++;
+  
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('query') || '';
   const type = searchParams.get('type') || '';
   const paidSearch = searchParams.get('PaidSearch') || '';
 
-  console.log("SSE Stream started for:", { query, type, paidSearch });
+  console.log(`🚀 API CALL #${apiCallCounter} - SSE Stream started`);
+  console.log("📊 Call Details:", { 
+    callNumber: apiCallCounter,
+    timestamp: new Date().toISOString(),
+    query, 
+    type, 
+    paidSearch,
+    userAgent: request.headers.get('user-agent'),
+    ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+  });
+
+  // Track start time for performance monitoring
+  const startTime = Date.now();
 
   // Create a readable stream
   const stream = new ReadableStream({
@@ -162,6 +180,11 @@ export async function GET(request: NextRequest) {
         for await (const moduleItem of fetchDataFromRealAPI(query, type, paidSearch)) {
           moduleCount++;
           
+          // Log progress every 10 modules to avoid spam
+          // if (moduleCount % 10 === 0) {
+          //   console.log(`📦 API CALL #${apiCallCounter} - Streamed ${moduleCount} modules so far`);
+          // }
+          
           const moduleEvent = `data: ${JSON.stringify({
             type: 'module',
             module: moduleItem,
@@ -180,8 +203,25 @@ export async function GET(request: NextRequest) {
         })}\n\n`;
         controller.enqueue(encoder.encode(completeEvent));
 
+        console.log(`✅ API CALL #${apiCallCounter} - Completed successfully`);
+        console.log(`📈 Stream Stats:`, {
+          callNumber: apiCallCounter,
+          modulesStreamed: moduleCount,
+          duration: Date.now() - startTime,
+          query,
+          type
+        });
+
       } catch (error) {
-        console.error('SSE streaming error:', error);
+        console.error(`❌ API CALL #${apiCallCounter} - Failed with error:`, error);
+        console.error('📊 Error Details:', {
+          callNumber: apiCallCounter,
+          error: error instanceof Error ? error.message : 'Unknown error',
+          duration: Date.now() - startTime,
+          query,
+          type
+        });
+        
         // Send error event
         const errorEvent = `data: ${JSON.stringify({
           type: 'error',

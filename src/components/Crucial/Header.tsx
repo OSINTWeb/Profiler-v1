@@ -42,38 +42,6 @@ export const Header = () => {
     }
   }, [user, Api_url]);
 
-  // Fetch from offer backend
-  useEffect(() => {
-    const offerURL = process.env.NEXT_PUBLIC_OFFER_BACKEND;
-    if (user?.email) {
-      (async () => {
-        try {
-          const response = await fetch(`${offerURL}/api/auth/signup`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              name: user.name || user.nickname || "User",
-              email: user.email,
-              authMethod: "Google",
-              pfpURL: user.picture || "",
-              country: "India",
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to create user");
-          }
-
-          const data = await response.json();
-          console.log("Offer backend user created:", data);
-        } catch (error) {
-          console.error("Error with offer backend:", error);
-        }
-      })();
-    }
-  }, [user]);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [showMobileDropdown, setShowMobileDropdown] = useState(false);

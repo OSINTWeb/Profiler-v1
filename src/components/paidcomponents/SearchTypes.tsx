@@ -176,7 +176,7 @@ export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchT
                   
                   <button
                     onClick={() => {
-                      window.location.href = tool.link;
+                      window.open(tool.link, "_blank");
                     }}
                     className="
                       w-full bg-gradient-to-r from-gray-700 to-gray-800 
@@ -223,7 +223,7 @@ export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchT
                 
                 <button
                   onClick={() => {
-                    window.location.href = tool.link;
+                    window.open(tool.link, "_blank");
                   }}
                   className="
                     w-full bg-gradient-to-r from-gray-700 to-gray-800 

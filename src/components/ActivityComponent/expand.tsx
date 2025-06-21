@@ -6,27 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import JSONPretty from "react-json-pretty";
 import CompanyLogo from "@/components/ActivityComponent/Logo";
 
-export interface SpecFormatValue {
-  value: string | boolean | number;
-}
+import type { SpecFormatValue, SpecFormat, PlatformData } from "@/types/streaming";
 
-export interface SpecFormat {
-  [key: string]: SpecFormatValue;
-}
-
-export interface PlatformData {
-  module: string;
-  pretty_name: string;
-  query: string;
-  category: {
-    name: string;
-    description: string;
-  };
-  spec_format: SpecFormat[];
-  front_schemas?: {
-    image?: string;
-  }[];
-}
+export type { SpecFormatValue, SpecFormat, PlatformData };
 
 export interface ExpandProps {
   isDetailsOpen: boolean;
