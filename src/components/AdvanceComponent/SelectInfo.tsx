@@ -90,7 +90,6 @@ export const SelectInfo: React.FC<SelectInfoProps> = ({
   sethidebutton,
   setenableselect,
   enableselect,
-  filteredUsers,
   selectedCount = 0,
   exportMode = "all",
   exportCount = 0

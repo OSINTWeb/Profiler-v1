@@ -4,7 +4,7 @@ import { Copy } from "lucide-react";
 import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import JSONPretty from "react-json-pretty";
-import CompanyLogo from "../Logo";
+import CompanyLogo from "@/components/ActivityComponent/Logo";
 
 export interface SpecFormatValue {
   value: string | boolean | number;

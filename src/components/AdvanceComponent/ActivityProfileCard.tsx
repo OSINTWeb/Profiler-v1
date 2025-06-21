@@ -1,20 +1,29 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Download, Calendar, Globe, Eye, Activity, Zap } from "lucide-react";
+import { Download, Calendar, Globe, Eye, Activity } from "lucide-react";
 import { useImageLoader } from "@/components/Card/imageLoader";
 import { cn } from "@/lib/utils";
 import { Expand, type SpecFormat } from "@/components/ActivityComponent/expand";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
+// Type for SpecFormatValue
+interface SpecFormatValue {
+  value: string;
+}
+
 // Type guards for SpecFormatValue
-const isStringValue = (value: any): value is { value: string } => {
-  return value !== undefined && typeof value.value === "string";
+const isStringValue = (value: unknown): value is SpecFormatValue => {
+  return value !== undefined && 
+         typeof value === "object" && 
+         value !== null && 
+         "value" in value && 
+         typeof (value as SpecFormatValue).value === "string";
 };
 
-const isDateValue = (value: any): boolean => {
+const isDateValue = (value: unknown): boolean => {
   if (!isStringValue(value)) return false;
   const dateString = value.value;
   const date = new Date(dateString);
-  return !isNaN(date.getTime()) && dateString.match(/\d{4}-\d{2}-\d{2}/);
+  return !isNaN(date.getTime()) && Boolean(dateString.match(/\d{4}-\d{2}-\d{2}/));
 };
 
 interface UserData {
@@ -29,9 +38,6 @@ interface UserData {
 interface ActivityProfileCardProps {
   userData: UserData[];
   isStreaming?: boolean;
-  currentIndex?: number;
-  totalModules?: number;
-  connectionStatus?: string;
 }
 
 const ImageWithFallback = ({
@@ -51,13 +57,13 @@ const ImageWithFallback = ({
         <img
           src={src}
           alt={alt}
-          className={cn(className, "animate-fade-in image-hover object-cover")}
+          className={cn(className, "object-cover")}
         />
       ) : (
         <div
           className={cn(
             className,
-            "flex items-center justify-center bg-surface-light text-white font-medium"
+            "flex items-center justify-center bg-gray-800 text-white font-medium"
           )}
         >
           {alt.charAt(0).toUpperCase()}
@@ -97,9 +103,9 @@ const ActivityRow = ({
     <>
       <tr
         className={cn(
-          "transition-all duration-300 cursor-pointer group hover:bg-gradient-to-r hover:from-blue-500/5 hover:to-purple-500/5",
-          isHovered ? "bg-white/2 shadow-lg shadow-black/10" : "",
-          isNew ? "animate-pulse bg-green-500/10 border-l-4 border-green-400" : ""
+          "transition-all duration-300 cursor-pointer group hover:bg-gray-900/50",
+          isHovered ? "bg-gray-900/30" : "",
+          isNew ? "bg-gray-800/50 border-l-4 border-gray-500" : ""
         )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -107,7 +113,7 @@ const ActivityRow = ({
       >
         <td className="px-4 py-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 border border-white/10 bg-gradient-to-br from-gray-800 to-gray-900 shadow-lg group-hover:border-white/20 transition-all duration-300 group-hover:shadow-xl group-hover:scale-105">
+            <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 border border-gray-700 bg-gray-800 group-hover:border-gray-600 transition-all duration-300">
               <ImageWithFallback
                 src={pictureUrl}
                 alt={name}
@@ -116,14 +122,13 @@ const ActivityRow = ({
             </div>
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-white text-sm group-hover:text-blue-100 transition-colors">
+                <span className="font-semibold text-white text-sm group-hover:text-gray-200 transition-colors">
                   {name}
                 </span>
-                {isNew && <Zap className="w-3 h-3 text-yellow-400 animate-pulse" />}
               </div>
               <div className="flex items-center gap-2 text-xs">
-                <div className="flex items-center gap-1.5 text-gray-400 group-hover:text-blue-300 transition-colors">
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full shadow-sm shadow-green-500/50"></div>
+                <div className="flex items-center gap-1.5 text-gray-400 group-hover:text-gray-300 transition-colors">
+                  <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
                   {module || "Unknown"}
                 </div>
               </div>
@@ -133,7 +138,7 @@ const ActivityRow = ({
         <td className="px-4 py-4">
           <div className="flex justify-end w-full items-center">
             <div className="relative">
-              <div className="text-xs px-4 py-2 border border-white/10 rounded-lg bg-gradient-to-r from-gray-800/50 to-gray-900/50 text-white text-center whitespace-nowrap backdrop-blur-sm group-hover:border-purple-500/30 group-hover:bg-gradient-to-r group-hover:from-purple-500/10 group-hover:to-blue-500/10 transition-all duration-300 shadow-sm">
+              <div className="text-xs px-4 py-2 border border-gray-700 rounded-lg bg-gray-800/50 text-white text-center whitespace-nowrap group-hover:border-gray-600 transition-all duration-300">
                 {new Date(creationDate).toLocaleDateString("en-US", {
                   day: "2-digit",
                   month: "short",
@@ -200,19 +205,19 @@ const ProfileImageCard = ({
     <>
       <div
         className={cn(
-          "flex items-center justify-between p-4 rounded-lg card-hover transition-all duration-300 cursor-pointer min-w-[320px] sm:min-w-[400px] border border-white/5",
-          isHovered ? "bg-surface-light border-white/10" : "bg-surface",
-          isNew ? "ring-2 ring-green-400/50 bg-green-500/5" : ""
+          "flex items-center justify-between p-4 rounded-lg transition-all duration-300 cursor-pointer min-w-[320px] sm:min-w-[400px] border border-gray-700",
+          isHovered ? "bg-gray-800/50 border-gray-600" : "bg-gray-900/30",
+          isNew ? "border-gray-500 bg-gray-800/30" : ""
         )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={handleClick}
       >
         <div className="flex items-center gap-4">
-          <div className="sm:w-56 sm:h-56 rounded-lg overflow-hidden border border-white/10 bg-surface-light relative">
+          <div className="sm:w-56 sm:h-56 rounded-lg overflow-hidden border border-gray-700 bg-gray-800 relative">
             <ImageWithFallback src={pictureUrl} alt={name} className="w-full h-full object-cover" />
             {isNew && (
-              <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse">
+              <div className="absolute top-2 right-2 bg-gray-700 text-white px-2 py-1 rounded-full text-xs font-bold">
                 NEW
               </div>
             )}
@@ -220,7 +225,7 @@ const ProfileImageCard = ({
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <span className="font-medium text-white text-base sm:text-lg">{name || module}</span>
-              {isNew && <Activity className="w-4 h-4 text-green-400 animate-pulse" />}
+              {isNew && <Activity className="w-4 h-4 text-gray-400" />}
             </div>
             <span className="text-sm text-gray-400 flex items-center gap-2">
               <Globe size={14} />
@@ -236,7 +241,7 @@ const ProfileImageCard = ({
         </div>
         <button
           onClick={handleDownload}
-          className="download-button p-2 rounded-full hover:bg-gray-800/50 transition-colors"
+          className="p-2 rounded-full hover:bg-gray-800/50 transition-colors text-gray-400 hover:text-white"
           aria-label="Download image"
         >
           <Download size={20} />
@@ -260,9 +265,6 @@ const ProfileImageCard = ({
 export const ActivityProfileCard = ({
   userData,
   isStreaming = false,
-  currentIndex = 0,
-  totalModules = 0,
-  connectionStatus = "disconnected",
 }: ActivityProfileCardProps) => {
   const profilePicturesRef = useRef<HTMLDivElement>(null);
   const [isViewAllOpen, setIsViewAllOpen] = useState(false);
@@ -302,40 +304,36 @@ export const ActivityProfileCard = ({
     return () => container.removeEventListener("wheel", handleWheel);
   }, []);
 
-  const validItems = userData.filter((item) =>
-    item.spec_format?.some((spec) => isStringValue(spec.picture_url))
-  );
-
   return (
-    <div className="flex flex-col lg:flex-row gap-4 text-white w-full h-full animate-scale-in">
+    <div className="flex flex-col lg:flex-row gap-4 text-white w-full h-full">
       {/* Left: Platform Activity Table */}
-      <div className="flex-1 bg-gradient-to-br from-[#0f0f11] to-[#131315] p-6 rounded-xl overflow-hidden shadow-2xl flex flex-col transition-all duration-300 hover:shadow-3xl h-96 text-sm max-h-[500px] border border-white/5 hover:border-white/10">
+      <div className="flex-1 bg-black p-6 rounded-xl overflow-hidden border border-gray-700 flex flex-col h-96 text-sm max-h-[500px]">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-gradient-to-r from-gray-500 to-[#000000] rounded-full shadow-lg shadow-blue-500/20"></div>
+            <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
             <h2 className="text-xl font-semibold text-white tracking-tight">Platform Activity</h2>
           </div>
         </div>
 
-        <div className="overflow-auto custom-scrollbar flex-grow bg-[#0a0a0c]/50 rounded-lg border border-white/5">
+        <div className="overflow-auto custom-scrollbar flex-grow bg-gray-900/30 rounded-lg border border-gray-700">
           <table className="w-full text-left">
-            <thead className="sticky top-0 bg-gradient-to-r from-[#0f0f11] to-[#131315] z-10 backdrop-blur-sm">
-              <tr className="border-b border-gray-700/50">
+            <thead className="sticky top-0 bg-black z-10">
+              <tr className="border-b border-gray-700">
                 <th className="py-4 px-4 text-gray-300 font-semibold text-sm tracking-wide">
                   <div className="flex items-center gap-2">
-                    <Globe size={14} className="text-blue-400" />
+                    <Globe size={14} className="text-gray-400" />
                     Platform
                   </div>
                 </th>
                 <th className="py-4 px-4 text-gray-300 font-semibold text-sm text-right tracking-wide">
                   <div className="flex items-center justify-end gap-2">
-                    <Calendar size={14} className="text-purple-400" />
+                    <Calendar size={14} className="text-gray-400" />
                     Creation Date
                   </div>
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800/30">
+            <tbody className="divide-y divide-gray-800">
               {userData.map((item, index) => (
                 <React.Fragment key={index}>
                   {item.spec_format?.map(
@@ -358,7 +356,7 @@ export const ActivityProfileCard = ({
       </div>
 
       {/* Right: Profile Pictures */}
-      <div className="flex-1 bg-[#131315] p-4 rounded-md overflow-hidden shadow-lg flex flex-col transition-all duration-300 hover:shadow-xl h-[400px] sm:h-[450px] lg:h-96 text-sm max-h-96">
+      <div className="flex-1 bg-black p-4 rounded-md overflow-hidden border border-gray-700 flex flex-col h-[400px] sm:h-[450px] lg:h-96 text-sm max-h-96">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
@@ -366,7 +364,7 @@ export const ActivityProfileCard = ({
           </div>
           <button
             onClick={() => setIsViewAllOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-surface-light hover:bg-gray-700 rounded-md transition-colors text-sm border border-white/10"
+            className="flex items-center gap-2 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-md transition-colors text-sm border border-gray-600"
           >
             <Eye size={14} />
             View All
@@ -408,12 +406,12 @@ export const ActivityProfileCard = ({
 
       {/* View All Dialog */}
       <Dialog open={isViewAllOpen} onOpenChange={setIsViewAllOpen}>
-        <DialogContent className="max-w-5xl max-h-[90vh] bg-[#0a0a0b] border border-white/20 text-white flex flex-col p-6">
-          <DialogHeader className="border-b border-white/10 pb-4">
+        <DialogContent className="max-w-5xl max-h-[90vh] bg-black border border-gray-600 text-white flex flex-col p-6">
+          <DialogHeader className="border-b border-gray-700 pb-4">
             <DialogTitle className="text-2xl font-semibold text-white flex items-center gap-3">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
               All Profile Pictures{" "}
-              {isStreaming && <span className="text-sm text-yellow-400">(Live)</span>}
+              {isStreaming && <span className="text-sm text-gray-400">(Live)</span>}
             </DialogTitle>
           </DialogHeader>
 
@@ -427,20 +425,20 @@ export const ActivityProfileCard = ({
                         <div
                           key={`dialog-profile-${index}-${specIndex}`}
                           className={cn(
-                            "group bg-[#131315] hover:bg-[#1a1a1c] p-4 rounded-lg border border-white/5 hover:border-white/15 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-black/20",
+                            "group bg-gray-900 hover:bg-gray-800 p-4 rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-300 cursor-pointer",
                             item.module && recentlyAdded.has(item.module)
-                              ? "ring-2 ring-green-400/50"
+                              ? "border-gray-500"
                               : ""
                           )}
                         >
-                          <div className="w-full aspect-square rounded-lg overflow-hidden border border-white/10 bg-surface-light mb-3 group-hover:border-white/20 transition-colors relative">
+                          <div className="w-full aspect-square rounded-lg overflow-hidden border border-gray-700 bg-gray-800 mb-3 group-hover:border-gray-600 transition-colors relative">
                             <ImageWithFallback
                               src={isStringValue(spec.picture_url) ? spec.picture_url.value : ""}
                               alt={isStringValue(spec.name) ? spec.name.value : "Unknown"}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              className="w-full h-full object-cover"
                             />
                             {item.module && recentlyAdded.has(item.module) && (
-                              <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse">
+                              <div className="absolute top-2 right-2 bg-gray-700 text-white px-2 py-1 rounded-full text-xs font-bold">
                                 NEW
                               </div>
                             )}
@@ -484,7 +482,7 @@ export const ActivityProfileCard = ({
                                 link.click();
                                 document.body.removeChild(link);
                               }}
-                              className="w-full flex items-center gap-2 justify-center px-3 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 hover:border-blue-500/50 rounded-lg transition-all duration-200 text-xs font-medium text-blue-300 hover:text-blue-200 mt-3"
+                              className="w-full flex items-center gap-2 justify-center px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 hover:border-gray-500 rounded-lg transition-all duration-200 text-xs font-medium text-gray-300 hover:text-white mt-3"
                             >
                               <Download size={12} />
                               Download
@@ -501,7 +499,7 @@ export const ActivityProfileCard = ({
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4">
                   {isStreaming ? (
-                    <Activity className="w-8 h-8 animate-spin text-blue-400" />
+                    <Activity className="w-8 h-8 text-gray-400" />
                   ) : (
                     <Globe size={24} className="text-gray-500" />
                   )}
@@ -536,36 +534,14 @@ const scrollbarStyles = `
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(147, 51, 234, 0.3));
+    background: rgba(75, 85, 99, 0.5);
     border-radius: 6px;
     border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(147, 51, 234, 0.5));
+    background: rgba(75, 85, 99, 0.7);
     border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .shadow-3xl {
-    box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.8);
-  }
-
-  @keyframes fade-in {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.3s ease-out;
-  }
-
-  @keyframes scale-in {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  .animate-scale-in {
-    animation: scale-in 0.5s ease-out;
   }
 `;
 

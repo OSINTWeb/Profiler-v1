@@ -38,6 +38,7 @@ interface SSEEvent {
   query?: string;
   searchType?: string;
   paidSearch?: string;
+  finalCount?: number;
 }
 
 // UserData interface for BreachedAccount component
@@ -71,29 +72,6 @@ interface UserData {
   module: string;
 }
 
-// Mapping function from ModuleData to PlatformData
-function mapModuleToPlatformData(module: ModuleData): PlatformData {
-  // Try to get a pretty name from spec_format, fallback to module name
-  let pretty_name = module.module;
-  if (Array.isArray(module.spec_format) && module.spec_format.length > 0) {
-    const firstSpec = module.spec_format[0] as { name?: { value?: string } };
-    if (firstSpec && typeof firstSpec.name === "object" && firstSpec.name.value) {
-      pretty_name = firstSpec.name.value;
-    }
-  }
-  return {
-    pretty_name,
-    query: module.query,
-    category: module.category,
-    spec_format: module.spec_format as PlatformData["spec_format"],
-    front_schemas: (module.front_schemas as Array<{ image?: string }>)?.map(schema => ({
-      image: schema.image || ""
-    })),
-    status: module.status,
-    module: module.module || "Unknown",
-  };
-}
-
 // Mapping function from ModuleData to UserData for BreachedAccount
 function mapModuleToUserData(module: ModuleData): UserData {
   let pretty_name = module.module;
@@ -108,14 +86,24 @@ function mapModuleToUserData(module: ModuleData): UserData {
     query: module.query,
     category: module.category,
     spec_format: module.spec_format as UserData["spec_format"],
-    front_schemas: (module.front_schemas as Array<{ image?: string }>)?.map(schema => ({
-      image: schema.image || ""
+    front_schemas: (module.front_schemas as Array<{ image?: string }>)?.map((schema) => ({
+      image: schema.image || "",
     })),
     status: module.status,
     module: module.module || "Unknown",
   };
 }
 
+/**
+ * AdvanceResultPage Component
+ *
+ * This component handles streaming data from APIs that may or may not provide:
+ * - Total count upfront (real APIs typically don't)
+ * - Index numbers for each item (real APIs typically don't)
+ *
+ * The component tracks progress client-side by counting received items,
+ * making it compatible with both mock APIs and real-world APIs.
+ */
 export default function AdvanceResultPage() {
   const [searchData, setSearchData] = useState<SearchData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -130,7 +118,7 @@ export default function AdvanceResultPage() {
 
   // Convert modules to the format expected by InfoCardList
   const convertToInfoCardListData = (modules: ModuleData[]) => {
-    return modules.map(module => ({
+    return modules.map((module) => ({
       module: module.module,
       schemaModule: module.module,
       status: module.status,
@@ -141,7 +129,12 @@ export default function AdvanceResultPage() {
       category: module.category,
       spec_format: module.spec_format as Array<{
         registered?: { type?: string; proper_key?: string; value: boolean };
-        platform_variables?: Array<{ key: string; proper_key?: string; value: string; type?: string }>;
+        platform_variables?: Array<{
+          key: string;
+          proper_key?: string;
+          value: string;
+          type?: string;
+        }>;
         verified?: { value: boolean };
         breach?: { value: boolean };
         name?: { value: string };
@@ -160,14 +153,17 @@ export default function AdvanceResultPage() {
         birthday?: { value: string };
         language?: { value: string };
         age?: { value: number };
-        [key: string]: { value: string | boolean | number } | Array<{ key: string; proper_key?: string; value: string; type?: string }> | undefined;
+        [key: string]:
+          | { value: string | boolean | number }
+          | Array<{ key: string; proper_key?: string; value: string; type?: string }>
+          | undefined;
       }>,
     }));
   };
 
   // Filter modules that don't have breach data (non-HIBP data)
-  const nonHibpData = convertToInfoCardListData(modules).filter(item => 
-    !item.spec_format.some(spec => spec.breach?.value === true)
+  const nonHibpData = convertToInfoCardListData(modules).filter(
+    (item) => !item.spec_format.some((spec) => spec.breach?.value === true)
   );
 
   // Get all converted data for fulldata prop
@@ -219,32 +215,29 @@ export default function AdvanceResultPage() {
       eventSource.onmessage = (event) => {
         try {
           const data: SSEEvent = JSON.parse(event.data);
-          console.log("SSE event received:", data);
 
-          switch (data.type) {
-            case "init":
-              setTotalModules(data.total || 0);
-              break;
-
-            case "module":
-              if (data.module && typeof data.index === "number") {
-                setCurrentIndex(data.index + 1);
-                setModules((prev) => [...prev, data.module!]);
-              }
-              break;
-
-            case "complete":
-              setIsStreaming(false);
-              setConnectionStatus("completed");
-              eventSource.close();
-              break;
-
-            case "error":
-              console.error("SSE error:", data.message);
-              setIsStreaming(false);
-              setConnectionStatus("error");
-              eventSource.close();
-              break;
+          if (data.type === "init") {
+            setTotalModules(data.total || 0);
+          } else if (data.type === "module" && data.module) {
+            // Handle both scenarios: with or without server-provided index
+            setModules((prev) => {
+              const newModules = [...prev, data.module!];
+              // Update index based on actual array length (client-side tracking)
+              setCurrentIndex(newModules.length);
+              return newModules;
+            });
+          } else if (data.type === "complete") {
+            setIsStreaming(false);
+            setConnectionStatus("completed");
+            // If we didn't know the total count initially, update it now
+            if (data.finalCount && totalModules === 0) {
+              setTotalModules(data.finalCount);
+            }
+            eventSource.close();
+          } else if (data.type === "error") {
+            setIsStreaming(false);
+            setConnectionStatus("error");
+            eventSource.close();
           }
         } catch (error) {
           console.error("Error parsing SSE data:", error);
@@ -324,10 +317,10 @@ export default function AdvanceResultPage() {
   return (
     <div className="min-h-screen bg-black text-white p-8">
       <div className="flex flex-col gap-4">
-        <InfoCardsContainer data={modules.map(mapModuleToPlatformData)} />
+        <InfoCardsContainer data={modules} />
         <div className="flex justify-between w-full">
           <NewTimeline
-            data={modules.map(mapModuleToPlatformData)}
+            data={modules}
             isStreaming={isStreaming}
             currentIndex={currentIndex}
             totalModules={totalModules}
@@ -335,7 +328,7 @@ export default function AdvanceResultPage() {
           />
         </div>
         <ActivityProfileCard
-          userData={modules.map(mapModuleToPlatformData)}
+          userData={modules}
           isStreaming={isStreaming}
           currentIndex={currentIndex}
           totalModules={totalModules}

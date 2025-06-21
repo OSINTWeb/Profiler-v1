@@ -1,8 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Copy, X, Globe } from "lucide-react";
+import { Copy, Globe } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import CompanyLogo from "../Logo";
+import CompanyLogo from "@/components/ActivityComponent/Logo";
 import { useState } from "react";
 import JSONPretty from "react-json-pretty";
 import { Expand, PlatformData, SpecFormatValue } from "@/components/ActivityComponent/expand";

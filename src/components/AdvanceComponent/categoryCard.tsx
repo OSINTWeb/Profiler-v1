@@ -1,14 +1,14 @@
 import React, { useState, useMemo, memo } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { UserRoundCheck, ChevronRight, TrendingUp } from "lucide-react";
-import CompanyLogo from "../Logo";
+import CompanyLogo from "@/components/ActivityComponent/Logo";
 import { Expand } from "@/components/ActivityComponent/expand";
 
 interface SpecFormatValue {
   value: string | boolean | number;
 }
 
-interface SpecFormat {
+interface SpecFormat {  
   [key: string]: SpecFormatValue;
 }
 

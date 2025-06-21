@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {  Globe, X } from "lucide-react";
+import { Globe, X } from "lucide-react";
 import { useImageLoader, getFallbackInitials } from "../Card/imageLoader";
 import { cn } from "@/lib/utils";
 import { Expand } from "@/components/ActivityComponent/expand";
@@ -90,19 +90,21 @@ const PlatformCard = ({ spec, module }: { spec: SpecFormat; module: string }) =>
   // Type-safe value extraction
   const getPictureUrl = (spec: SpecFormat): string => {
     const value = spec.picture_url?.value;
-    return typeof value === 'string' ? value : '';
+    return typeof value === "string" ? value : "";
   };
 
   const getName = (spec: SpecFormat): string => {
     const value = spec.name?.value;
-    return typeof value === 'string' ? value : 'Unknown';
+    return typeof value === "string" ? value : "Unknown";
   };
 
   // Convert SpecFormat to Expand component's expected format
-  const convertSpecFormat = (spec: SpecFormat): { [key: string]: { value: string | boolean | number } }[] => {
+  const convertSpecFormat = (
+    spec: SpecFormat
+  ): { [key: string]: { value: string | boolean | number } }[] => {
     const converted: { [key: string]: { value: string | boolean | number } } = {};
     Object.entries(spec).forEach(([key, value]) => {
-      if (value && typeof value === 'object' && 'value' in value) {
+      if (value && typeof value === "object" && "value" in value) {
         converted[key] = { value: value.value };
       }
     });
@@ -246,7 +248,7 @@ const BreachedAccount = ({ userData }: BreachedAccountProps) => {
       .filter((spec) => {
         // Check if the account has breach data and picture_url
         const hasBreach = spec?.breach?.value === true;
-        const hasPicture = spec?.picture_url?.value && typeof spec.picture_url.value === 'string';
+        const hasPicture = spec?.picture_url?.value && typeof spec.picture_url.value === "string";
         return hasBreach && hasPicture;
       })
       .map((spec) => ({
@@ -261,29 +263,7 @@ const BreachedAccount = ({ userData }: BreachedAccountProps) => {
 
   // If no breached accounts, return null or show empty state
   if (allBreachedItems.length === 0) {
-    return (
-      <div className="w-full h-full animate-scale-in p-4">
-        <div className="relative rounded-2xl border border-white/50 overflow-hidden">
-          {/* Glassmorphism background */}
-          <div className="absolute inset-0 bg-[#131315] backdrop-blur-2xl backdrop-saturate-150" />
-          
-          {/* Content */}
-          <div className="relative p-8">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="h-8 w-1 bg-gradient-to-b from-blue-400 to-purple-400 rounded-full" />
-              <h2 className="text-2xl font-medium text-white">Breached Accounts</h2>
-            </div>
-            
-            <div className="text-center py-12">
-              <div className="text-gray-400 text-lg mb-2">No breached accounts found</div>
-              <div className="text-gray-500 text-sm">
-                This is good news! No breaches were detected for the searched query.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <div className="w-full h-full animate-scale-in p-4"></div>;
   }
 
   return (
