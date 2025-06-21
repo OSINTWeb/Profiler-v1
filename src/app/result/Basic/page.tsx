@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { fetchData, ModuleData } from '@/app/api/fetchData';
 
 interface SearchData {
   query: string;
@@ -12,7 +11,7 @@ interface SearchData {
 export default function BasicResultPage() {
   const [searchData, setSearchData] = useState<SearchData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [modules, setModules] = useState<ModuleData[]>([]);
+  const [modules, setModules] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [totalModules, setTotalModules] = useState(0);
   const [isStreaming, setIsStreaming] = useState(false);
