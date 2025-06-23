@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Copy } from "lucide-react";
+import { Copy, X } from "lucide-react";
 import CompanyLogo from "@/components/ActivityComponent/Logo";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Expand } from "@/components/ActivityComponent/expand";
 import type { PlatformData } from "@/types/streaming";
 
@@ -32,6 +32,160 @@ const formatDate = (dateString: string): string => {
   }
 };
 
+const ViewMoreModal = ({
+  isOpen,
+  onClose,
+  title,
+  data,
+  onItemClick,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  data: PlatformData[];
+  onItemClick: (item: PlatformData) => void;
+}) => {
+  if (!isOpen) return null;
+
+  // Get all items with their associated data for the specific field
+  const getAllItemsWithData = () => {
+    const allItemsData: Array<{ value: string; sourceData: PlatformData; spec: Record<string, unknown> }> = [];
+    
+    data.forEach((item) => {
+      if (item.spec_format && Array.isArray(item.spec_format)) {
+        item.spec_format.forEach((spec) => {
+          const fieldKey = title.toLowerCase().replace(" ", "_");
+          const field = spec[fieldKey];
+          const value = field && typeof field === 'object' && 'value' in field ? field.value : undefined;
+          
+          if (value && typeof value === 'string') {
+            allItemsData.push({
+              value: title.includes("date") ? formatDate(value) : value,
+              sourceData: item,
+              spec
+            });
+          }
+        });
+      }
+    });
+    
+    return allItemsData;
+  };
+
+  const allItemsData = title === "Sources Found" 
+    ? data.filter(item => item.status === "found").map(item => ({ value: item.pretty_name || item.module, sourceData: item, spec: null }))
+    : getAllItemsWithData();
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 backdrop-blur-xl z-50 flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.95, opacity: 0 }}
+          className="relative w-full max-w-6xl max-h-[85vh] overflow-hidden rounded-3xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Glassmorphism background */}
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/20" />
+
+          {/* Content */}
+          <div className="relative">
+            <div className="flex items-center justify-between p-6 border-b border-white/10">
+              <div className="flex items-center gap-4">
+                <div className="h-8 w-1 bg-gradient-to-b from-blue-400 to-purple-400 rounded-full" />
+                <h2 className="text-2xl font-medium text-white">All {title}</h2>
+                <span className="px-3 py-1 bg-gray-800/50 rounded-full text-sm text-gray-300 border border-gray-700">
+                  {allItemsData.length} items
+                </span>
+              </div>
+              <button
+                onClick={onClose}
+                className="p-2 rounded-xl hover:bg-white/10 transition-colors"
+              >
+                <X className="w-6 h-6 text-white/70" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-[calc(85vh-80px)]">
+              {title === "Sources Found" ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                  {allItemsData.map((item, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.2, delay: index * 0.02 }}
+                      whileHover={{ scale: 1.05 }}
+                      className="rounded-2xl p-4 flex flex-col items-center justify-center transition-all duration-300 border border-gray-700 overflow-hidden cursor-pointer hover:bg-gray-800/50 hover:border-gray-600 min-h-[120px] bg-gray-900/50 shadow-xl"
+                      onClick={() => onItemClick(item.sourceData)}
+                    >
+                      <div className="w-16 h-16 mb-3 flex items-center justify-center bg-gray-800/50 rounded-xl border border-gray-700">
+                        <CompanyLogo companyName={item.sourceData.module} />
+                      </div>
+                      <div className="text-sm text-white font-semibold text-center line-clamp-2 leading-tight">
+                        {item.value}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {allItemsData.map((item, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2, delay: index * 0.02 }}
+                      whileHover={{ scale: 1.01 }}
+                      className="relative group flex flex-row w-full border border-gray-700 justify-between p-4 rounded-2xl hover:bg-gray-800/50 hover:border-gray-600 transition-all duration-300 gap-4 bg-gray-900/50 shadow-xl"
+                    >
+                      <div className="flex items-start gap-3 flex-1 cursor-pointer">
+                        <div className="flex-1 min-w-0">
+                          <span className="text-white text-base break-words block font-semibold">
+                            {item.value}
+                          </span>
+                        </div>
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(item.value);
+                          }}
+                          className="p-2 text-gray-200 hover:text-white rounded-xl hover:bg-gray-800/50 transition-all duration-200 flex-shrink-0 bg-gray-800/50 border border-gray-700"
+                          title="Copy to clipboard"
+                        >
+                          <Copy size={16} />
+                        </motion.button>
+                      </div>
+                      <div className="flex items-center justify-center">
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => onItemClick(item.sourceData)}
+                          className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:bg-gray-800/50 transition-colors duration-300 cursor-pointer bg-gray-800/50 border border-gray-700"
+                        >
+                          <CompanyLogo companyName={item.sourceData.module || ""} />
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
 
 const InfoCardsContainer = ({ 
   data: originalData 
@@ -42,6 +196,8 @@ const InfoCardsContainer = ({
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [curritem, setcurritem] = useState<PlatformData | null>(null);
   const [activeTab, setActiveTab] = useState("sources_found");
+  const [isViewMoreOpen, setIsViewMoreOpen] = useState(false);
+  const [viewMoreData, setViewMoreData] = useState<{ title: string; items: string[]; data: PlatformData[] }>({ title: "", items: [], data: [] });
   
   // Add the filtering logic as requested
   const [nonHibpData, setNonHibpData] = useState<PlatformData[]>([]);
@@ -377,14 +533,32 @@ const InfoCardsContainer = ({
                       {card.title === "creation_date" ? "First Seen" : card.title}
                     </h3>
                   </div>
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-xs sm:text-sm text-gray-300 flex-shrink-0 bg-gray-800 px-3 py-1.5 rounded-full border border-gray-700 font-medium"
-                  >
-                    {card.count} {card.count === 1 ? "item" : "items"} found
-                  </motion.div>
+                  <div className="flex items-center gap-4">
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.2 }}
+                      className="text-xs sm:text-sm text-gray-300 flex-shrink-0 bg-gray-800 px-3 py-1.5 rounded-full border border-gray-700 font-medium"
+                    >
+                      {card.count} {card.count === 1 ? "item" : "items"} found
+                    </motion.div>
+                    {card.count > 6 && (
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          setViewMoreData({ title: card.title, items: card.items, data });
+                          setIsViewMoreOpen(true);
+                        }}
+                        className="px-4 py-2 rounded-xl text-white/90 text-xs font-medium
+                                  backdrop-blur-lg backdrop-saturate-150
+                                 border border-white/20  
+                                 transition-all duration-300 hover:bg-white/20 cursor-pointer"
+                      >
+                        View All
+                      </motion.button>
+                    )}
+                  </div>
                 </div>
                 <div className="flex-1 overflow-hidden">{renderTabContent(card)}</div>
               </motion.div>
@@ -396,6 +570,14 @@ const InfoCardsContainer = ({
         isDetailsOpen={isDetailsOpen}
         setIsDetailsOpen={setIsDetailsOpen}
         selectedItem={curritem}
+      />
+      
+      <ViewMoreModal
+        isOpen={isViewMoreOpen}
+        onClose={() => setIsViewMoreOpen(false)}
+        title={viewMoreData.title}
+        data={viewMoreData.data}
+        onItemClick={handleImageClick}
       />
     </div>
   );

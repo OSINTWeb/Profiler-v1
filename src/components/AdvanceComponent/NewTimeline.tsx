@@ -87,7 +87,7 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
   isStreaming = false,
   currentIndex = 0,
   totalModules = 0,
-  connectionStatus = "disconnected",
+  connectionStatus = "Completed",
 }) => {
   const [zoom, setZoom] = useState<number>(1);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
@@ -233,16 +233,7 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
               Activity Map{" "}
               
             </h2>
-            <p className="text-sm text-gray-400">
-              {isStreaming ? (
-                <span>
-                  <span className="inline-block w-3 h-3 mr-2 rounded-full bg-yellow-400 animate-pulse align-middle"></span>
-                  Loading: {currentIndex}/{totalModules} modules
-                </span>
-              ) : (
-                "Connected timeline visualization"
-              )}
-            </p>
+           
           </div>
           <motion.div animate={{ rotate: isCollapsed ? 180 : 0 }} transition={{ duration: 0.3 }}>
             <ChevronDown className="h-5 w-5 text-gray-400 group-hover:text-gray-300 transition-colors" />

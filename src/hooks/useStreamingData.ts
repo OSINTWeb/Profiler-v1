@@ -23,7 +23,7 @@ export const useStreamingData = ({
     currentIndex: 0,
     totalModules: 0,
     isStreaming: false,
-    connectionStatus: "disconnected",
+    connectionStatus: "Completed",
     error: null,
   });
 
@@ -45,7 +45,7 @@ export const useStreamingData = ({
     }
     updateState({
       isStreaming: false,
-      connectionStatus: "disconnected"
+      connectionStatus: "Completed"
     });
   }, [updateState]);
 
@@ -81,7 +81,7 @@ export const useStreamingData = ({
     eventSource.onopen = () => {
       console.log("SSE connection opened");
       retryCountRef.current = 0;
-      updateState({ connectionStatus: "connected" });
+      updateState({ connectionStatus: "Loading Data" });
     };
 
     eventSource.onmessage = (event) => {

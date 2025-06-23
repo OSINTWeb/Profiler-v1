@@ -97,46 +97,37 @@ export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchT
   // };
 
   return (
-    <div
-      className={`flex flex-col items-center justify-center gap-6 px-4 ${
-        selected !== "Paid" ? "pb-56" : ""
-      }`}
-    >
-      <div className="flex gap-4 max-w-full w-full px-4 relative justify-center">
-        {selected === "Paid" &&
-          options.map((type, index) => (
-            <div className="relative" key={index}>
-              <button
-                onClick={() => toggleDrawer(type as SearchOption)}
-                className={`
-                  flex justify-center items-center gap-3 text-lg font-semibold
-                  bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl
-                  border border-gray-700 text-gray-200 h-12
-                  shadow-lg hover:shadow-xl transition-all duration-300 ease-out
-                  w-32 sm:w-56 px-6 group
-                  hover:scale-105 active:scale-95
-                  hover:from-gray-700 hover:to-gray-800
-                  hover:border-gray-600 hover:text-white
-                  ${
-                    typeofsearch === type
-                      ? "bg-gradient-to-b from-gray-700 to-gray-800 border-gray-500 text-white shadow-gray-500/20"
-                      : ""
-                  }
-                `}
-              >
-                <div className="flex items-center gap-2 w-full justify-center">
-                  {/* Remove icon for 'Basic' and 'Advance' since iconMap does not have these keys */}
-                  {/* <span className="text-gray-400 group-hover:text-gray-300 transition-colors">
-                    {iconMap[type as SearchOption]}
-                  </span> */}
-                  <span className="whitespace-nowrap">{type}</span>
-                </div>
-              </button>
-            </div>
+    <div className="w-full flex flex-col items-center justify-center">
+      {/* Search Type Buttons for Paid */}
+      {selected === "Paid" && (
+        <div className="flex gap-4 justify-center mb-8">
+          {options.map((type, index) => (
+            <button
+              key={index}
+              onClick={() => toggleDrawer(type as SearchOption)}
+              className={`
+                flex justify-center items-center gap-3 text-lg font-semibold
+                bg-zinc-900 hover:bg-zinc-800 rounded-xl
+                border border-zinc-700 hover:border-zinc-600 text-white 
+                h-14 px-8 sm:px-12 transition-all duration-300 ease-out
+                hover:scale-105 active:scale-95 shadow-lg
+                ${
+                  typeofsearch === type
+                    ? "bg-white text-black border-white hover:bg-zinc-100"
+                    : ""
+                }
+              `}
+            >
+              <span className="whitespace-nowrap">{type}</span>
+            </button>
           ))}
+        </div>
+      )}
 
-        {selected === "Free" && (
-          <div className="flex flex-wrap gap-6 justify-center items-center w-full max-w-6xl">
+      {/* Free Tools Grid */}
+      {selected === "Free" && (
+        <div className="w-full max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {FreeTools.map((tool, index) => {
               const isUserFindr = tool.title.toLowerCase() === "userfindr";
               const isCallSpy = tool.title.toLowerCase() === "callspy";
@@ -144,33 +135,29 @@ export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchT
                 <div
                   key={index}
                   className={`
-                    bg-gradient-to-b from-gray-900 to-black rounded-xl w-72 p-6 
-                    border border-gray-800 hover:border-gray-600 
-                    transition-all duration-300 ease-out relative
-                    hover:scale-105 hover:shadow-xl hover:shadow-gray-900/50
-                    ${isUserFindr ? "border-2 border-gray-600 shadow-lg shadow-gray-600/30" : ""}
-                    ${isCallSpy ? "border-2 border-gray-500 shadow-lg shadow-gray-500/30" : ""}
+                    relative bg-zinc-900 rounded-xl p-6 border border-zinc-700 
+                    hover:border-zinc-500 transition-all duration-300 ease-out
+                    hover:scale-105 hover:shadow-xl hover:shadow-black/50
+                    ${isUserFindr ? "border-zinc-500 shadow-lg shadow-zinc-500/20" : ""}
+                    ${isCallSpy ? "border-zinc-400 shadow-lg shadow-zinc-400/20" : ""}
                   `}
-                  style={{
-                    animationDelay: `${index * 0.1}s`,
-                  }}
                 >
                   {isUserFindr && (
-                    <span className="absolute -top-2 -right-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
+                    <span className="absolute -top-2 -right-2 bg-white text-black text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
                       NEW
                     </span>
                   )}
                   {isCallSpy && (
-                    <span className="absolute -top-2 -right-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
+                    <span className="absolute -top-2 -right-2 bg-zinc-300 text-black text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
                       OFFER
                     </span>
                   )}
                   
-                  <h3 className="font-bold text-xl text-white mb-3 flex items-center justify-start">
+                  <h3 className="font-bold text-xl text-white mb-4">
                     {tool.title}
                   </h3>
                   
-                  <p className="text-gray-400 text-sm leading-relaxed mb-6 min-h-[3rem]">
+                  <p className="text-zinc-400 text-sm leading-relaxed mb-6 min-h-[3.5rem]">
                     {tool.description}
                   </p>
                   
@@ -179,12 +166,11 @@ export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchT
                       window.open(tool.link, "_blank");
                     }}
                     className="
-                      w-full bg-gradient-to-r from-gray-700 to-gray-800 
-                      hover:from-gray-600 hover:to-gray-700 
-                      text-white font-semibold py-3 rounded-lg 
+                      w-full bg-white hover:bg-zinc-200 
+                      text-black font-semibold py-3 rounded-lg 
                       transition-all duration-300 ease-out
-                      hover:scale-105 hover:shadow-lg hover:shadow-gray-700/30
-                      active:scale-95 border border-gray-600
+                      hover:scale-105 hover:shadow-lg
+                      active:scale-95
                     "
                   >
                     Search Now
@@ -193,31 +179,30 @@ export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchT
               );
             })}
           </div>
-        )}
+        </div>
+      )}
 
-        {selected === "Freemium" && (
-          <div className="flex flex-wrap gap-6 justify-center items-center w-full max-w-6xl">
+      {/* Premium Tools Grid */}
+      {selected === "Freemium" && (
+        <div className="w-full max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {FreemiumTools.map((tool, index) => (
               <div
                 key={index}
                 className="
-                  bg-gradient-to-b from-gray-900 to-black rounded-xl w-72 p-6 
-                  border border-gray-800 hover:border-gray-600 
-                  transition-all duration-300 ease-out
-                  hover:scale-105 hover:shadow-xl hover:shadow-gray-900/50
+                  relative bg-zinc-900 rounded-xl p-6 border border-zinc-700 
+                  hover:border-zinc-500 transition-all duration-300 ease-out
+                  hover:scale-105 hover:shadow-xl hover:shadow-black/50
                 "
-                style={{
-                  animationDelay: `${index * 0.1}s`,
-                }}
               >
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-xl text-white">{tool.title}</h3>
-                  <span className="bg-gradient-to-r from-gray-600 to-gray-700 text-white text-xs font-bold px-2 py-1 rounded-full">
+                  <span className="bg-white text-black text-xs font-bold px-3 py-1 rounded-full">
                     PREMIUM
                   </span>
                 </div>
                 
-                <p className="text-gray-400 text-sm leading-relaxed mb-6 min-h-[3rem]">
+                <p className="text-zinc-400 text-sm leading-relaxed mb-6 min-h-[3.5rem]">
                   {tool.description}
                 </p>
                 
@@ -226,12 +211,11 @@ export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchT
                     window.open(tool.link, "_blank");
                   }}
                   className="
-                    w-full bg-gradient-to-r from-gray-700 to-gray-800 
-                    hover:from-gray-600 hover:to-gray-700 
-                    text-white font-semibold py-3 rounded-lg 
+                    w-full bg-white hover:bg-zinc-200 
+                    text-black font-semibold py-3 rounded-lg 
                     transition-all duration-300 ease-out
-                    hover:scale-105 hover:shadow-lg hover:shadow-gray-700/30
-                    active:scale-95 border border-gray-600
+                    hover:scale-105 hover:shadow-lg
+                    active:scale-95
                   "
                 >
                   Search Now
@@ -239,8 +223,8 @@ export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchT
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

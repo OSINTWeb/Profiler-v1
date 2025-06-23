@@ -160,8 +160,12 @@ const PlatformCard = ({ spec, module }: { spec: SpecFormat; module: string }) =>
           setIsDetailsOpen={setIsDetailsOpen}
           selectedItem={{
             module: module,
+            schemaModule: module,
+            status: "found",
             pretty_name: getName(spec),
             query: "",
+            from: "breach_data",
+            reliable_source: true,
             spec_format: convertSpecFormat(spec),
             category: { name: module, description: "" },
           }}
@@ -271,7 +275,7 @@ const BreachedAccount = ({ userData }: BreachedAccountProps) => {
       <div className="relative rounded-2xl border border-white/50 overflow-hidden">
         {/* Glassmorphism background */}
         <div className="absolute inset-0 backdrop-blur-2xl backdrop-saturate-150 " />
-
+       
         {/* Content */}
         <div className="relative p-8">
           <div className="flex items-center justify-between mb-8">
@@ -279,6 +283,13 @@ const BreachedAccount = ({ userData }: BreachedAccountProps) => {
               <div className="h-8 w-1 bg-gradient-to-b from-slate-400 to-slate-900 rounded-full" />
               <h2 className="text-2xl font-medium text-white">Breached Accounts</h2>
             </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
+                <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+                <p className="text-sm font-medium text-white/90">
+                  {allBreachedItems.length} found
+                </p>
+              </div>
             {hasMoreItems && (
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -287,11 +298,12 @@ const BreachedAccount = ({ userData }: BreachedAccountProps) => {
                 className="px-6 py-2.5 rounded-xl text-white/90 text-sm font-medium
                           backdrop-blur-lg backdrop-saturate-150
                          border border-white/20  
-                         transition-all duration-300 hover:bg-white/20"
+                         transition-all duration-300 hover:bg-white/20 cursor-pointer"
               >
                 View All
               </motion.button>
             )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">

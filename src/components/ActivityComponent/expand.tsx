@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 // import { format } from "date-fns"; // Removed unused import
-import { Copy } from "lucide-react";
-import { motion } from "framer-motion";
+import { Copy, Check } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import JSONPretty from "react-json-pretty";
 import CompanyLogo from "@/components/ActivityComponent/Logo";
@@ -48,14 +48,16 @@ const scrollbarStyles = `
   }
 `;
 
-const CodeBlock = ({ data }) => {
+const CodeBlock = ({ data }: { data: unknown }) => {
   const [toggle, settoggle] = useState(true);
+  const [copied, setCopied] = useState(false);
+  
   const handleCopy = () => {
     const jsonString = JSON.stringify(data, null, 2);
     navigator.clipboard
       .writeText(jsonString)
       .then(() => {
-        alert("JSON copied to clipboard!");
+        setCopied(true);
       })
       .catch((err) => {
         console.error("Failed to copy JSON: ", err);
@@ -66,7 +68,7 @@ const CodeBlock = ({ data }) => {
     <>
       <button
         onClick={() => settoggle(!toggle)}
-        className="rounded-xl w-full my-4 border border-gray-700 bg-gradient-to-br from-[#0f0f12] to-[#131315] hover:from-[#0d0d11] hover:to-[#131315]font-semibold text-white text-sm md:text-base py-3 transition-all duration-300 hover:shadow-lg hover:shadow-gray-500/20"
+        className="rounded-xl w-full my-4 border border-gray-700 bg-gradient-to-br from-[#0f0f12] to-[#131315] hover:from-[#0d0d11] hover:to-[#131315] font-semibold text-white text-sm md:text-base py-3 transition-all duration-300 hover:shadow-lg hover:shadow-gray-500/20 cursor-pointer"
       >
         Show JSON Data
       </button>
@@ -77,16 +79,40 @@ const CodeBlock = ({ data }) => {
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <button
           onClick={() => settoggle(!toggle)}
-          className="rounded-xl border border-gray-700 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 font-semibold text-white text-sm md:text-base px-6 py-2 transition-all duration-300"
+          className="rounded-xl border border-gray-700 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 font-semibold text-white text-sm md:text-base px-6 py-2 transition-all duration-300 cursor-pointer"
         >
           Hide JSON
         </button>
-        <button
+        <motion.button
           onClick={handleCopy}
-          className="rounded-xl border border-gray-700 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 text-white px-6 py-2 flex items-center gap-2 text-sm md:text-base font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-gray-500/30"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className={`rounded-xl border px-6 py-2 flex items-center justify-center gap-2 text-sm md:text-base font-semibold transition-all duration-300 cursor-pointer min-w-[140px] ${
+            copied 
+              ? "bg-gradient-to-r from-green-500 to-emerald-600 border-green-400 text-white shadow-lg shadow-green-500/25" 
+              : "bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 border-gray-700 text-white hover:shadow-lg hover:shadow-gray-500/30"
+          }`}
         >
-          <Copy size={16} /> Copy JSON
-        </button>
+          <AnimatePresence mode="wait">
+            {copied ? (
+              <motion.div
+                key="copied"
+                className="flex items-center gap-2"
+              >
+                <Check size={16} className="text-white" />
+                <span>Copied!</span>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="copy"
+                className="flex items-center gap-2"
+              >
+                <Copy size={16} />
+                <span>Copy JSON</span>  
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.button>
       </div>
       <div className="overflow-x-auto custom-scrollbar bg-black rounded-lg p-4 border border-gray-800">
         <JSONPretty id="json-pretty" data={data}></JSONPretty>
@@ -137,7 +163,57 @@ const formatDate = (dateString: string): string => {
   }
 };
 
-const renderItemDetails = (item: PlatformData) => {
+// Enhanced Copy Button Component
+const CopyButton = ({ 
+  onClick, 
+  isCopied, 
+  size = 16 
+}: { 
+  onClick: () => void; 
+  isCopied: boolean; 
+  size?: number;
+}) => (
+  <motion.button
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    onClick={onClick}
+    className={`rounded-lg transition-all duration-300 p-2 border cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center ${
+      isCopied 
+        ? "bg-gradient-to-r from-green-500 to-emerald-600 border-green-400 shadow-lg shadow-green-500/25" 
+        : "hover:bg-gray-800 border-gray-700 hover:shadow-md"
+    }`}
+  >
+    <AnimatePresence mode="wait">
+      {isCopied ? (
+        <motion.div
+          key="check"
+          initial={{ opacity: 0, scale: 0.5, rotate: -180 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          exit={{ opacity: 0, scale: 0.5, rotate: 180 }}
+          transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
+        >
+          <Check size={size} className="text-white" />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="copy"
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.5 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Copy size={size} className="text-gray-300" />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </motion.button>
+);
+
+const renderItemDetails = (
+  item: PlatformData, 
+  copiedField: string | null, 
+  handleCopyField: (text: string, fieldName: string) => void
+) => {
   if (!item) return null;
 
   const spec = item.spec_format?.[0];
@@ -153,8 +229,13 @@ const renderItemDetails = (item: PlatformData) => {
   const username = spec?.username?.value as string | undefined;
   const phone_number = spec?.phone_number?.value as string | undefined;
 
+  // Type guard to check if value is SpecFormatValue
+  const isSpecFormatValue = (value: unknown): value is SpecFormatValue => {
+    return value !== null && typeof value === 'object' && 'value' in (value as object);
+  };
+
   return (
-    <div className="w-full h-[calc(100vh-200px)] overflow-x-hidden md:h-[70vh] p-6 text-base md:text-lg overflow-y-auto custom-scrollbar">
+    <div className="w-full h-[calc(100vh-200px)] overflow-x-hidden md:h-[70vh] p-6 text-base md:text-lg overflow-y-auto custom-scrollbar border border-white/20 rounded-2xl">
       <style>{scrollbarStyles}</style>
       <div className=" ">
         <div className="flex flex-col space-y-6 w-full text-white">
@@ -162,7 +243,7 @@ const renderItemDetails = (item: PlatformData) => {
           {spec &&
             Object.entries(spec).map(
               ([key, value]) =>
-                key !== "platform_variables" && (
+                key !== "platform_variables" && isSpecFormatValue(value) && (
                   <div
                     key={key}
                     className="flex flex-row items-center  justify-between gap-4 sm:gap-6 border-b border-gray-800 pb-4 bg-gradient-to-br from-[#0f0f12] to-[#131315] rounded-lg p-4"
@@ -176,14 +257,10 @@ const renderItemDetails = (item: PlatformData) => {
                           <span className="text-white font-mono text-sm sm:text-base break-all bg-black border border-gray-700 px-4 py-2 rounded-lg flex-1 max-w-xs">
                             {value.value}
                           </span>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                          <CopyButton
                             onClick={() => navigator.clipboard.writeText(value.value)}
-                            className="hover:bg-gray-800 rounded-lg transition-colors p-2 border border-gray-700"
-                          >
-                            <Copy size={16} className="text-gray-300" />
-                          </motion.button>
+                            isCopied={false}
+                          />
                         </>
                       ) : key.includes("url") && isStringValue(value) ? (
                         <div className="flex items-center gap-3 flex-1">
@@ -193,19 +270,15 @@ const renderItemDetails = (item: PlatformData) => {
                               href={value.value}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-gray-300 hover:text-white transition-colors break-all text-sm sm:text-base font-medium underline decoration-gray-400/30 hover:decoration-white"
+                              className="text-gray-300 hover:text-white transition-colors break-all text-sm sm:text-base font-medium underline decoration-gray-400/30 hover:decoration-white cursor-pointer"
                             >
                               {value.value}
                             </a>
                           </span>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => navigator.clipboard.writeText(id)}
-                            className="hover:bg-gray-800 rounded-lg transition-colors p-2 border border-gray-700"
-                          >
-                            <Copy size={16} className="text-gray-300" />
-                          </motion.button>
+                          <CopyButton
+                            onClick={() => navigator.clipboard.writeText(value.value)}
+                            isCopied={false}
+                          />
                         </div>
                       ) : (key === "last_seen" || key === "creation_date") &&
                         isStringValue(value) ? (
@@ -213,14 +286,10 @@ const renderItemDetails = (item: PlatformData) => {
                           <span className="text-white font-medium bg-gradient-to-r from-gray-600/20 to-gray-700/20 border border-gray-500/30 px-4 py-2 rounded-lg">
                             {formatDate(value.value)}
                           </span>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                          <CopyButton
                             onClick={() => navigator.clipboard.writeText(value.value)}
-                            className="hover:bg-gray-800 rounded-lg transition-colors p-2 border border-gray-700"
-                          >
-                            <Copy size={16} className="text-gray-300" />
-                          </motion.button>
+                            isCopied={false}
+                          />
                         </div>
                       ) : isBooleanValue(value) ? (
                         <span
@@ -265,7 +334,7 @@ const renderItemDetails = (item: PlatformData) => {
               href={`https://${website || platformName}.com`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base font-medium underline decoration-gray-400/30 hover:decoration-white"
+              className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base font-medium underline decoration-gray-400/30 hover:decoration-white cursor-pointer"
             >
               {(website || platformName).toUpperCase()}.com
             </a>
@@ -281,14 +350,10 @@ const renderItemDetails = (item: PlatformData) => {
                 <span className="font-mono text-sm sm:text-base break-all bg-black border border-gray-700 px-4 py-2 rounded-lg flex-1">
                   {query}
                 </span>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => navigator.clipboard.writeText(query)}
-                  className="hover:bg-gray-800 rounded-lg transition-colors p-2 border border-gray-700"
-                >
-                  <Copy size={16} className="text-gray-300" />
-                </motion.button>
+                <CopyButton
+                  onClick={() => handleCopyField(query, "query")}
+                  isCopied={copiedField === "query"}
+                />
               </div>
             </div>
           )}
@@ -303,14 +368,10 @@ const renderItemDetails = (item: PlatformData) => {
                 <span className="font-mono text-sm sm:text-base break-all bg-black border border-gray-700 px-4 py-2 rounded-lg flex-1">
                   {id}
                 </span>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => navigator.clipboard.writeText(id)}
-                  className="hover:bg-gray-800 rounded-lg transition-colors p-2 border border-gray-700"
-                >
-                  <Copy size={16} className="text-gray-300" />
-                </motion.button>
+                <CopyButton
+                  onClick={() => handleCopyField(id, "id")}
+                  isCopied={copiedField === "id"}
+                />
               </div>
             </div>
           )}
@@ -325,14 +386,10 @@ const renderItemDetails = (item: PlatformData) => {
                 <span className="text-white font-medium bg-gradient-to-r from-gray-600/20 to-gray-700/20 border border-gray-500/30 px-4 py-2 rounded-lg">
                   {formatDate(last_seen)}
                 </span>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <CopyButton
                   onClick={() => navigator.clipboard.writeText(last_seen)}
-                  className="hover:bg-gray-800 rounded-lg transition-colors p-2 border border-gray-700"
-                >
-                  <Copy size={16} className="text-gray-300" />
-                </motion.button>
+                  isCopied={false}
+                />
               </div>
             </div>
           )}
@@ -343,9 +400,15 @@ const renderItemDetails = (item: PlatformData) => {
               <span className="text-gray-300 text-sm sm:text-base font-semibold min-w-[120px]">
                 Username:
               </span>
-              <span className="text-white text-sm sm:text-base font-medium bg-gray-900/50 px-4 py-2 rounded-lg border border-gray-800">
-                {username}
-              </span>
+              <div className="flex items-center gap-3 flex-1">
+                <span className="text-white text-sm sm:text-base font-medium bg-gray-900/50 px-4 py-2 rounded-lg border border-gray-800 flex-1">
+                  {username}
+                </span>
+                <CopyButton
+                  onClick={() => handleCopyField(username, "username")}
+                  isCopied={copiedField === "username"}
+                />
+              </div>
             </div>
           )}
 
@@ -355,9 +418,15 @@ const renderItemDetails = (item: PlatformData) => {
               <span className="text-gray-300 text-sm sm:text-base font-semibold min-w-[120px]">
                 Location:
               </span>
-              <span className="text-white text-sm sm:text-base font-medium bg-gray-900/50 px-4 py-2 rounded-lg border border-gray-800">
-                {location}
-              </span>
+              <div className="flex items-center gap-3 flex-1">
+                <span className="text-white text-sm sm:text-base font-medium bg-gray-900/50 px-4 py-2 rounded-lg border border-gray-800 flex-1">
+                  {location}
+                </span>
+                <CopyButton
+                  onClick={() => handleCopyField(location, "location")}
+                  isCopied={copiedField === "location"}
+                />
+              </div>
             </div>
           )}
 
@@ -367,9 +436,15 @@ const renderItemDetails = (item: PlatformData) => {
               <span className="text-gray-300 text-sm sm:text-base font-semibold min-w-[120px]">
                 Phone Number:
               </span>
-              <span className="text-white text-sm sm:text-base font-medium bg-gray-900/50 px-4 py-2 rounded-lg border border-gray-800">
-                {phone_number}
-              </span>
+              <div className="flex items-center gap-3 flex-1">
+                <span className="text-white text-sm sm:text-base font-medium bg-gray-900/50 px-4 py-2 rounded-lg border border-gray-800 flex-1">
+                  {phone_number}
+                </span>
+                <CopyButton
+                  onClick={() => handleCopyField(phone_number, "phone_number")}
+                  isCopied={copiedField === "phone_number"}
+                />
+              </div>
             </div>
           )}
         </div>
@@ -384,16 +459,24 @@ export const Expand: React.FC<ExpandProps> = ({
   setIsDetailsOpen,
   selectedItem,
 }) => {
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const handleCopyField = (text: string, fieldName: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedField(fieldName);
+      setTimeout(() => setCopiedField(null), 500);
+    });
+  };
   return (
     <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-      <DialogContent className="max-w-[95vw] md:max-w-5xl bg-gradient-to-br from-black to-gray-900 rounded-2xl shadow-2xl h-[90vh] md:h-[85vh] overflow-y-auto border-2 border-gray-700 custom-scrollbar flex flex-col">
+      <DialogContent className="max-w-[95vw] md:max-w-5xl bg-gradient-to-br from-black to-slate-900 rounded-2xl shadow-2xl h-[90vh] md:h-[85vh] overflow-y-auto border-2 border-white/20 custom-scrollbar flex flex-col">
         <style>{scrollbarStyles}</style>
-        <DialogHeader className="border-b border-gray-700 p-6 bg-gradient-to-r from-gray-900/80 to-black/80 rounded-t-2xl">
+        <DialogHeader className="border border-white/20 p-6 bg-gradient-to-r from-gray-900/80 to-black/80 rounded-2xl">
           <DialogTitle className="text-white text-xl font-bold">
             <div className="flex flex-col sm:flex-row items-center gap-6 text-base md:text-lg font-medium text-center">
               {selectedItem?.spec_format?.[0]?.picture_url &&
               isPictureUrl(selectedItem.spec_format[0].picture_url) ? (
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-gray-800 to-black p-3 flex items-center justify-center border border-gray-700 shadow-lg">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-gray-800 to-black p-3 flex items-center justify-center border border-gray-700 shadow-lg cursor-pointer">
                   <img
                     src={selectedItem.spec_format[0].picture_url.value}
                     alt="Platform Logo"
@@ -439,7 +522,7 @@ export const Expand: React.FC<ExpandProps> = ({
             </div>
           </DialogTitle>
         </DialogHeader>
-        {selectedItem && renderItemDetails(selectedItem)}
+        {selectedItem && renderItemDetails(selectedItem, copiedField, handleCopyField)}
       </DialogContent>
     </Dialog>
   );
