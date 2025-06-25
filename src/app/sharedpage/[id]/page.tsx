@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Data  from "public/Data/export_test@gmail.com.json";
+import Data from "public/Data/export_test@gmail.com.json";
 import { useDataTransform } from "@/hooks/useDataTransform";
 import type { SearchData } from "@/types/streaming";
 
@@ -156,14 +156,11 @@ export default function PreviewPage({ params }: { params: { id: string } }) {
             <div className="flex justify-between w-full">
               <NewTimeline
                 data={nonHibpData}
-                isStreaming={streamingState.isStreaming}
-                currentIndex={streamingState.currentIndex}
-                totalModules={streamingState.totalModules}
-                connectionStatus={streamingState.connectionStatus}
+              
               />
             </div>
 
-            <ActivityProfileCard userData={nonHibpData} isStreaming={streamingState.isStreaming} />
+            <ActivityProfileCard userData={nonHibpData}  />
           </div>
 
           {/* Breached Account Section */}

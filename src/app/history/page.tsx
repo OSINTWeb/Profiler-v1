@@ -132,8 +132,26 @@ export default function SearchHistoryPage() {
 
   return (
     <div className="min-h-screen bg-black">
+      <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 p-2">
+        <div className="bg-zinc-900/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center">
+          <h3 className="text-white/60 text-sm font-medium mb-2">Total Searches</h3>
+          <p className="text-3xl font-bold text-white">{searchHistory.length}</p>
+        </div>
+        <div className="bg-zinc-900/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center">
+          <h3 className="text-white/60 text-sm font-medium mb-2">Successful</h3>
+          <p className="text-3xl font-bold text-white">
+            {searchHistory.filter((item) => item.status === "completed").length}
+          </p>
+        </div>
+        <div className="bg-zinc-900/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center">
+          <h3 className="text-white/60 text-sm font-medium mb-2">Total Results</h3>
+          <p className="text-3xl font-bold text-white">
+            {searchHistory.reduce((total, item) => total + item.resultsFound, 0)}
+          </p>
+        </div>
+      </div>
       <div className="max-w-6xl mx-auto p-4 py-8">
-        {/* Header */}
+        {/* Summary Stats */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-2 flex items-center justify-center gap-3">
             <Clock size={40} />
@@ -204,7 +222,7 @@ export default function SearchHistoryPage() {
                 {/* Glow effect on hover */}
                 <div className="absolute -inset-1 bg-gradient-to-r from-white/10 to-zinc-300/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
 
-                <div 
+                <div
                   className="relative bg-zinc-900/80 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all duration-300 cursor-pointer"
                   onClick={() => {
                     // Store search data for preview
@@ -213,9 +231,9 @@ export default function SearchHistoryPage() {
                       type: item.type,
                       PaidSearch: item.searchType,
                     };
-                    localStorage.setItem('previewData', JSON.stringify(previewData));
+                    localStorage.setItem("previewData", JSON.stringify(previewData));
                     // Open preview in new tab
-                    window.open(`/Preview/${item.id}`, '_blank');
+                    window.open(`/Preview/${item.id}`, "_blank");
                   }}
                 >
                   <div className="flex items-center justify-between">
@@ -282,8 +300,8 @@ export default function SearchHistoryPage() {
                               type: item.type,
                               PaidSearch: item.searchType,
                             };
-                            localStorage.setItem('previewData', JSON.stringify(previewData));
-                            window.open(`/Preview/${item.id}`, '_blank');
+                            localStorage.setItem("previewData", JSON.stringify(previewData));
+                            window.open(`/Preview/${item.id}`, "_blank");
                           }}
                         >
                           <ExternalLink size={18} />
@@ -295,7 +313,12 @@ export default function SearchHistoryPage() {
                         onClick={(e) => {
                           e.stopPropagation();
                           // Handle re-run search action
-                          window.open(`/?query=${encodeURIComponent(item.query)}&type=${item.type}&searchType=${item.searchType}`, '_blank');
+                          window.open(
+                            `/?query=${encodeURIComponent(item.query)}&type=${
+                              item.type
+                            }&searchType=${item.searchType}`,
+                            "_blank"
+                          );
                         }}
                       >
                         <RefreshCw size={18} />
@@ -306,12 +329,14 @@ export default function SearchHistoryPage() {
                         onClick={(e) => {
                           e.stopPropagation();
                           // Handle delete action
-                          alert(`Delete search "${item.query}" functionality would be implemented here`);
+                          alert(
+                            `Delete search "${item.query}" functionality would be implemented here`
+                          );
                         }}
                       >
                         <Trash2 size={18} />
                       </button>
-                      <button 
+                      <button
                         className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
                         title="View Preview"
                         onClick={(e) => {
@@ -322,8 +347,8 @@ export default function SearchHistoryPage() {
                             type: item.type,
                             PaidSearch: item.searchType,
                           };
-                          localStorage.setItem('previewData', JSON.stringify(previewData));
-                          window.open(`/Preview/${item.id}`, '_blank');
+                          localStorage.setItem("previewData", JSON.stringify(previewData));
+                          window.open(`/Preview/${item.id}`, "_blank");
                         }}
                       >
                         <ChevronRight size={18} />
@@ -359,26 +384,6 @@ export default function SearchHistoryPage() {
               Clear History
             </span>
           </button>
-        </div>
-
-        {/* Summary Stats */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-zinc-900/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center">
-            <h3 className="text-white/60 text-sm font-medium mb-2">Total Searches</h3>
-            <p className="text-3xl font-bold text-white">{searchHistory.length}</p>
-          </div>
-          <div className="bg-zinc-900/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center">
-            <h3 className="text-white/60 text-sm font-medium mb-2">Successful</h3>
-            <p className="text-3xl font-bold text-white">
-              {searchHistory.filter((item) => item.status === "completed").length}
-            </p>
-          </div>
-          <div className="bg-zinc-900/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center">
-            <h3 className="text-white/60 text-sm font-medium mb-2">Total Results</h3>
-            <p className="text-3xl font-bold text-white">
-              {searchHistory.reduce((total, item) => total + item.resultsFound, 0)}
-            </p>
-          </div>
         </div>
       </div>
     </div>

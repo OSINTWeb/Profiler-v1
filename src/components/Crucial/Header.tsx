@@ -4,6 +4,8 @@ import "@/app/globals.css";
 import { Menu, X } from "lucide-react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useUser } from "@auth0/nextjs-auth0";
+import { ShareButton } from "@/components/ui/share-button";
+import { generateShareableLink } from "@/lib/utils";
 
 export const Header = () => {
   const [UserCredits, setUserCredits] = useState(0);
@@ -41,8 +43,6 @@ export const Header = () => {
       })();
     }
   }, [user, Api_url]);
-
-
   const [menuOpen, setMenuOpen] = useState(false);
   const [showMobileDropdown, setShowMobileDropdown] = useState(false);
 
@@ -440,7 +440,6 @@ export const Header = () => {
                   >
                     Account
                   </button>
-                 
                 </>
               )}
               {!isAuthenticated && (

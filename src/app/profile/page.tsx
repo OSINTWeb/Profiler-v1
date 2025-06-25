@@ -213,7 +213,7 @@ export default function Profile() {
             </span>
           </Link>
           <a
-            href="/api/auth/logout"
+            href="/auth/logout"
             className="group relative bg-zinc-900/80 backdrop-blur-sm border border-white/20 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:scale-105 hover:bg-zinc-800/80 text-center"
           >
             <span className="flex items-center justify-center gap-2">
