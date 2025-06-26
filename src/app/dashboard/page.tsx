@@ -35,69 +35,69 @@ export default function Profile() {
   const [miniCredits, setMiniCredits] = useState(0);
   const [creditsError, setCreditsError] = useState("");
 
-  useEffect(() => {
-    const requiredCredits = typeofsearch === "Basic" ? 0.05 : 0.5;
-    setMiniCredits(requiredCredits);
+  // useEffect(() => {
+  //   const requiredCredits = typeofsearch === "Basic" ? 0.05 : 0.5;
+  //   setMiniCredits(requiredCredits);
 
-    if (userCredits < requiredCredits) {
-      setCreditsError(
-        `You need at least ${requiredCredits} credits to perform this ${typeofsearch.toLowerCase()} search.`
-      );
-    } else {
-      setCreditsError("");
-    }
-  }, [userCredits, typeofsearch]);
+  //   if (userCredits < requiredCredits) {
+  //     setCreditsError(
+  //       `You need at least ${requiredCredits} credits to perform this ${typeofsearch.toLowerCase()} search.`
+  //     );
+  //   } else {
+  //     setCreditsError("");
+  //   }
+  // }, [userCredits, typeofsearch]);
 
-  useEffect(() => {
-    // Calculate required credits based on search type
-    const requiredCredits = typeofsearch === "Basic" ? 0.05 : 0.5;
-    setMiniCredits(requiredCredits);
-    // Check if user has enough credits
-    if (userCredits < requiredCredits) {
-      setCreditsError(
-        `You need at least ${requiredCredits} credits to perform this ${typeofsearch} search.`
-      );
-    } else {
-      setCreditsError("");
-    }
-  }, [userCredits, typeofsearch]); // Now properly watching both userCredits and typeofsearch
+  // useEffect(() => {
+  //   // Calculate required credits based on search type
+  //   const requiredCredits = typeofsearch === "Basic" ? 0.05 : 0.5;
+  //   setMiniCredits(requiredCredits);
+  //   // Check if user has enough credits
+  //   if (userCredits < requiredCredits) {
+  //     setCreditsError(
+  //       `You need at least ${requiredCredits} credits to perform this ${typeofsearch} search.`
+  //     );
+  //   } else {
+  //     setCreditsError("");
+  //   }
+  // }, [userCredits, typeofsearch]); // Now properly watching both userCredits and typeofsearch
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (!user) {
-        console.error("User data is not available");
-        return;
-      }
-      setIsLoading(true);
-      const API_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BACKEND;
-      const effectiveEmail = user.email;
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     if (!user) {
+  //       console.error("User data is not available");
+  //       return;
+  //     }
+  //     setIsLoading(true);
+  //     const API_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BACKEND;
+  //     const effectiveEmail = user.email;
 
-      const response = await fetch(
-        `${API_BASE_URL}/api/auth/findbyemail?email=${encodeURIComponent(effectiveEmail || "")}`
-      );
+  //     const response = await fetch(
+  //       `${API_BASE_URL}/api/auth/findbyemail?email=${encodeURIComponent(effectiveEmail || "")}`
+  //     );
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch user: ${response.status}`);
-      }
+  //     if (!response.ok) {
+  //       throw new Error(`Failed to fetch user: ${response.status}`);
+  //     }
 
-      const data = await response.json();
-      if (!data.data._id) {
-        throw new Error("User data incomplete");
-      }
+  //     const data = await response.json();
+  //     if (!data.data._id) {
+  //       throw new Error("User data incomplete");
+  //     }
 
-      setUserData({
-        _id: data.data._id,
-        email: data.data.email,
-        name: data.data.name || "Customer",
-        phone: data.data.phone || "",
-        credits: data.data.credits || 0,
-      });
-      setUserCredits(data.data.credits || 0);
-      setIsLoading(false);
-    };
+  //     setUserData({
+  //       _id: data.data._id,
+  //       email: data.data.email,
+  //       name: data.data.name || "Customer",
+  //       phone: data.data.phone || "",
+  //       credits: data.data.credits || 0,
+  //     });
+  //     setUserCredits(data.data.credits || 0);
+  //     setIsLoading(false);
+  //   };
 
-    fetchUserData();
-  }, [user]);
+  //   fetchUserData();
+  // }, [user]);
 
   useEffect(() => {
     const storedInputValue = localStorage.getItem("inputValue");

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { SearchTypesProps, Tool, SearchOption } from "src/types/types";
+import SearchBarFreeTools from "./SearchBarFreeTools";
   
 export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchTypesProps) {
   const [openDrawer, setOpenDrawer] = useState<SearchOption | null>(null);
@@ -179,6 +180,7 @@ export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchT
               );
             })}
           </div>
+          <SearchBarFreeTools />
         </div>
       )}
 

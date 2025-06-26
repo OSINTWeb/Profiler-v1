@@ -11,38 +11,38 @@ export const Header = () => {
   const [UserCredits, setUserCredits] = useState(0);
   const { user, isLoading, error } = useUser();
   const Api_url = process.env.NEXT_PUBLIC_AUTH_BACKEND;
-  // console.log(Api_url,user?.email);
-  // Fetch user credits when user is available
-  useEffect(() => {
-    if (user?.email) {
-      (async () => {
-        try {
-          const response = await fetch(`${Api_url}/api/auth/signup`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              name: user.name || user.nickname || "User",
-              email: user.email,
-              authMethod: "Google",
-              pfpURL: user.picture || "",
-              country: "India",
-            }),
-          });
-          if (!response.ok) {
-            throw new Error("Failed to create user");
-          }
+  // // console.log(Api_url,user?.email);
+  // // Fetch user credits when user is available
+  // useEffect(() => {
+  //   if (user?.email) {
+  //     (async () => {
+  //       try {
+  //         const response = await fetch(`${Api_url}/api/auth/signup`, {
+  //           method: "POST",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //           body: JSON.stringify({
+  //             name: user.name || user.nickname || "User",
+  //             email: user.email,
+  //             authMethod: "Google",
+  //             pfpURL: user.picture || "",
+  //             country: "India",
+  //           }),
+  //         });
+  //         if (!response.ok) {
+  //           throw new Error("Failed to create user");
+  //         }
 
-          const data = await response.json();
-          setUserCredits(data.data?.user?.credits || 0);
-          console.log("User credits:", data.data?.user?.credits);
-        } catch (error) {
-          console.error("Error creating user:", error);
-        }
-      })();
-    }
-  }, [user, Api_url]);
+  //         const data = await response.json();
+  //         setUserCredits(data.data?.user?.credits || 0);
+  //         console.log("User credits:", data.data?.user?.credits);
+  //       } catch (error) {
+  //         console.error("Error creating user:", error);
+  //       }
+  //     })();
+  //   }
+  // }, [user, Api_url]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showMobileDropdown, setShowMobileDropdown] = useState(false);
 

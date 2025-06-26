@@ -4,41 +4,8 @@ import { Linkedin, MessageCircle, X, Youtube, Mail, MapPin } from "lucide-react"
 import { useUser } from "@auth0/nextjs-auth0";
 
 export const Footer = () => {
-  const [UserCredits, setUserCredits] = useState(0);
   const { user, isLoading } = useUser();
   const currentYear = new Date().getFullYear();
-  const Api_url = process.env.NEXT_PUBLIC_AUTH_BACKEND;
-
-  // Fetch user credits when user is available
-  useEffect(() => {
-    if (user?.email) {
-      (async () => {
-        try {
-          const response = await fetch(`${Api_url}/api/auth/signup`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              name: user.name || user.nickname || "User",
-              email: user.email,
-              authMethod: "Google",
-              pfpURL: user.picture || "",
-              country: "India",
-            }),
-          });
-          if (!response.ok) {
-            throw new Error("Failed to create user");
-          }
-
-          const data = await response.json();
-          setUserCredits(data.data?.user?.credits || 0);
-        } catch (error) {
-          console.error("Error creating user:", error);
-        }
-      })();
-    }
-  }, [user, Api_url]);
 
   const isAuthenticated = !!user;
 
@@ -47,7 +14,7 @@ export const Footer = () => {
   };
 
   const handleLogout = () => {
-    window.location.href = "/auth/logout";
+    window.location.href = "/auth/logo  ut";
   };
 
   const toProfile = () => {
@@ -310,7 +277,7 @@ export const Footer = () => {
                           Profile
                         </button>
                         <div className="text-gray-400 text-sm">
-                          Credits: ${UserCredits.toFixed(2)}
+                          Credits: ${user?.credits?.toFixed(2)}
                         </div>
                         <button
                           onClick={handleLogout}
