@@ -10,14 +10,14 @@ export interface ApiResult {
   timestamp: number;
 }
 
-// Simplified tool endpoints - using HTTP to avoid SSL certificate issues
+// Tool endpoints using HTTPS for secure connections
 const TOOL_ENDPOINTS: { [key: string]: string } = {
-  Gravaton: "http://profilerfreeapi.profiler.me/free/gravatar",
-  Linkook: "http://profilerfreeapi.profiler.me/free/linkook", 
-  "Proton Intelligence": "http://profilerfreeapi.profiler.me/free/protonmail",
-  "Breach Guard": "http://profilerfreeapi.profiler.me/free/databreach",
-  "Info-Stealer Lookup": "http://profilerfreeapi.profiler.me/free/infostealer",
-  TiktokerFinder: "http://profilerfreeapi.profiler.me/free/tiktok",
+  Gravaton: "https://profilerfreeapi.profiler.me/free/gravatar",
+  Linkook: "https://profilerfreeapi.profiler.me/free/linkook", 
+  "Proton Intelligence": "https://profilerfreeapi.profiler.me/free/protonmail",
+  "Breach Guard": "https://profilerfreeapi.profiler.me/free/databreach",
+  "Info-Stealer Lookup": "https://profilerfreeapi.profiler.me/free/infostealer",
+  TiktokerFinder: "https://profilerfreeapi.profiler.me/free/tiktok",
 };
 
 // Simple parameter mapping
