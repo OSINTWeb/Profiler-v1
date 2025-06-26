@@ -1,61 +1,63 @@
 import { useState } from "react";
-import {
-  Search,
-  ChevronDown,
-  X,
-  Loader2,
-} from "lucide-react";
+import { Search, ChevronDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SearchFreeTools } from "src/types/types";
-import { useFetchDataFreeTools } from "@/hooks/FetchDataFreeTools";
+import { SearchFreeTools } from "@/types/types";
+
+// Define ApiResult interface locally
+interface ApiResult {
+  tool: string;
+  query: string;
+  data: string | object | null;
+  error?: string;
+  loading: boolean;
+  timestamp: number;
+}
 
 export default function SearchBarFreeTools() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState("");
-  
-
-  const { results, isLoading, fetchData, clearResults } = useFetchDataFreeTools();
+  const [results, setResults] = useState<ApiResult[]>([]);
 
   const FreeTools: SearchFreeTools[] = [
     {
       title: "Gravaton",
-      description: "Find Gravatar profiles by email address"
+      description: "Find Gravatar profiles by email address",
     },
     {
       title: "Linkook",
-      description: "Search for user profiles by username"
+      description: "Search for user profiles by username",
     },
     {
       title: "Proton Intelligence",
-      description: "Check ProtonMail accounts by email"
+      description: "Check ProtonMail accounts by email",
     },
     {
       title: "Breach Guard",
-      description: "Check data breaches by email address"
+      description: "Check data breaches by email address",
     },
     {
       title: "Info-Stealer Lookup",
-      description: "Search info-stealer logs by email or username"
+      description: "Search info-stealer logs by email or username",
     },
     {
       title: "TiktokerFinder",
-      description: "Find TikTok profiles by username"
+      description: "Find TikTok profiles by username",
     },
   ];
 
   // Map tools to their expected input types
   const getInputPlaceholder = (toolTitle: string): string => {
     const placeholders: { [key: string]: string } = {
-      "Gravaton": "Enter email address (e.g., user@example.com)",
-      "Linkook": "Enter username (e.g., johndoe)",
+      Gravaton: "Enter email address (e.g., user@example.com)",
+      Linkook: "Enter username (e.g., johndoe)",
       "Proton Intelligence": "Enter email address (e.g., user@protonmail.com)",
       "Breach Guard": "Enter email address (e.g., user@example.com)",
       "Info-Stealer Lookup": "Enter email or username (e.g., user@example.com or johndoe)",
-      "TiktokerFinder": "Enter username (e.g., tiktokuser)",
+      TiktokerFinder: "Enter username (e.g., tiktokuser)",
     };
-    
+
     return placeholders[toolTitle] || "Enter search query...";
   };
 
@@ -67,6 +69,112 @@ export default function SearchBarFreeTools() {
   };
 
   const selectedToolData = FreeTools.find((tool) => tool.title === selectedTool);
+
+  const clearResults = () => {
+    setResults([]);
+  };
+
+  // Direct API call function
+  const fetchData = async (query: string, selectedTool: string) => {
+    if (!selectedTool || !query.trim()) {
+      console.error("Missing required parameters: selectedTool or query");
+      return;
+    }
+
+    // Create initial result with loading state
+    const initialResult: ApiResult = {
+      tool: selectedTool,
+      query,
+      data: null,
+      loading: true,
+      timestamp: Date.now(),
+    };
+
+    // Set loading state
+    setResults([initialResult]);
+
+    try {
+      // Use our proxy API to bypass CORS issues
+      const proxyUrl = `/api/free-tools-proxy?tool=${encodeURIComponent(
+        selectedTool
+      )}&query=${encodeURIComponent(query)}`;
+
+      console.log(`🔍 Frontend: Fetching data for ${selectedTool} with query: ${query}`);
+      console.log(`📡 Frontend: Using proxy URL: ${proxyUrl}`);
+
+      const response = await fetch(proxyUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log(`📊 Frontend: Response status: ${response.status} ${response.statusText}`);
+
+      if (!response.ok) {
+        // Try to get more detailed error information
+        let errorDetail = `HTTP ${response.status}: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorDetail = errorData.error;
+            if (errorData.details) {
+              errorDetail += ` - ${errorData.details}`;
+            }
+          }
+        } catch {
+          console.warn("Could not read error response body");
+        }
+        throw new Error(errorDetail);
+      }
+
+      // Parse the proxy response
+      const proxyResponse = await response.json();
+      
+      console.log(`✅ Frontend: Proxy response received:`, proxyResponse);
+
+      // Update with successful result
+      const successResult: ApiResult = {
+        tool: selectedTool,
+        query,
+        data: proxyResponse.data,
+        loading: false,
+        timestamp: Date.now(),
+      };
+
+      setResults([successResult]);
+      
+    } catch (error) {
+      console.error(`❌ Frontend: Error fetching data for ${selectedTool}:`, error);
+      
+      // Detailed error analysis
+      let errorMessage = "Unknown error occurred";
+      
+      if (error instanceof TypeError && error.message.includes("Failed to fetch")) {
+        errorMessage = "Network error: Could not connect to the API. Make sure the Next.js server is running.";
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      console.error(`🔍 Frontend: Error details:`, {
+        errorType: error?.constructor?.name,
+        errorMessage: (error as Error)?.message,
+        stack: (error as Error)?.stack
+      });
+
+      // Update with error result
+      const errorResult: ApiResult = {
+        tool: selectedTool,
+        query,
+        data: null,
+        error: errorMessage,
+        loading: false,
+        timestamp: Date.now(),
+      };
+
+      setResults([errorResult]);
+    }
+  };
 
   return (
     <div className={`w-full max-w-7xl mx-auto px-4 `}>
@@ -119,7 +227,9 @@ export default function SearchBarFreeTools() {
             onChange={(e) => {
               setSearchQuery(e.target.value);
             }}
-            placeholder={selectedTool ? getInputPlaceholder(selectedTool) : "Select a tool first..."}
+            placeholder={
+              selectedTool ? getInputPlaceholder(selectedTool) : "Select a tool first..."
+            }
             disabled={!selectedTool}
             className="pl-12 bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-400 focus:border-blue-500 focus:ring-blue-500/20 h-12 text-base disabled:opacity-50 disabled:cursor-not-allowed"
           />
@@ -130,20 +240,11 @@ export default function SearchBarFreeTools() {
                 fetchData(searchQuery, selectedTool);
               }
             }}
-            disabled={!selectedTool || !searchQuery.trim() || isLoading}
+            disabled={!selectedTool || !searchQuery.trim()}
             className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-8 h-12 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
           >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Searching...</span>
-              </>
-            ) : (
-              <>
-                <Search className="w-5 h-5" />
-                <span>Search</span>
-              </>
-            )}
+            <Search className="w-5 h-5" />
+            <span>Search</span>
           </Button>
         </div>
       </div>
@@ -156,7 +257,11 @@ export default function SearchBarFreeTools() {
               <h3 className="font-bold text-xl text-white mb-2">{selectedToolData.title}</h3>
               <p className="text-zinc-400 text-sm">{selectedToolData.description}</p>
               <div className="mt-2 text-xs text-zinc-500">
-                Expected input: {getInputPlaceholder(selectedToolData.title).replace(/\(.*\)/, '').replace('Enter ', '').trim()}
+                Expected input:{" "}
+                {getInputPlaceholder(selectedToolData.title)
+                  .replace(/\(.*\)/, "")
+                  .replace("Enter ", "")
+                  .trim()}
               </div>
             </div>
             <span className="bg-green-500/20 text-green-400 text-xs font-bold px-3 py-1 rounded-full border border-green-500/30">
@@ -191,103 +296,51 @@ export default function SearchBarFreeTools() {
               Clear All
             </Button>
           </div>
-          
+
           <div className="grid gap-6">
             {results.map((result, index) => (
-              <div key={`${result.tool}-${result.query}-${index}`} className="bg-zinc-900 rounded-xl p-6 border border-zinc-700">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🔧</span>
-                    <div>
-                      <h3 className="font-bold text-lg text-white">{result.tool}</h3>
-                      <p className="text-sm text-zinc-400">Query: {result.query}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {result.loading && (
-                      <div className="flex items-center gap-2 text-blue-400">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span className="text-sm">Loading...</span>
-                      </div>
-                    )}
-                    {result.error && (
-                      <div className="flex items-center gap-2 text-red-400">
-                        <X className="w-4 h-4" />
-                        <span className="text-sm">Error</span>
-                      </div>
-                    )}
-                    {result.data !== null && !result.loading && !result.error && (
-                      <div className="flex items-center gap-2 text-green-400">
-                        <Search className="w-4 h-4" />
-                        <span className="text-sm">Success</span>
-                      </div>
-                    )}
-                  </div>
+              <div key={index} className="bg-zinc-900 rounded-xl p-6 border border-zinc-700">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-white">{result.tool}</h3>
+                  <span className="text-sm text-zinc-400">
+                    {new Date(result.timestamp).toLocaleTimeString()}
+                  </span>
                 </div>
 
-                {/* Loading State */}
+                <div className="mb-3">
+                  <span className="text-zinc-400">Query: </span>
+                  <span className="text-white font-mono bg-zinc-800 px-2 py-1 rounded">
+                    {result.query}
+                  </span>
+                </div>
+
                 {result.loading && (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="text-center">
-                      <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-blue-400" />
-                      <p className="text-zinc-400">Searching {result.tool}...</p>
-                    </div>
+                  <div className="flex items-center gap-2 text-blue-400">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
+                    <span>Loading...</span>
                   </div>
                 )}
 
-                {/* Error State */}
-                {result.error && !result.loading && (
-                  <div className="bg-red-900/20 border border-red-700/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <X className="w-5 h-5 text-red-400" />
-                      <span className="font-medium text-red-300">Error</span>
-                    </div>
-                    <p className="text-red-200 text-sm">{result.error}</p>
-                    {result.error.includes("SSL Certificate Error") && (
-                                             <div className="mt-2 text-xs text-red-300">
-                         This might be a temporary issue with the API server&apos;s SSL certificate.
-                       </div>
-                    )}
+                {result.error && (
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+                    <div className="text-red-400 font-semibold mb-2">Error:</div>
+                    <div className="text-red-300 text-sm">{result.error}</div>
                   </div>
                 )}
 
-                {/* Success State with Data */}
-                {result.data !== null && !result.loading && !result.error && (
-                  <div className="space-y-4">
-                    <div className="bg-green-900/20 border border-green-700/50 rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Search className="w-5 h-5 text-green-400" />
-                        <span className="font-medium text-green-300">Results Found</span>
-                      </div>
-                      <div className="bg-zinc-800 rounded-lg p-4 mt-3">
-                        <details className="cursor-pointer">
-                          <summary className="text-zinc-300 font-medium mb-2">View Raw Data</summary>
-                          <pre className="text-xs text-zinc-400 overflow-auto max-h-96 whitespace-pre-wrap">
-                            {JSON.stringify(result.data, null, 2) as string}
-                          </pre>
-                        </details>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* No Data State */}
-                {!result.data && !result.loading && !result.error && (
+                {result.data && !result.loading && (
                   <div className="bg-zinc-800 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Search className="w-5 h-5 text-zinc-400" />
-                      <span className="font-medium text-zinc-300">No Results</span>
-                    </div>
-                    <p className="text-zinc-400 text-sm">No data found for this query.</p>
+                    <div className="text-green-400 font-semibold mb-2">Result:</div>
+                    <pre className="text-zinc-300 text-sm overflow-x-auto whitespace-pre-wrap">
+                      {(() => {
+                        if (typeof result.data === "string") {
+                          return result.data;
+                        }
+                        return JSON.stringify(result.data, null, 2);
+                      })()}
+                    </pre>
                   </div>
                 )}
-
-                {/* Timestamp */}
-                <div className="mt-4 pt-4 border-t border-zinc-700">
-                  <p className="text-xs text-zinc-500">
-                    Searched at: {new Date(result.timestamp).toLocaleString()}
-                  </p>
-                </div>
               </div>
             ))}
           </div>
