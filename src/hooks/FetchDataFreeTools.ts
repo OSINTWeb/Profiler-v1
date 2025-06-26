@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+"use client";
+import { useState, useCallback } from "react";
 
 export interface ApiResult {
   tool: string;
@@ -9,18 +10,34 @@ export interface ApiResult {
   timestamp: number;
 }
 
-export interface ToolEndpoints {
-  [key: string]: string;
-}
+// Simplified tool endpoints - using HTTP to avoid SSL certificate issues
+const TOOL_ENDPOINTS: { [key: string]: string } = {
+  Gravaton: "http://profilerfreeapi.profiler.me/free/gravatar",
+  Linkook: "http://profilerfreeapi.profiler.me/free/linkook", 
+  "Proton Intelligence": "http://profilerfreeapi.profiler.me/free/protonmail",
+  "Breach Guard": "http://profilerfreeapi.profiler.me/free/databreach",
+  "Info-Stealer Lookup": "http://profilerfreeapi.profiler.me/free/infostealer",
+  TiktokerFinder: "http://profilerfreeapi.profiler.me/free/tiktok",
+};
 
-// Map tool names to their API endpoints
-const TOOL_ENDPOINTS: ToolEndpoints = {
-  "Gravaton": "/api/gravaton",
-  "Linkook": "/api/linkook", 
-  "Proton Intelligence": "/api/proton-intel",
-  "Breach Guard": "/api/breach-guard",
-  "Info-Stealer Lookup": "/api/info-stealer",
-  "TiktokerFinder": "/api/tiktok-finder"
+// Simple parameter mapping
+const getQueryParam = (tool: string, query: string) => {
+  if (tool === "Info-Stealer Lookup") {
+    return query.includes("@") ? "email" : "username";
+  }
+  if (tool === "Gravaton" || tool === "Proton Intelligence" || tool === "Breach Guard") {
+    return "email";
+  }
+  return "username"; // For Linkook and TiktokerFinder
+};
+
+// Get endpoint URL
+const getEndpoint = (tool: string, query: string) => {
+  if (tool === "Info-Stealer Lookup") {
+    const isEmail = query.includes("@");
+    return `${TOOL_ENDPOINTS[tool]}/${isEmail ? "email" : "username"}`;
+  }
+  return TOOL_ENDPOINTS[tool];
 };
 
 export const useFetchDataFreeTools = () => {
@@ -28,110 +45,117 @@ export const useFetchDataFreeTools = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchData = useCallback(async (query: string, selectedTool?: string) => {
-    if (!query.trim()) {
-      return;
-    }
+    if (!query.trim()) return;
 
     setIsLoading(true);
+    console.log("Starting fetch for:", query, "tool:", selectedTool);
 
     try {
-      // If a specific tool is selected, fetch from that tool only
       if (selectedTool && TOOL_ENDPOINTS[selectedTool]) {
-        const endpoint = TOOL_ENDPOINTS[selectedTool];
+        // Single tool fetch
+        setResults([{
+          tool: selectedTool,
+          query,
+          data: null,
+          loading: true,
+          timestamp: Date.now(),
+        }]);
+
+        const endpoint = getEndpoint(selectedTool, query);
+        const paramName = getQueryParam(selectedTool, query);
+        const url = `${endpoint}?${paramName}=${encodeURIComponent(query)}`;
         
-        // Add loading state for this specific tool
-        setResults(prev => {
-          const filtered = prev.filter(r => !(r.tool === selectedTool && r.query === query));
-          return [...filtered, {
+        console.log("Fetching from URL:", url);
+
+        try {
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              "x-api-key": "hwCMDBcVGu",
+              "Content-Type": "application/json",
+            },
+            mode: "cors",
+          });
+
+          console.log("Response status:", response.status);
+          console.log("Response ok:", response.ok);
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`API Error ${response.status}: ${errorText}`);
+          }
+
+          const data = await response.json();
+          console.log("Received data:", data);
+
+          setResults([{
+            tool: selectedTool,
+            query,
+            data: data,
+            loading: false,
+            timestamp: Date.now(),
+          }]);
+
+        } catch (error) {
+          console.error("Fetch error:", error);
+          setResults([{
             tool: selectedTool,
             query,
             data: null,
-            loading: true,
-            timestamp: Date.now()
-          }];
-        });
-
-        try {
-          const response = await fetch(`${endpoint}?q=${encodeURIComponent(query)}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-
-          const data = await response.json();
-
-          setResults(prev => 
-            prev.map(r => 
-              r.tool === selectedTool && r.query === query && r.loading
-                ? { ...r, data: response.ok ? data : null, error: response.ok ? undefined : data.message || 'API Error', loading: false }
-                : r
-            )
-          );
-        } catch (error) {
-          setResults(prev => 
-            prev.map(r => 
-              r.tool === selectedTool && r.query === query && r.loading
-                ? { ...r, data: null, error: error instanceof Error ? error.message : 'Network Error', loading: false }
-                : r
-            )
-          );
+            error: error instanceof Error ? error.message : "Unknown error",
+            loading: false,
+            timestamp: Date.now(),
+          }]);
         }
+
       } else {
-        // If no specific tool selected, fetch from all tools
+        // Multiple tools fetch
         const toolNames = Object.keys(TOOL_ENDPOINTS);
         
-        // Add loading states for all tools
-        setResults(prev => {
-          const filtered = prev.filter(r => r.query !== query);
-          const loadingResults = toolNames.map(tool => ({
-            tool,
-            query,
-            data: null,
-            loading: true,
-            timestamp: Date.now()
-          }));
-          return [...filtered, ...loadingResults];
-        });
+        setResults(toolNames.map(tool => ({
+          tool,
+          query,
+          data: null,
+          loading: true,
+          timestamp: Date.now(),
+        })));
 
-        // Fetch from all tools in parallel
-        const fetchPromises = toolNames.map(async (toolName) => {
-          const endpoint = TOOL_ENDPOINTS[toolName];
+        const promises = toolNames.map(async (toolName) => {
+          const endpoint = getEndpoint(toolName, query);
+          const paramName = getQueryParam(toolName, query);
+          const url = `${endpoint}?${paramName}=${encodeURIComponent(query)}`;
+
           try {
-            const response = await fetch(`${endpoint}?q=${encodeURIComponent(query)}`, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            });
+                         const response = await fetch(url, {
+               method: "GET",
+               headers: {
+                 "x-api-key": "hwCMDBcVGu",
+                 "Content-Type": "application/json",
+               },
+               mode: "cors",
+             });
+
+            if (!response.ok) {
+              throw new Error(`API Error ${response.status}: ${response.statusText}`);
+            }
 
             const data = await response.json();
-            return {
-              tool: toolName,
-              data: response.ok ? data : null,
-              error: response.ok ? undefined : data.message || 'API Error'
-            };
+            return { tool: toolName, data, error: undefined };
           } catch (error) {
-            return {
-              tool: toolName,
-              data: null,
-              error: error instanceof Error ? error.message : 'Network Error'
+            return { 
+              tool: toolName, 
+              data: null, 
+              error: error instanceof Error ? error.message : "Unknown error" 
             };
           }
         });
 
-        const allResults = await Promise.all(fetchPromises);
-
-        // Update results with actual data
-        setResults(prev => 
-          prev.map(r => {
-            if (r.query === query && r.loading) {
-              const result = allResults.find(ar => ar.tool === r.tool);
-              return result ? { ...r, ...result, loading: false } : r;
-            }
-            return r;
-          })
-        );
+        const results = await Promise.all(promises);
+        
+        setResults(prev => prev.map(r => {
+          const result = results.find(res => res.tool === r.tool);
+          return result ? { ...r, ...result, loading: false } : r;
+        }));
       }
     } finally {
       setIsLoading(false);
@@ -151,6 +175,6 @@ export const useFetchDataFreeTools = () => {
     isLoading,
     fetchData,
     clearResults,
-    removeResult
+    removeResult,
   };
 };

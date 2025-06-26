@@ -10,8 +10,8 @@ import { useUser } from "@auth0/nextjs-auth0";
 
 // Move metadata to a separate file since we need client component
 const metadata: Metadata = {
-  title: "My Auth0 App",
-  description: "Next.js app with Auth0 authentication",
+  title: "Profiler.me",
+  description: "Profiler.me is a platform for searching and finding information about people.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -25,13 +25,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       window.location.href = "/auth/login";
     }
   }, [isSharedPage, user, isLoading]);
+  
   return (
     <html lang="en">
+      <head>
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+      </head>
       <body className="bg-black text-white">
-        {!isSharedPage && <Header />}
+        <Header />
         {children}
-
-        {!isSharedPage && <Footer />}
+        <Footer />
       </body>
     </html>
   );

@@ -1,61 +1,69 @@
 import { useState } from "react";
-import { Search, ChevronDown, X, Loader2, ExternalLink, AlertCircle, CheckCircle } from "lucide-react";
+import {
+  Search,
+  ChevronDown,
+  X,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tool } from "src/types/types";
-import { useFetchDataFreeTools, ApiResult } from "@/hooks/FetchDataFreeTools";
-
+import { SearchFreeTools } from "src/types/types";
+import { useFetchDataFreeTools } from "@/hooks/FetchDataFreeTools";
 
 export default function SearchBarFreeTools() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState("");
   
-  const { results, isLoading, fetchData, clearResults, removeResult } = useFetchDataFreeTools();
-  
-  const FreeTools: Tool[] = [
+
+  const { results, isLoading, fetchData, clearResults } = useFetchDataFreeTools();
+
+  const FreeTools: SearchFreeTools[] = [
     {
       title: "Gravaton",
-      description: "Find public Gravatar profile associated with any email address",
-      link: "https://gravaton.profiler.me/",
+      description: "Find Gravatar profiles by email address"
     },
     {
       title: "Linkook",
-      description: "Discover connected social accounts just by a username.",
-      link: "https://linkook.profiler.me/",
+      description: "Search for user profiles by username"
     },
     {
       title: "Proton Intelligence",
-      description: "Identify ProtonMail Mail Addresses Along with its Creation date and Time.",
-      link: "https://protonintel.profiler.me/",
+      description: "Check ProtonMail accounts by email"
     },
     {
       title: "Breach Guard",
-      description: "Enter your email to see if it has appeared in any data breaches",
-      link: "https://breachguard.profiler.me/",
+      description: "Check data breaches by email address"
     },
     {
       title: "Info-Stealer Lookup",
-      description: "Check if your email or username has been compromised by info-stealing malware",
-      link: "https://infostealer.profiler.me/",
+      description: "Search info-stealer logs by email or username"
     },
     {
       title: "TiktokerFinder",
-      description: "Quickly identify whether a TikTok account exists for a given username.",
-      link: "https://tiktokerfinder.profiler.me/",
+      description: "Find TikTok profiles by username"
     },
   ];
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    if (query.trim()) {
-      fetchData(query, selectedTool || undefined);
-    }
+  // Map tools to their expected input types
+  const getInputPlaceholder = (toolTitle: string): string => {
+    const placeholders: { [key: string]: string } = {
+      "Gravaton": "Enter email address (e.g., user@example.com)",
+      "Linkook": "Enter username (e.g., johndoe)",
+      "Proton Intelligence": "Enter email address (e.g., user@protonmail.com)",
+      "Breach Guard": "Enter email address (e.g., user@example.com)",
+      "Info-Stealer Lookup": "Enter email or username (e.g., user@example.com or johndoe)",
+      "TiktokerFinder": "Enter username (e.g., tiktokuser)",
+    };
+    
+    return placeholders[toolTitle] || "Enter search query...";
   };
 
   const handleToolSelect = (toolTitle: string) => {
     setSelectedTool(toolTitle);
     setIsOpen(false);
+    // Clear search query when switching tools to avoid confusion
+    setSearchQuery("");
   };
 
   const selectedToolData = FreeTools.find((tool) => tool.title === selectedTool);
@@ -104,16 +112,39 @@ export default function SearchBarFreeTools() {
         </div>
 
         {/* Search Bar */}
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400" />
+        <div className="relative flex-1 flex gap-2">
           <Input
             type="text"
             value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            placeholder={selectedTool ? `Search with ${selectedTool}...` : "Select a tool first..."}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+            }}
+            placeholder={selectedTool ? getInputPlaceholder(selectedTool) : "Select a tool first..."}
             disabled={!selectedTool}
             className="pl-12 bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-400 focus:border-blue-500 focus:ring-blue-500/20 h-12 text-base disabled:opacity-50 disabled:cursor-not-allowed"
           />
+
+          <Button
+            onClick={() => {
+              if (selectedTool && searchQuery.trim()) {
+                fetchData(searchQuery, selectedTool);
+              }
+            }}
+            disabled={!selectedTool || !searchQuery.trim() || isLoading}
+            className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-8 h-12 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Searching...</span>
+              </>
+            ) : (
+              <>
+                <Search className="w-5 h-5" />
+                <span>Search</span>
+              </>
+            )}
+          </Button>
         </div>
       </div>
 
@@ -121,12 +152,17 @@ export default function SearchBarFreeTools() {
       {selectedToolData && (
         <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-700 mb-8">
           <div className="flex items-start justify-between mb-4">
-            <h3 className="font-bold text-xl text-white">{selectedToolData.title}</h3>
+            <div>
+              <h3 className="font-bold text-xl text-white mb-2">{selectedToolData.title}</h3>
+              <p className="text-zinc-400 text-sm">{selectedToolData.description}</p>
+              <div className="mt-2 text-xs text-zinc-500">
+                Expected input: {getInputPlaceholder(selectedToolData.title).replace(/\(.*\)/, '').replace('Enter ', '').trim()}
+              </div>
+            </div>
             <span className="bg-green-500/20 text-green-400 text-xs font-bold px-3 py-1 rounded-full border border-green-500/30">
               FREE
             </span>
           </div>
-          <p className="text-zinc-400 text-sm leading-relaxed">{selectedToolData.description}</p>
         </div>
       )}
 
@@ -155,94 +191,106 @@ export default function SearchBarFreeTools() {
               Clear All
             </Button>
           </div>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {results.map((result: ApiResult, index: number) => (
-              <div
-                key={`${result.tool}-${result.query}-${index}`}
-                className="bg-zinc-900 rounded-xl p-6 border border-zinc-700"
-              >
+          
+          <div className="grid gap-6">
+            {results.map((result, index) => (
+              <div key={`${result.tool}-${result.query}-${index}`} className="bg-zinc-900 rounded-xl p-6 border border-zinc-700">
                 <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="font-semibold text-white mb-1">{result.tool}</h3>
-                    <p className="text-sm text-zinc-400">Query: {result.query}</p>
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🔧</span>
+                    <div>
+                      <h3 className="font-bold text-lg text-white">{result.tool}</h3>
+                      <p className="text-sm text-zinc-400">Query: {result.query}</p>
+                    </div>
                   </div>
-                  <Button
-                    onClick={() => removeResult(result.tool, result.query)}
-                    variant="ghost"
-                    size="sm"
-                    className="text-zinc-400 hover:text-white hover:bg-zinc-800"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {result.loading && (
+                      <div className="flex items-center gap-2 text-blue-400">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm">Loading...</span>
+                      </div>
+                    )}
+                    {result.error && (
+                      <div className="flex items-center gap-2 text-red-400">
+                        <X className="w-4 h-4" />
+                        <span className="text-sm">Error</span>
+                      </div>
+                    )}
+                    {result.data !== null && !result.loading && !result.error && (
+                      <div className="flex items-center gap-2 text-green-400">
+                        <Search className="w-4 h-4" />
+                        <span className="text-sm">Success</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
+                {/* Loading State */}
                 {result.loading && (
                   <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
-                    <span className="ml-2 text-zinc-400">Loading...</span>
-                  </div>
-                )}
-
-                {result.error && (
-                  <div className="flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                    <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-red-400 font-medium">Error</p>
-                      <p className="text-red-300 text-sm">{result.error}</p>
+                    <div className="text-center">
+                      <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-blue-400" />
+                      <p className="text-zinc-400">Searching {result.tool}...</p>
                     </div>
                   </div>
                 )}
 
-                {result.data && !result.loading && !result.error && (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-green-400">
-                      <CheckCircle className="w-4 h-4" />
-                      <span className="text-sm font-medium">Success</span>
+                {/* Error State */}
+                {result.error && !result.loading && (
+                  <div className="bg-red-900/20 border border-red-700/50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <X className="w-5 h-5 text-red-400" />
+                      <span className="font-medium text-red-300">Error</span>
                     </div>
-                    
-                    <div className="bg-zinc-800 rounded-lg p-4">
-                      <pre className="text-xs text-zinc-300 whitespace-pre-wrap overflow-auto max-h-40">
-                        {((): string => {
-                          if (typeof result.data === 'string') {
-                            return result.data;
-                          } else if (typeof result.data === 'object' && result.data !== null) {
-                            return JSON.stringify(result.data, null, 2);
-                          } else {
-                            return String(result.data);
-                          }
-                        })()}
-                      </pre>
-                    </div>
+                    <p className="text-red-200 text-sm">{result.error}</p>
+                    {result.error.includes("SSL Certificate Error") && (
+                                             <div className="mt-2 text-xs text-red-300">
+                         This might be a temporary issue with the API server&apos;s SSL certificate.
+                       </div>
+                    )}
+                  </div>
+                )}
 
-                    <div className="flex items-center justify-between text-xs text-zinc-500">
-                      <span>
-                        {new Date(result.timestamp).toLocaleTimeString()}
-                      </span>
-                      <a
-                        href={FreeTools.find(t => t.title === result.tool)?.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-blue-400 hover:text-blue-300"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        View Original
-                      </a>
+                {/* Success State with Data */}
+                {result.data !== null && !result.loading && !result.error && (
+                  <div className="space-y-4">
+                    <div className="bg-green-900/20 border border-green-700/50 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Search className="w-5 h-5 text-green-400" />
+                        <span className="font-medium text-green-300">Results Found</span>
+                      </div>
+                      <div className="bg-zinc-800 rounded-lg p-4 mt-3">
+                        <details className="cursor-pointer">
+                          <summary className="text-zinc-300 font-medium mb-2">View Raw Data</summary>
+                          <pre className="text-xs text-zinc-400 overflow-auto max-h-96 whitespace-pre-wrap">
+                            {JSON.stringify(result.data, null, 2) as string}
+                          </pre>
+                        </details>
+                      </div>
                     </div>
                   </div>
                 )}
+
+                {/* No Data State */}
+                {!result.data && !result.loading && !result.error && (
+                  <div className="bg-zinc-800 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Search className="w-5 h-5 text-zinc-400" />
+                      <span className="font-medium text-zinc-300">No Results</span>
+                    </div>
+                    <p className="text-zinc-400 text-sm">No data found for this query.</p>
+                  </div>
+                )}
+
+                {/* Timestamp */}
+                <div className="mt-4 pt-4 border-t border-zinc-700">
+                  <p className="text-xs text-zinc-500">
+                    Searched at: {new Date(result.timestamp).toLocaleString()}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
-
-          {isLoading && (
-            <div className="text-center py-4">
-              <div className="inline-flex items-center gap-2 text-zinc-400">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Fetching data from APIs...</span>
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>

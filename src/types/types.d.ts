@@ -7,6 +7,10 @@ export interface Tool {
   description: string;
   link: string;
 }
+export interface SearchFreeTools {
+  title: string;
+  description: string;
+}
 
 // Props for the SearchTypes component
 export interface SearchTypesProps {

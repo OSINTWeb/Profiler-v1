@@ -147,20 +147,17 @@ export default function PreviewPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-6xl mx-auto p-6">
-          <div className="flex flex-col gap-4">
+        <div className="px-10  p-6">
+          <div className="flex flex-col gap-4 w-full px-6">
             {/* Stats Cards */}
             <InfoCardsContainer data={nonHibpData} />
 
             {/* Timeline and Activity Profile */}
             <div className="flex justify-between w-full">
-              <NewTimeline
-                data={nonHibpData}
-              
-              />
+              <NewTimeline data={nonHibpData} />
             </div>
 
-            <ActivityProfileCard userData={nonHibpData}  />
+            <ActivityProfileCard userData={nonHibpData} />
           </div>
 
           {/* Breached Account Section */}
