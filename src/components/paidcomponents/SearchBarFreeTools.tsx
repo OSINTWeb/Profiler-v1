@@ -3,7 +3,7 @@ import { Search, ChevronDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchFreeTools } from "@/types/types";
-
+import FreetoolsResult from "@/components/Results/FreetoolsResult";
 // Define ApiResult interface locally
 interface ApiResult {
   tool: string;
@@ -130,7 +130,7 @@ export default function SearchBarFreeTools() {
 
       // Parse the proxy response
       const proxyResponse = await response.json();
-      
+
       console.log(`✅ Frontend: Proxy response received:`, proxyResponse);
 
       // Update with successful result
@@ -143,23 +143,23 @@ export default function SearchBarFreeTools() {
       };
 
       setResults([successResult]);
-      
     } catch (error) {
       console.error(`❌ Frontend: Error fetching data for ${selectedTool}:`, error);
-      
+
       // Detailed error analysis
       let errorMessage = "Unknown error occurred";
-      
+
       if (error instanceof TypeError && error.message.includes("Failed to fetch")) {
-        errorMessage = "Network error: Could not connect to the API. Make sure the Next.js server is running.";
+        errorMessage =
+          "Network error: Could not connect to the API. Make sure the Next.js server is running.";
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       console.error(`🔍 Frontend: Error details:`, {
         errorType: error?.constructor?.name,
         errorMessage: (error as Error)?.message,
-        stack: (error as Error)?.stack
+        stack: (error as Error)?.stack,
       });
 
       // Update with error result
@@ -298,51 +298,7 @@ export default function SearchBarFreeTools() {
           </div>
 
           <div className="grid gap-6">
-            {results.map((result, index) => (
-              <div key={index} className="bg-zinc-900 rounded-xl p-6 border border-zinc-700">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-white">{result.tool}</h3>
-                  <span className="text-sm text-zinc-400">
-                    {new Date(result.timestamp).toLocaleTimeString()}
-                  </span>
-                </div>
-
-                <div className="mb-3">
-                  <span className="text-zinc-400">Query: </span>
-                  <span className="text-white font-mono bg-zinc-800 px-2 py-1 rounded">
-                    {result.query}
-                  </span>
-                </div>
-
-                {result.loading && (
-                  <div className="flex items-center gap-2 text-blue-400">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
-                    <span>Loading...</span>
-                  </div>
-                )}
-
-                {result.error && (
-                  <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
-                    <div className="text-red-400 font-semibold mb-2">Error:</div>
-                    <div className="text-red-300 text-sm">{result.error}</div>
-                  </div>
-                )}
-
-                {result.data && !result.loading && (
-                  <div className="bg-zinc-800 rounded-lg p-4">
-                    <div className="text-green-400 font-semibold mb-2">Result:</div>
-                    <pre className="text-zinc-300 text-sm overflow-x-auto whitespace-pre-wrap">
-                      {(() => {
-                        if (typeof result.data === "string") {
-                          return result.data;
-                        }
-                        return JSON.stringify(result.data, null, 2);
-                      })()}
-                    </pre>
-                  </div>
-                )}
-              </div>
-            ))}
+            <FreetoolsResult results={results} selectedTool={selectedTool} />
           </div>
         </div>
       )}

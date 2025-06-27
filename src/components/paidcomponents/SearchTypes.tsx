@@ -127,7 +127,7 @@ export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchT
 
       {/* Free Tools Grid */}
       {selected === "Free" && (
-        <div className="w-full max-w-7xl mx-auto px-4">
+        <div className="w-full max-w-7xl mx-auto px-4 flex flex-col items-center justify-center gap-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {FreeTools.map((tool, index) => {
               const isUserFindr = tool.title.toLowerCase() === "userfindr";
