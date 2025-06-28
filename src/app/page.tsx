@@ -6,7 +6,7 @@ import { SearchOptions } from "@/components/paidcomponents/Options";
 import { X, Search } from "lucide-react";
 import "@/app/globals.css";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useUser, getAccessToken } from "@auth0/nextjs-auth0";
+import { useUser } from "@auth0/nextjs-auth0";
 
 import CountrySelect from "@/components/paidcomponents/contryselect";
 import { Button } from "@/components/ui/button";

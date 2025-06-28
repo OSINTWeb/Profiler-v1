@@ -2,6 +2,7 @@ import { auth0 } from "@/lib/auth0";
 import { NextResponse } from "next/server";
 export async function GET() {
   try {
+    console.log("Recieved API Route: ID Token Route");
     const session = await auth0.getSession();
     if (!session) {
       return NextResponse.json({ error: "No session found" }, { status: 401 });
@@ -11,7 +12,7 @@ export async function GET() {
     const TokenSet = session.tokenSet;
     const idToken = TokenSet.idToken;
     const AccessToken = TokenSet.accessToken;
-    console.log("ID token (JWT) retrieved:", idToken);
+    // console.log("ID token (JWT) retrieved:", idToken);
     if (!idToken) {
       return NextResponse.json({ error: "No ID token found in session" }, { status: 404 });
     }
@@ -25,3 +26,6 @@ export async function GET() {
     return NextResponse.json({ error: "Failed to get ID token" }, { status: 500 });
   }
 }
+
+
+

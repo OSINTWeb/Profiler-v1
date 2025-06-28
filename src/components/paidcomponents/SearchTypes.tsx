@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { SearchTypesProps, Tool, SearchOption } from "src/types/types";
 import SearchBarFreeTools from "./SearchBarFreeTools";
+import SearchBarFreeMiumTools from "./SearchBarFreeMiumTools";
   
 export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchTypesProps) {
   const [openDrawer, setOpenDrawer] = useState<SearchOption | null>(null);
@@ -225,6 +226,7 @@ export function SearchTypes({ settypeofsearch, selected, typeofsearch }: SearchT
               </div>
             ))}
           </div>
+          <SearchBarFreeMiumTools />
         </div>
       )}
     </div>
