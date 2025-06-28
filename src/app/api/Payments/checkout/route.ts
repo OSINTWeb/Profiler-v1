@@ -15,17 +15,21 @@ const stripe = new Stripe(stripeSecretKey, {
 
 export async function POST(request: NextRequest) {
   try {
+    // Parse request body to get amount and currency
+    const { amount = 20, currency = 'usd' } = await request.json();
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
       line_items: [
         {
           price_data: {
-            currency: 'usd',
+            currency: currency.toLowerCase(),
             product_data: {
-              name: 'My Product',
+              name: 'Your Service',
+              description: 'Payment for premium services',
             },
-            unit_amount: 2000, // $20.00
+            unit_amount: Math.round(amount * 100), // Convert to cents/smallest currency unit
           },
           quantity: 1,
         },

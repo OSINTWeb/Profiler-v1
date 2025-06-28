@@ -11,7 +11,6 @@ import { useUser } from "@auth0/nextjs-auth0";
 import CountrySelect from "@/components/paidcomponents/contryselect";
 import { Button } from "@/components/ui/button";
 import { SearchTypes } from "@/components/paidcomponents/SearchTypes";
-import CheckoutButton from "@/components/Crucial/Checkout";
 export default function Profile() {
   const { user } = useUser();
   const [input, setInput] = useState({ datatype: "Email", value: "" });
@@ -174,7 +173,7 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-start overflow-y-auto">
-      <CheckoutButton />
+      
       <div className="w-full flex justify-between  ">
         <div className=" flex  mx-auto ">
           <button
