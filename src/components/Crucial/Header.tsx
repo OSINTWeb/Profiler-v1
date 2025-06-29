@@ -10,45 +10,64 @@ import { generateShareableLink } from "@/lib/utils";
 export const Header = () => {
   const [UserCredits, setUserCredits] = useState(0);
   const { user, isLoading, error } = useUser();
-  const Api_url = process.env.NEXT_PUBLIC_AUTH_BACKEND;
-  // // console.log(Api_url,user?.email);
-  // // Fetch user credits when user is available
-  // useEffect(() => {
-  //   if (user?.email) {
-  //     (async () => {
-  //       try {
-  //         const response = await fetch(`${Api_url}/api/auth/signup`, {
-  //           method: "POST",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //           },
-  //           body: JSON.stringify({
-  //             name: user.name || user.nickname || "User",
-  //             email: user.email,
-  //             authMethod: "Google",
-  //             pfpURL: user.picture || "",
-  //             country: "India",
-  //           }),
-  //         });
-  //         if (!response.ok) {
-  //           throw new Error("Failed to create user");
-  //         }
+  const [userData, setUserData] = useState({
+    _id: "",
+    email: "",
+    name: "",
+    phone: "",
+    credits: 0,
+  });
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Step 1: Get the ID token (JWT) from Auth0 session
 
-  //         const data = await response.json();
-  //         setUserCredits(data.data?.user?.credits || 0);
-  //         console.log("User credits:", data.data?.user?.credits);
-  //       } catch (error) {
-  //         console.error("Error creating user:", error);
-  //       }
-  //     })();
-  //   }
-  // }, [user, Api_url]);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [showMobileDropdown, setShowMobileDropdown] = useState(false);
+        const idTokenResponse = await fetch("/api/auth/id-token");
+        const idTokenData = await idTokenResponse.json();
+        const idToken = idTokenData.idToken;
+        const authToken = idToken;
+        if (!authToken) {
+          console.error("No authentication token available");
+          return;
+        }
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
+        // Step 2: Make the signup POST request with the bearer token
+        const response = await fetch(
+          "https://profiler-api-production.up.railway.app/api/user/profile",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Profile request failed: ${response.status} ${response.statusText}`);
+        }
+        const profileData = await response.json();
+        // console.log("Profile section successful:", profileData);
+
+        // Update user data with the response
+        if (profileData) {
+          setUserData({
+            _id: profileData._id || "",
+            email: profileData.email || "",
+            name: profileData.name || "Customer",
+            phone: profileData.phone || "",
+            credits: profileData.credits || 0,
+          });
+        }
+      } catch (error) {
+        console.error("Error in fetchUserData:", error);
+      }
+    };
+
+    if (user) {
+      fetchUserData();
+    }
+  }, [user]);
 
   const toProfile = () => {
     window.location.href = `/profile`;
@@ -269,9 +288,8 @@ export const Header = () => {
                 >
                   <div className="text-roll-container">
                     <div className="text-roll">
-                      <span className="text-roll-item">{UserCredits.toFixed(2)}$</span>
-                      <span className="text-roll-item">{UserCredits.toFixed(2)}$</span>
-                      <span className="text-roll-item">{UserCredits.toFixed(2)}$</span>
+                      <span className="text-roll-item">{userData.credits.toFixed(2)}$</span>
+                      <span className="text-roll-item">{userData.credits.toFixed(2)}$</span>
                     </div>
                   </div>
                 </button>
@@ -305,157 +323,7 @@ export const Header = () => {
               </button>
             )}
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-white btn-hover-effect rounded-full p-1  text-xl"
-            onClick={toggleMenu}
-          >
-            {menuOpen ? (
-              <X size={24} className="size-10" />
-            ) : (
-              <Menu size={24} className="size-10" />
-            )}
-          </button>
         </div>
-
-        {/* Mobile Navigation */}
-        {menuOpen && (
-          <div className="md:hidden mt-4 pb-4 space-y-3">
-            <div className="flex flex-col gap-2">
-              <a
-                href="https://search.profiler.me/"
-                className="px-4 py-3 rounded-lg text-white text-base font-medium  transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setMenuOpen(false)}
-              >
-                Home
-              </a>
-              <button
-                onClick={() => {
-                  PricingPage();
-                  setMenuOpen(false);
-                }}
-                className="px-4 py-3 rounded-lg text-[#92969F] text-base font-medium  transition-colors text-left"
-              >
-                Pricing
-              </button>
-              <a
-                href="https://profiler.me/blog"
-                className="px-4 py-3 rounded-lg text-[#92969F] text-base font-medium  transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setMenuOpen(false)}
-              >
-                Blog
-              </a>
-
-              {/* More Dropdown */}
-              <div className="px-4 py-3 rounded-lg text-[#92969F] text-base font-medium transition-colors">
-                <button
-                  className="flex justify-between items-center w-full"
-                  onClick={() => setShowMobileDropdown(!showMobileDropdown)}
-                >
-                  <span>More</span>
-                  {showMobileDropdown ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                </button>
-                {showMobileDropdown && (
-                  <div className="mt-2 ml-2 space-y-2">
-                    <a
-                      href="https://profiler.me/about"
-                      className="block px-2 py-2 rounded-lg hover:bg-white/10 transition-colors"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => {
-                        setMenuOpen(false);
-                        setShowMobileDropdown(false);
-                      }}
-                    >
-                      About Us
-                    </a>
-                    <a
-                      href="https://profiler.me/contact"
-                      className="block px-2 py-2 rounded-lg hover:bg-white/10 transition-colors"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => {
-                        setMenuOpen(false);
-                        setShowMobileDropdown(false);
-                      }}
-                    >
-                      Contact
-                    </a>
-                    <a
-                      href="https://www.osintupdates.com/"
-                      className="block px-2 py-2 rounded-lg hover:bg-white/10 transition-colors"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => {
-                        setMenuOpen(false);
-                        setShowMobileDropdown(false);
-                      }}
-                    >
-                      Newsletter
-                    </a>
-                    <a
-                      href="https://profiler.me/Waitlist"
-                      className="block px-2 py-2 rounded-lg hover:bg-white/10 transition-colors"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => {
-                        setMenuOpen(false);
-                        setShowMobileDropdown(false);
-                      }}
-                    >
-                      Waitlist
-                    </a>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Mobile Authentication Section */}
-            <div className="flex flex-col gap-2 mt-4 text-lg border-t border-white/10 pt-4">
-              {isAuthenticated && user && (
-                <>
-                  <div className="px-4 py-2 text-white text-sm">
-                    Welcome, {user.name || user.nickname || user.given_name || "User"}!
-                  </div>
-                  <button
-                    onClick={() => {
-                      PricingPage();
-                      setMenuOpen(false);
-                    }}
-                    className="px-4 py-3 rounded-lg bg-stone-300 text-black font-medium text-center"
-                  >
-                    Credits: {UserCredits.toFixed(2)}$
-                  </button>
-                  <button
-                    onClick={() => {
-                      toProfile();
-                      setMenuOpen(false);
-                    }}
-                    className="px-4 py-3 rounded-lg bg-stone-300 text-black font-medium text-center "
-                  >
-                    Account
-                  </button>
-                </>
-              )}
-              {!isAuthenticated && (
-                <button
-                  onClick={() => {
-                    handleLogin();
-                    setMenuOpen(false);
-                  }}
-                  className="px-4 py-3 rounded-lg bg-stone-300 text-black font-medium text-center"
-                >
-                  Login
-                </button>
-              )}
-            </div>
-          </div>
-        )}
       </header>
     </div>
   );

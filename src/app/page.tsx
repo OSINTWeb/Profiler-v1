@@ -12,18 +12,16 @@ import CountrySelect from "@/components/paidcomponents/contryselect";
 import { Button } from "@/components/ui/button";
 import { SearchTypes } from "@/components/paidcomponents/SearchTypes";
 export default function Profile() {
-  const { user } = useUser();
+  const { user, isLoading } = useUser();
   const [input, setInput] = useState({ datatype: "Email", value: "" });
   const [selected, setSelected] = useState<string>("Paid");
   const [PaidSearch, setPaidSearch] = useState("Email");
-  const [isLoading, setIsLoading] = useState(false);
   const [countryCode, setCountryCode] = useState("+91"); // Default country code
   const [countryCodeDigits, setCountryCodeDigits] = useState(10); // Default digits for phone validation
   const [emailError, setEmailError] = useState<string>(""); // State for email validation error
   const [query, setQuery] = useState("");
   const [phoneError, setPhoneError] = useState<string>(""); // State for phone validation
   const [typeofsearch, settypeofsearch] = useState<string>("Advance");
-  const [userCredits, setUserCredits] = useState(0);
   const [userData, setUserData] = useState({
     _id: "",
     email: "",
@@ -64,17 +62,17 @@ export default function Profile() {
 
         const signupData = await response.json();
         // console.log("Signup successful:", signupData);
+        // console.log("Signup successful:", signupData.user);
 
         // Update user data with the response
-        if (signupData.data) {
+        if (signupData.user) {
           setUserData({
-            _id: signupData.data._id || "",
-            email: signupData.data.email || "",
-            name: signupData.data.name || "Customer",
-            phone: signupData.data.phone || "",
-            credits: signupData.data.credits || 0,
+            _id: signupData.user._id || "",
+            email: signupData.user.email || "",
+            name: signupData.user.name || "Customer",
+            phone: signupData.user.phone || "",
+            credits: signupData.user.credits || 0,
           });
-          setUserCredits(signupData.data.credits || 0);
         }
       } catch (error) {
         console.error("Error in fetchUserData:", error);
@@ -93,66 +91,14 @@ export default function Profile() {
     const requiredCredits = typeofsearch === "Basic" ? 0.05 : 0.5;
     setMiniCredits(requiredCredits);
 
-    if (userCredits < requiredCredits) {
+    if (userData.credits < requiredCredits) {
       setCreditsError(
         `You need at least ${requiredCredits} credits to perform this ${typeofsearch.toLowerCase()} search.`
       );
     } else {
       setCreditsError("");
     }
-  }, [userCredits, typeofsearch]);
-
-  // useEffect(() => {
-  //   // Calculate required credits based on search type
-  //   const requiredCredits = typeofsearch === "Basic" ? 0.05 : 0.5;
-  //   setMiniCredits(requiredCredits);
-  //   // Check if user has enough credits
-  //   if (userCredits < requiredCredits) {
-  //     setCreditsError(
-  //       `You need at least ${requiredCredits} credits to perform this ${typeofsearch} search.`
-  //     );
-  //   } else {
-  //     setCreditsError("");
-  //   }
-  // }, [userCredits, typeofsearch]); // Now properly watching both userCredits and typeofsearch
-
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     if (!user) {
-  //       console.error("User data is not available");
-  //       return;
-  //     }
-  //     setIsLoading(true);
-  //     const API_BASE_URL = process.env.NEXT_PUBLIC_AUTH_BACKEND;
-  //     const effectiveEmail = user.email;
-
-  //     const response = await fetch(
-  //       `${API_BASE_URL}/api/auth/findbyemail?email=${encodeURIComponent(effectiveEmail || "")}`
-  //     );
-
-  //     if (!response.ok) {
-  //       throw new Error(`Failed to fetch user: ${response.status}`);
-  //     }
-
-  //     const data = await response.json();
-  //     if (!data.data._id) {
-  //       throw new Error("User data incomplete");
-  //     }
-
-  //     setUserData({
-  //       _id: data.data._id,
-  //       email: data.data.email,
-  //       name: data.data.name || "Customer",
-  //       phone: data.data.phone || "",
-  //       credits: data.data.credits || 0,
-  //     });
-  //     setUserCredits(data.data.credits || 0);
-  //     setIsLoading(false);
-  //   };
-
-  //   fetchUserData();
-  // }, [user]);
-
+  }, [userData, typeofsearch]);
   useEffect(() => {
     const storedInputValue = localStorage.getItem("inputValue");
     if (storedInputValue) {
@@ -173,7 +119,6 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-start overflow-y-auto">
-      
       <div className="w-full flex justify-between  ">
         <div className=" flex  mx-auto ">
           <button
@@ -357,7 +302,7 @@ export default function Profile() {
                                   type="text"
                                   placeholder={`Enter your ${input.datatype} to start searching...`}
                                   onChange={(e) => {
-                                    if (userCredits >= miniCredits) {
+                                    if (userData.credits >= miniCredits) {
                                       setInput((prev) => ({ ...prev, value: e.target.value }));
                                       if (PaidSearch === "Username") {
                                         setQuery(e.target.value);
@@ -382,7 +327,7 @@ export default function Profile() {
                                   }}
                                   value={input.value}
                                   className="bg-transparent border-none text-white text-2xl font-light placeholder:text-white/40 focus-visible:ring-0 px-6 py-8 w-full"
-                                  disabled={userCredits < miniCredits}
+                                  disabled={userData.credits < miniCredits}
                                 />
                               </div>
                             </TooltipTrigger>
@@ -434,7 +379,7 @@ export default function Profile() {
                               !!phoneError ||
                               typeofsearch === "" ||
                               (PaidSearch === "Phone" && typeofsearch === "Basic") ||
-                              userCredits < miniCredits
+                              userData.credits < miniCredits
                             }
                           >
                             {/* Button shine effect */}
@@ -469,7 +414,7 @@ export default function Profile() {
                     <p className="text-red-400 text-sm text-center">{phoneError}</p>
                   </div>
                 )}
-                {userCredits < miniCredits && (
+                {userData.credits < miniCredits && (
                   <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm">
                     <p className="text-red-400 text-sm text-center">{creditsError}</p>
                   </div>
