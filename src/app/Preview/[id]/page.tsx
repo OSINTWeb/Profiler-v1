@@ -124,7 +124,7 @@ export default function PreviewPage({ params }: { params: { id: string } }) {
 
   return (
     <ErrorBoundary error={streamingState.error} onRetry={streamingState.retryConnection}>
-      <div className="min-h-screen bg-black text-white">
+      <div className=" bg-black text-white">
         {/* Header */}
         <div className="bg-zinc-900/50 backdrop-blur-sm border-b border-white/10 p-6">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -147,7 +147,7 @@ export default function PreviewPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-6xl mx-auto p-6">
+        <div className="max-w-full mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-8 sm:py-12 md:py-14 lg:py-16">
           <div className="flex flex-col gap-4">
             {/* Stats Cards */}
             <InfoCardsContainer data={nonHibpData} />

@@ -17,4 +17,26 @@ export interface SearchTypesProps {
   settypeofsearch: (type: string) => void;
   selected: string;
   typeofsearch: string;
-} 
+}
+
+// Transaction types
+export interface Transaction {
+  source: "stripe" | "razorpay";
+  email: string;
+  amount: number;
+  currency: string;
+  phone_number: string | null;
+  country: string;
+  timestamp: string;
+  payment_id?: string;
+}
+
+export interface TransactionResponse {
+  email: string;
+  transactions: Transaction[];
+  page: number;
+  total_pages: number;
+  total_items: number;
+}
+
+export interface TransactionApiResponse extends Array<TransactionResponse> {} 

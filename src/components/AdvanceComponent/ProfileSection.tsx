@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import CompanyLogo from "@/components/ActivityComponent/Logo";
 import { useState } from "react";
 
-import { Expand, PlatformData, SpecFormatValue } from "@/components/ActivityComponent/expand";
+import { Expand, PlatformData, SpecFormatValue, SpecFormat } from "@/components/ActivityComponent/expand";
 import "./ProfileSection.css"
 interface InfoCardProps {
   userData: PlatformData;
@@ -52,14 +52,25 @@ const InfoCard: React.FC<InfoCardProps> = ({
 
 }) => {
   const { module, pretty_name, spec_format } = userData;
-  const isBreached = spec_format?.[0]?.breach?.value || false;
-  const verified = spec_format?.[0]?.verified?.value || false;
-  const premium = spec_format?.[0]?.premium?.value || false;
+  
+  // Helper function to safely get value from spec format
+  const getSpecValue = (spec: SpecFormat | undefined, key: string): string | boolean | number | null => {
+    if (!spec || !spec[key as keyof SpecFormat]) return null;
+    const value = spec[key as keyof SpecFormat];
+    if (value && typeof value === 'object' && 'value' in value) {
+      return (value as SpecFormatValue).value;
+    }
+    return null;
+  };
+
+  const isBreached = getSpecValue(spec_format?.[0], 'breach') || false;
+  const verified = getSpecValue(spec_format?.[0], 'verified') || false;
+  const premium = getSpecValue(spec_format?.[0], 'premium') || false;
 
   const platformName = module;
-  const websiteValue = spec_format?.[0]?.website?.value;
+  const websiteValue = getSpecValue(spec_format?.[0], 'website');
   const website = typeof websiteValue === 'string' ? websiteValue : platformName;
-  const profileURL = (spec_format?.[0]?.profile_url?.value as string) || "";
+  const profileURL = String(getSpecValue(spec_format?.[0], 'profile_url') || "");
   const [isOpen, setIsOpen] = useState(false);
   const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
 
@@ -80,10 +91,13 @@ const InfoCard: React.FC<InfoCardProps> = ({
 
 
   return (
-    <Card className="bg-gradient-to-br from-[#0f0f12] to-[#131315] border border-gray-700 flex flex-col w-full rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-black/40 hover:border-gray-600 h-[700px] relative">
+    <Card className="bg-black border border-gray-600 flex flex-col w-full rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-black/40 hover:border-gray-500 h-[700px] relative "
+    
+    
+    >
       {/* Header Section */}
-      <div className="flex items-center gap-4 p-6 border-b border-gray-800 bg-gradient-to-r from-gray-900/50 to-black/50 rounded-t-xl">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center border border-gray-700 shadow-lg">
+      <div className="flex items-center gap-4 p-6 border-b border-gray-700 bg-gray-900/50 rounded-t-xl">
+        <div className="w-12 h-12 rounded-xl bg-gray-800 flex items-center justify-center border border-gray-600 shadow-lg">
           <CompanyLogo companyName={platformName} />
         </div>
         <div className="flex-1">
@@ -99,10 +113,10 @@ const InfoCard: React.FC<InfoCardProps> = ({
           <div className="lg:col-span-1 flex flex-col items-center space-y-4">
             <div className="relative group">
               <img
-                className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-xl border-2 border-gray-700 shadow-lg transition-all duration-300 group-hover:border-gray-600"
+                className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-xl border-2 border-gray-600 shadow-lg transition-all duration-300 group-hover:border-gray-500 "
                 src={
-                  (spec_format?.[0]?.picture_url?.value as string) ||
-                  "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+                  String(getSpecValue(spec_format?.[0], 'picture_url') || 
+                  "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png")
                 }
                 alt="Profile"
                 onError={(e) => {
@@ -118,7 +132,7 @@ const InfoCard: React.FC<InfoCardProps> = ({
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 border border-gray-700 text-white px-4  rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl  "
+                className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <Globe size={16} />
                 <span className="hidden sm:inline">View Profile</span>
@@ -132,9 +146,9 @@ const InfoCard: React.FC<InfoCardProps> = ({
                 <motion.span 
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 hover:bg-yellow-500/30 transition-all duration-200 flex items-center gap-2"
+                  className="px-3 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 border border-gray-600 hover:bg-gray-700 transition-all duration-200 flex items-center gap-2"
                 >
-                  <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
                   Premium
                 </motion.span>
               )}
@@ -142,9 +156,9 @@ const InfoCard: React.FC<InfoCardProps> = ({
                 <motion.span 
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="px-3 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 transition-all duration-200 flex items-center gap-2"
+                  className="px-3 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-200 border border-gray-500 hover:bg-gray-600 transition-all duration-200 flex items-center gap-2"
                 >
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-gray-200"></div>
                   Verified
                 </motion.span>
               )}
@@ -152,9 +166,9 @@ const InfoCard: React.FC<InfoCardProps> = ({
                 <motion.span 
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="px-3 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 transition-all duration-200 flex items-center gap-2"
+                  className="px-3 py-1 rounded-full text-xs font-medium bg-gray-900 text-gray-400 border border-gray-700 hover:bg-gray-800 transition-all duration-200 flex items-center gap-2"
                 >
-                  <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
                   Breached
                 </motion.span>
               )}
@@ -164,7 +178,7 @@ const InfoCard: React.FC<InfoCardProps> = ({
           {/* Information Section */}
           <div className="lg:col-span-2 space-y-4">
             {/* Website */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-4 bg-gradient-to-r from-gray-900/30 to-black/30 rounded-lg border border-gray-800">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-4 bg-gray-900/30 rounded-lg border border-gray-700">
               <span className="text-gray-300 text-sm font-semibold min-w-[100px]">Website:</span>
               {website && typeof website === 'string' ? (
                 <a
@@ -194,7 +208,7 @@ const InfoCard: React.FC<InfoCardProps> = ({
                   key !== "platform_variables" && !key.includes("url") && (
                     <div
                       key={`${index}-${key}`}
-                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-4 bg-gradient-to-r from-gray-900/30 to-black/30 rounded-lg border border-gray-800 hover:border-gray-700 transition-all duration-200"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-4 bg-gray-900/30 rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-200"
                     >
                       <span className="text-gray-300 text-sm font-semibold min-w-[100px]">
                         {formatTitle(key)}:
@@ -202,7 +216,7 @@ const InfoCard: React.FC<InfoCardProps> = ({
                       <div className="flex items-center gap-3 flex-1 sm:justify-end">
                         {key === "id" ? (
                           <>
-                            <span className="text-white font-mono text-sm bg-black border border-gray-700 px-3 py-1 rounded-lg break-all">
+                            <span className="text-white font-mono text-sm bg-gray-800 border border-gray-600 px-3 py-1 rounded-lg break-all">
                               {(value as SpecFormatValue).value}
                             </span>
                             <motion.button
@@ -214,14 +228,14 @@ const InfoCard: React.FC<InfoCardProps> = ({
                                   `${index}-${key}-id`
                                 )
                               }
-                              className={`rounded-lg transition-all duration-300 p-2 border border-gray-700 ${
+                              className={`rounded-lg transition-all duration-300 p-2 border border-gray-600 ${
                                 copiedStates[`${index}-${key}-id`] 
-                                  ? 'bg-green-800 hover:bg-green-700' 
+                                  ? 'bg-gray-700 hover:bg-gray-600' 
                                   : 'hover:bg-gray-800'
                               }`}
                             >
                               {copiedStates[`${index}-${key}-id`] ? (
-                                <Check size={14} className="text-green-300" />
+                                <Check size={14} className="text-gray-300" />
                               ) : (
                                 <Copy size={14} className="text-gray-300" />
                               )}
@@ -229,7 +243,7 @@ const InfoCard: React.FC<InfoCardProps> = ({
                           </>
                         ) : key === "last_seen" || key === "creation_date" ? (
                           <div className="flex items-center gap-3">
-                            <span className="text-white font-medium bg-gradient-to-r from-gray-600/20 to-gray-700/20 border border-gray-500/30 px-3 py-1 rounded-lg">
+                            <span className="text-white font-medium bg-gray-800 border border-gray-600 px-3 py-1 rounded-lg">
                               {formatDate((value as SpecFormatValue).value.toString())}
                             </span>
                             <motion.button
@@ -241,14 +255,14 @@ const InfoCard: React.FC<InfoCardProps> = ({
                                   `${index}-${key}-date`
                                 )
                               }
-                              className={`rounded-lg transition-all duration-300 p-2 border border-gray-700 ${
+                              className={`rounded-lg transition-all duration-300 p-2 border border-gray-600 ${
                                 copiedStates[`${index}-${key}-date`] 
-                                  ? 'bg-green-800 hover:bg-green-700' 
+                                  ? 'bg-gray-700 hover:bg-gray-600' 
                                   : 'hover:bg-gray-800'
                               }`}
                             >
                               {copiedStates[`${index}-${key}-date`] ? (
-                                <Check size={14} className="text-green-300" />
+                                <Check size={14} className="text-gray-300" />
                               ) : (
                                 <Copy size={14} className="text-gray-300" />
                               )}
@@ -256,16 +270,16 @@ const InfoCard: React.FC<InfoCardProps> = ({
                           </div>
                         ) : typeof (value as SpecFormatValue).value === "boolean" ? (
                           <span
-                            className={`px-4  rounded-full text-xs font-medium border-2 ${
+                            className={`px-4 py-1 rounded-full text-xs font-medium border-2 ${
                               (value as SpecFormatValue).value
-                                ? "bg-green-500/20 text-green-400 border-green-500/50"
-                                : "bg-red-500/20 text-red-400 border-red-500/50"
+                                ? "bg-gray-700 text-gray-200 border-gray-500"
+                                : "bg-gray-800 text-gray-400 border-gray-600"
                             }`}
                           >
                             {(value as SpecFormatValue).value ? "Yes" : "No"}
                           </span>
                         ) : (
-                          <span className="text-white font-medium bg-gray-900/50 px-3 py-1 rounded-lg border border-gray-800 break-all">
+                          <span className="text-white font-medium bg-gray-800 px-3 py-1 rounded-lg border border-gray-600 break-all">
                             {(value as SpecFormatValue).value}
                           </span>
                         )}
@@ -279,11 +293,11 @@ const InfoCard: React.FC<InfoCardProps> = ({
       </div>
 
       {/* Footer */}
-      <div className="p-6 border-t border-gray-800 bg-gradient-to-r from-slate-900/50 to-black/50 rounded-b-xl">
+      <div className="p-6 border-t border-gray-700 bg-gray-900/50 rounded-b-xl">
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full bg-[#131315] cursor-pointer hover:from-gray-600 hover:to-gray-700 border border-gray-600 text-white text-lg font-semibold py-3 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+          className="w-full bg-gray-800 cursor-pointer hover:bg-gray-700 border border-gray-600 text-white text-lg font-semibold py-3 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
           onClick={() => setIsOpen(true)}
         >
           Expand

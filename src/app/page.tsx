@@ -123,7 +123,7 @@ export default function Profile() {
         <div className=" flex  mx-auto ">
           <button
             onClick={() => {
-              window.open("/sharedpage/1", "_blank");
+              window.open("/TransactionHistory", "_blank");
             }}
             className="group flex items-center gap-2 bg-zinc-900/80 backdrop-blur-sm border border-white/10 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:bg-zinc-800/80 shadow-lg"
           >
@@ -140,7 +140,7 @@ export default function Profile() {
                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <span>Share</span>
+            <span>Transaction History</span>
           </button>
         </div>
         <div className=" flex  mx-auto ">
