@@ -54,15 +54,33 @@ const LoadingScreen = () => (
  *
  * Shows a preview of search results from history
  */
-export default function PreviewPage({ params }: { params: { id: string } }) {
+export default function PreviewPage({ params }: { params: Promise<{ id: string }> }) {
   const [searchData, setSearchData] = useState<SearchData | null>(null);
   const [hideButton, setHideButton] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [id, setId] = useState<string | null>(null);
   const streamingState = Data;
   const { nonHibpData, hibpData, allConvertedData } = useDataTransform(streamingState);
 
+  // Resolve async params
+  useEffect(() => {
+    const resolveParams = async () => {
+      try {
+        const resolvedParams = await params;
+        setId(resolvedParams.id);
+      } catch (error) {
+        console.error("Error resolving params:", error);
+        setLoading(false);
+      }
+    };
+
+    resolveParams();
+  }, [params]);
+
   // Initialize search data from localStorage or create fake data based on ID
   useEffect(() => {
+    if (!id) return; // Wait for ID to be resolved
+
     const initializePreviewData = () => {
       // Try localStorage first (for real search data)
       const storedData = localStorage.getItem("previewData");
@@ -81,15 +99,15 @@ export default function PreviewPage({ params }: { params: { id: string } }) {
       // Create fake preview data based on the ID
       const previewData: SearchData = {
         query:
-          params.id === "1"
+          id === "1"
             ? "john.doe@example.com"
-            : params.id === "2"
+            : id === "2"
             ? "+1234567890"
-            : params.id === "3"
+            : id === "3"
             ? "alex_wilson"
             : "demo@example.com",
         type: "Advance",
-        PaidSearch: params.id === "2" ? "Phone" : params.id === "3" ? "Username" : "Email",
+        PaidSearch: id === "2" ? "Phone" : id === "3" ? "Username" : "Email",
       };
 
       setSearchData(previewData);
@@ -97,7 +115,7 @@ export default function PreviewPage({ params }: { params: { id: string } }) {
     };
 
     initializePreviewData();
-  }, [params.id]);
+  }, [id]);
 
   // Handle loading state
   if (loading) {
