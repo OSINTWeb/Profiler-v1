@@ -124,7 +124,7 @@ async function* fetchDataFromRealAPI(query: string, type: string, paidSearch: st
   // In reality, your API will send these one by one as they become available
   // No delays needed - just yield as data comes in
   for (const moduleItem of modules) {
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await new Promise(resolve => setTimeout(resolve, 500));
     // Real API: yield moduleItem as soon as it's received from the API
     yield moduleItem;
   }
