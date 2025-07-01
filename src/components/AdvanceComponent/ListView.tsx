@@ -655,11 +655,7 @@ const ListView: React.FC<ListViewProps> = ({
         className="flex flex-col overflow-hidden border-r border-gray-700"
         style={{ width: `${leftPanelWidth}%` }}
       >
-        <div className="p-4 border-b border-gray-700 bg-gray-900/50">
-          <h3 className="text-white font-semibold">
-            Results ({filteredUsers.length})
-          </h3>
-        </div>
+        
         <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
           {filteredUsers.length > 0 ? (
             filteredUsers.map((user, index) => (
