@@ -3,7 +3,7 @@ import SelectInfo from "./SelectInfo";
 import CategoryCard from "./categoryCard";
 import GridView from "./GridView";
 import ListView from "./ListView";
-
+import GraphView from "./GraphView";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Grid, List } from "lucide-react";
+import { BarChart, Grid, List } from "lucide-react";
 
 interface PlatformVariable {
   key: string;
@@ -88,8 +88,7 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<PlatformData[]>([]);
   const [Cards, setCards] = useState<PlatformData[]>([]);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
-  const [isDataStable, setIsDataStable] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "graph">("list");
 
   // Function to check if spec_format has only registered and platform_variables
   const hasSimpleSpecFormat = (specFormat: SpecFormatItem[]) => {
@@ -99,24 +98,24 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
     );
   };
 
-  // Handle data streaming stability
+  // Update data with 2-second interval
   useEffect(() => {
-    setIsDataStable(false);
-    const stabilityTimer = setTimeout(() => {
-      setIsDataStable(true);
-    }, 500); // Wait 500ms for data to stabilize
+    const updateData = () => {
+      const filtered = users.filter((user) => !hasSimpleSpecFormat(user.spec_format));
+      const cardData = users.filter((user) => hasSimpleSpecFormat(user.spec_format));
+      setFilteredUsers(filtered);
+      setCards(cardData);
+      setSelectedIndices([]);
+    };
 
-    return () => clearTimeout(stabilityTimer);
-  }, [users]);
+    // Initial update
+    updateData();
 
-  // Filter users when component mounts or users prop changes
-  useEffect(() => {
-    const filtered = users.filter((user) => hasSimpleSpecFormat(user.spec_format));
-    const withoutCard = users.filter((user) => !hasSimpleSpecFormat(user.spec_format));
-    setFilteredUsers(withoutCard);
-    setCards(filtered);
-    // Reset selection when data changes
-    setSelectedIndices([]);
+    // Set up interval
+    const intervalId = setInterval(updateData, 2000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, [users]);
 
   // Function to handle card selection
@@ -217,9 +216,20 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
               }`}
             >
               <List size={16} />
-              <span className="hidden sm:inline">List</span>
+                <span className="hidden sm:inline">List</span>
+              </button>
+              <button
+              onClick={() => setViewMode("graph")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
+                viewMode === "graph"
+                  ? "bg-white text-black shadow-lg"
+                  : "text-gray-300 hover:text-white hover:bg-gray-800"
+              }`}
+            >
+              <BarChart size={16} />
+              <span className="hidden sm:inline">Graph</span>
             </button>
-          </div>
+            </div>
         </div>
 
         {/* Action Buttons */}
@@ -391,6 +401,8 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
           PaidSearch={PaidSearch}
           handleDelete={handleDelete}
         />
+      ) : viewMode === "graph" ? (
+        <GraphView data={filteredUsers} />
       ) : (
         <ListView
           filteredUsers={filteredUsers}
@@ -398,7 +410,6 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
           handleCardSelect={handleCardSelect}
           enableselect={enableselect}
           deletebutton={deletebutton}
-          isDataStable={isDataStable}
         />
       )}
 

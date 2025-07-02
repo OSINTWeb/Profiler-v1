@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import {
   Eye,
   MapPin,
@@ -84,26 +84,40 @@ const ListView: React.FC<ListViewProps> = ({
   const [leftPanelWidth, setLeftPanelWidth] = useState(40);
   const [isResizing, setIsResizing] = useState(false);
 
+  // Preserve selected item when data updates
+  useEffect(() => {
+    if (selectedItem) {
+      const updatedItem = filteredUsers.find(
+        (user) => user.module === selectedItem.module && user.query === selectedItem.query
+      );
+      if (updatedItem && JSON.stringify(updatedItem) !== JSON.stringify(selectedItem)) {
+        setSelectedItem(updatedItem);
+      }
+    }
+  }, [filteredUsers, selectedItem]);
+
   // Handle mouse events for resizing
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
     setIsResizing(true);
     e.preventDefault();
-  };
+  }, []);
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isResizing) return;
-    const containerRect = document.getElementById("list-detail-container")?.getBoundingClientRect();
-    if (containerRect) {
-      const newWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
-      setLeftPanelWidth(Math.max(20, Math.min(80, newWidth)));
-    }
-  }, [isResizing]);
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isResizing) return;
+      const containerRect = document.getElementById("list-detail-container")?.getBoundingClientRect();
+      if (containerRect) {
+        const newWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+        setLeftPanelWidth(Math.max(20, Math.min(80, newWidth)));
+      }
+    },
+    [isResizing]
+  );
 
   const handleMouseUp = useCallback(() => {
     setIsResizing(false);
   }, []);
 
-  // Add event listeners for mouse events
   useEffect(() => {
     if (isResizing) {
       document.addEventListener("mousemove", handleMouseMove);
@@ -115,14 +129,14 @@ const ListView: React.FC<ListViewProps> = ({
     }
   }, [isResizing, handleMouseMove, handleMouseUp]);
 
-  // Simple handler for opening details
-  const handleOpenDetails = (item: PlatformData, index: number) => {
+  // Memoized handler for opening details
+  const handleOpenDetails = useCallback((item: PlatformData, index: number) => {
     setSelectedItem(item);
     setSelectedItemIndex(index);
-  };
+  }, []);
 
-  // Get primary info from spec_format for list view
-  const getPrimaryInfo = (specFormat: SpecFormatItem[]) => {
+  // Memoize getPrimaryInfo function
+  const getPrimaryInfo = useMemo(() => (specFormat: SpecFormatItem[]) => {
     const info = {
       name: "",
       picture_url: "",
@@ -159,7 +173,164 @@ const ListView: React.FC<ListViewProps> = ({
     });
 
     return info;
-  };
+  }, []);
+
+  // Memoize ListViewItem component
+  const MemoizedListViewItem = useMemo(() => React.memo(({ user, isSelected, onSelect, showSelection, index }: {
+    user: PlatformData;
+    isSelected: boolean;
+    onSelect: () => void;
+    showSelection: boolean;
+    index: number;
+  }) => {
+    const primaryInfo = getPrimaryInfo(user.spec_format);
+    const displayName = primaryInfo.name || primaryInfo.username || primaryInfo.email || "Unknown";
+
+    return (
+      <div
+        className={`relative flex items-start p-4 rounded-lg border transition-all duration-200 cursor-pointer hover:border-gray-100 ${
+          isSelected
+            ? enableselect
+              ? "border-white bg-gray-100/10 shadow-lg"
+              : "border-gray-400 bg-gray-400/10 shadow-lg"
+            : "border-gray-600 bg-black"
+        }`}
+        onClick={() => {
+          if (!showSelection) {
+            handleOpenDetails(user, index);
+          } else {
+            onSelect();
+          }
+        }}
+      >
+        {/* Selection checkbox */}
+        {showSelection && (
+          <div className="cursor-pointer mr-4">
+            <div
+              className={`w-5 h-5 rounded border-2 flex items-center justify-start transition-all duration-200 ${
+                isSelected
+                  ? enableselect
+                    ? "bg-white border-white text-black"
+                    : "bg-gray-400 border-gray-400 text-black"
+                  : "border-gray-500 hover:border-white"
+              }`}
+            >
+              {isSelected && (
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Profile Image */}
+        <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-800 border border-gray-600 flex items-center justify-center flex-shrink-0">
+          {primaryInfo.picture_url ? (
+            <img
+              src={primaryInfo.picture_url}
+              alt={displayName}
+              className="w-full h-full object-cover "
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
+            />
+          ) : (
+            <User size={16} className="text-gray-400" />
+          )}
+        </div>
+
+        {/* Main Content - Horizontal Layout */}
+        <div className="flex-1 flex items-center justify-start ml-4 min-w-0">
+          {/* Left Section - Name and Platform */}
+          <div className="flex flex-col min-w-0 flex-shrink-0 mr-4">
+            <div className="flex items-center space-x-2 mb-1">
+              <h3 className="text-white font-semibold text-sm truncate max-w-[200px]">
+                {displayName}
+              </h3>
+
+              {/* Status Badges - Compact */}
+              <div className="flex items-center space-x-1">
+                {primaryInfo.verified && (
+                  <div title="Verified">
+                    <Shield size={10} className="text-gray-400" />
+                  </div>
+                )}
+                {primaryInfo.breach && (
+                  <div title="Breached">
+                    <AlertTriangle size={10} className="text-gray-500" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Middle Section - Contact Info */}
+          <div className="flex items-center gap-4 text-xs text-gray-300 flex-shrink-0">
+            {primaryInfo.email && (
+              <div className="flex items-center gap-1 bg-gray-800/70 px-2 py-1 rounded-lg shadow-sm max-w-[180px]">
+                <MessageCircle size={13} className="text-blue-400 flex-shrink-0" />
+                <span className="truncate font-medium" title={primaryInfo.email}>
+                  {primaryInfo.email}
+                </span>
+              </div>
+            )}
+
+            {primaryInfo.username && (
+              <div className="flex items-center gap-1 bg-gray-800/70 px-2 py-1 rounded-lg shadow-sm max-w-[120px]">
+                <User size={13} className="text-green-400 flex-shrink-0" />
+                <span className="truncate font-medium" title={primaryInfo.username}>
+                  @{primaryInfo.username}
+                </span>
+              </div>
+            )}
+
+            {primaryInfo.phone_number && (
+              <div className="flex items-center gap-1 bg-gray-800/70 px-2 py-1 rounded-lg shadow-sm max-w-[140px]">
+                <Phone size={13} className="text-yellow-400 flex-shrink-0" />
+                <span className="truncate font-medium" title={primaryInfo.phone_number}>
+                  {primaryInfo.phone_number}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Right Section - Additional Info */}
+          <div className="flex items-center space-x-4 text-xs text-gray-400 flex-shrink-0">
+            {primaryInfo.location && (
+              <div className="flex items-center space-x-1 max-w-[120px]">
+                <MapPin size={12} className="text-gray-500 flex-shrink-0" />
+                <span className="truncate">{primaryInfo.location}</span>
+              </div>
+            )}
+
+            {primaryInfo.age && (
+              <div className="flex items-center space-x-1">
+                <Calendar size={12} className="text-gray-500" />
+                <span>{primaryInfo.age}</span>
+              </div>
+            )}
+
+            {primaryInfo.creation_date && (
+              <div className="flex items-center space-x-1">
+                <Calendar size={12} className="text-gray-500" />
+                <span className="whitespace-nowrap">
+                  {formatDate(primaryInfo.creation_date)}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }), [enableselect, handleOpenDetails]);
+
+  // Memoize the list of users
+  const memoizedUsers = useMemo(() => filteredUsers, [filteredUsers]);
 
   // Detail Panel Component
   const DetailPanel: React.FC = () => {
@@ -413,21 +584,6 @@ const ListView: React.FC<ListViewProps> = ({
                   <ExternalLink size={12} className="opacity-50 group-hover:opacity-100 transition-opacity" />
                 </a>
               </div>
-              {selectedItem.query && (
-                <div className="col-span-2">
-                  <div className="text-gray-400 text-xs uppercase tracking-wider font-medium mb-1.5">Query</div>
-                  <div className="flex items-center gap-2">
-                    <code className="text-white bg-white/5 px-3 py-1.5 rounded-lg text-sm font-mono">
-                      {selectedItem.query}
-                    </code>
-                    <CopyButton
-                      onClick={() => handleCopyField(selectedItem.query, "query")}
-                      isCopied={copiedField === "query"}
-                      size={14}
-                    />
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
@@ -448,12 +604,6 @@ const ListView: React.FC<ListViewProps> = ({
                 <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full">
                   <AlertTriangle size={14} className="text-red-400" />
                   <span className="text-sm text-white">Security Breach</span>
-                </div>
-              )}
-              {selectedItem.reliable_source && (
-                <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full">
-                  <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                  <span className="text-sm text-white">Reliable Source</span>
                 </div>
               )}
             </div>
@@ -485,166 +635,6 @@ const ListView: React.FC<ListViewProps> = ({
     );
   };
 
-  // List View Item Component
-  const ListViewItem: React.FC<{
-    user: PlatformData;
-    isSelected: boolean;
-    onSelect: () => void;
-    showSelection: boolean;
-    index: number;
-  }> = ({ user, isSelected, onSelect, showSelection, index }) => {
-    const primaryInfo = getPrimaryInfo(user.spec_format);
-    const displayName = primaryInfo.name || primaryInfo.username || primaryInfo.email || "Unknown";
-
-    return (
-      <div
-        className={`relative flex items-start p-4 rounded-lg border transition-all duration-200 cursor-pointer hover:border-gray-100 ${
-          isSelected
-            ? enableselect
-              ? "border-white bg-gray-100/10 shadow-lg"
-              : "border-gray-400 bg-gray-400/10 shadow-lg"
-            : "border-gray-600 bg-black"
-        }`}
-        onClick={() => {
-          if (!showSelection) {
-            handleOpenDetails(user, index);
-          } else {
-            onSelect();
-          }
-        }}
-      >
-        {/* Selection checkbox */}
-        {showSelection && (
-          <div className="cursor-pointer mr-4">
-            <div
-              className={`w-5 h-5 rounded border-2 flex items-center justify-start transition-all duration-200 ${
-                isSelected
-                  ? enableselect
-                    ? "bg-white border-white text-black"
-                    : "bg-gray-400 border-gray-400 text-black"
-                  : "border-gray-500 hover:border-white"
-              }`}
-            >
-              {isSelected && (
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Profile Image */}
-        <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-800 border border-gray-600 flex items-center justify-center flex-shrink-0">
-          {primaryInfo.picture_url ? (
-            <img
-              src={primaryInfo.picture_url}
-              alt={displayName}
-              className="w-full h-full object-cover "
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
-            />
-          ) : (
-            <User size={16} className="text-gray-400" />
-          )}
-        </div>
-
-        {/* Main Content - Horizontal Layout */}
-        <div className="flex-1 flex items-center justify-start ml-4 min-w-0">
-          {/* Left Section - Name and Platform */}
-          <div className="flex flex-col min-w-0 flex-shrink-0 mr-4">
-            <div className="flex items-center space-x-2 mb-1">
-              <h3 className="text-white font-semibold text-sm truncate max-w-[200px]">
-                {displayName}
-              </h3>
-
-              {/* Status Badges - Compact */}
-              <div className="flex items-center space-x-1">
-                {primaryInfo.verified && (
-                  <div title="Verified">
-                    <Shield size={10} className="text-gray-400" />
-                  </div>
-                )}
-                {primaryInfo.breach && (
-                  <div title="Breached">
-                    <AlertTriangle size={10} className="text-gray-500" />
-                  </div>
-                )}
-                {user.reliable_source && (
-                  <div
-                    className="w-1.5 h-1.5 rounded-full bg-gray-400"
-                    title="Reliable Source"
-                  ></div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Middle Section - Contact Info */}
-          <div className="flex items-center gap-4 text-xs text-gray-300 flex-shrink-0">
-            {primaryInfo.email && (
-              <div className="flex items-center gap-1 bg-gray-800/70 px-2 py-1 rounded-lg shadow-sm max-w-[180px]">
-                <MessageCircle size={13} className="text-blue-400 flex-shrink-0" />
-                <span className="truncate font-medium" title={primaryInfo.email}>
-                  {primaryInfo.email}
-                </span>
-              </div>
-            )}
-
-            {primaryInfo.username && (
-              <div className="flex items-center gap-1 bg-gray-800/70 px-2 py-1 rounded-lg shadow-sm max-w-[120px]">
-                <User size={13} className="text-green-400 flex-shrink-0" />
-                <span className="truncate font-medium" title={primaryInfo.username}>
-                  @{primaryInfo.username}
-                </span>
-              </div>
-            )}
-
-            {primaryInfo.phone_number && (
-              <div className="flex items-center gap-1 bg-gray-800/70 px-2 py-1 rounded-lg shadow-sm max-w-[140px]">
-                <Phone size={13} className="text-yellow-400 flex-shrink-0" />
-                <span className="truncate font-medium" title={primaryInfo.phone_number}>
-                  {primaryInfo.phone_number}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Right Section - Additional Info */}
-          <div className="flex items-center space-x-4 text-xs text-gray-400 flex-shrink-0">
-            {primaryInfo.location && (
-              <div className="flex items-center space-x-1 max-w-[120px]">
-                <MapPin size={12} className="text-gray-500 flex-shrink-0" />
-                <span className="truncate">{primaryInfo.location}</span>
-              </div>
-            )}
-
-            {primaryInfo.age && (
-              <div className="flex items-center space-x-1">
-                <Calendar size={12} className="text-gray-500" />
-                <span>{primaryInfo.age}</span>
-              </div>
-            )}
-
-            {primaryInfo.creation_date && (
-              <div className="flex items-center space-x-1">
-                <Calendar size={12} className="text-gray-500" />
-                <span className="whitespace-nowrap">
-                  {formatDate(primaryInfo.creation_date)}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div
       id="list-detail-container"
@@ -655,12 +645,14 @@ const ListView: React.FC<ListViewProps> = ({
         className="flex flex-col overflow-hidden border-r border-gray-700"
         style={{ width: `${leftPanelWidth}%` }}
       >
-        
         <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((user, index) => (
-              <div key={`${user.module}-${index}`} className={`transition-all duration-200 ${selectedItemIndex === index ? 'ring-2 ring-blue-500 rounded-lg' : ''}`}>
-                <ListViewItem
+          {memoizedUsers.length > 0 ? (
+            memoizedUsers.map((user, index) => (
+              <div 
+                key={`${user.module}-${user.query}-${index}`}
+                className={`transition-all duration-200 ${selectedItemIndex === index ? 'ring-2 ring-blue-500 rounded-lg' : ''}`}
+              >
+                <MemoizedListViewItem
                   user={user}
                   isSelected={selectedIndices.includes(index)}
                   onSelect={() => handleCardSelect(index)}
@@ -700,4 +692,7 @@ const ListView: React.FC<ListViewProps> = ({
   );
 };
 
-export default ListView; 
+ListView.displayName = "ListView";
+
+// Memoize the entire ListView component
+export default React.memo(ListView); 

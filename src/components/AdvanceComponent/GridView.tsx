@@ -25,7 +25,7 @@ const GridView: React.FC<GridViewProps> = ({
   handleDelete,
 }) => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 border border-gray-600 rounded-lg p-6 gap-10 sm:gap-4 max-h-[3000px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 hover:scrollbar-thumb-gray-500">
+    <div className="grid grid-cols-1 lg:grid-cols-2 border border-gray-600 rounded-lg p-6 gap-10 sm:gap-4 max-h-[5000px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 hover:scrollbar-thumb-gray-500">
       {filteredUsers.length > 0 ? (
         filteredUsers.map((user, index) => (
           <div key={index} className="relative">
