@@ -46,7 +46,7 @@ const EmailNode: React.FC<NodeProps> = ({ data, selected }) => {
 
   return (
     <div
-      className={`px-4 py-3 border rounded-xl bg-gray-900 shadow-lg transition-all duration-200 min-w-40 ${
+      className={`px-4 py-3 border rounded-full bg-gray-900 shadow-lg transition-all duration-200 min-w-40 ${
         selected
           ? "border-blue-500 shadow-xl ring-2 ring-blue-500/30"
           : "border-gray-700 hover:border-blue-400 hover:shadow-xl"
@@ -62,25 +62,8 @@ const EmailNode: React.FC<NodeProps> = ({ data, selected }) => {
         position={Position.Left}
         className="w-2.5 h-2.5 bg-blue-500 border border-gray-800"
       />
-      <div className="text-center">
-        <div className="flex items-center justify-center mb-2">
-          <div className="bg-blue-500/20 p-2 rounded-full">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-blue-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              />
-            </svg>
-          </div>
-        </div>
+      <div className="text-center flex  gap-4 justify-center items-center">
+      
         <div className="text-gray-100 font-medium text-sm mb-1 truncate">{data.email}</div>
         <div className="text-xs bg-gray-800 rounded-full px-2 py-1 inline-flex items-center">
           <span className="text-gray-400 mr-1">Platforms:</span>
@@ -101,7 +84,7 @@ const PlatformNode: React.FC<NodeProps> = ({ data, selected }) => {
 
   return (
     <div
-      className={`px-3 py-2 border rounded-lg bg-gray-800 shadow-lg transition-all duration-200 min-w-36 ${
+      className={`px-3 py-2 border rounded-full bg-gray-800 shadow-lg transition-all duration-200 min-w-36 ${
         selected
           ? "border-green-500 shadow-xl ring-2 ring-green-500/30"
           : "border-gray-600 hover:border-green-400 hover:shadow-xl"
@@ -117,10 +100,10 @@ const PlatformNode: React.FC<NodeProps> = ({ data, selected }) => {
         position={Position.Left}
         className="w-2.5 h-2.5 bg-green-500 border border-gray-700"
       />
-      <div className="text-center">
+      <div className="text-center  flex  gap-4 justify-center items-center">
         <div className="flex items-center justify-center gap-2 mb-2">
           <div className="relative">
-            <div className="bg-gray-700/50 p-1.5 rounded-full">
+            {/* <div className="bg-gray-700/50 p-1.5 rounded-full">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4 text-gray-300"
@@ -135,19 +118,13 @@ const PlatformNode: React.FC<NodeProps> = ({ data, selected }) => {
                   d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
                 />
               </svg>
-            </div>
-            {isReliable && (
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border border-gray-800"></div>
-            )}
+            </div> */}
           </div>
-          <div className={`w-2 h-2 rounded-full ${statusColor}`}></div>
         </div>
         <div className="text-gray-100 font-medium text-sm mb-1 truncate">
           {platform.pretty_name || platform.module}
         </div>
-        <div className="text-xs bg-gray-700/50 rounded-full px-2 py-0.5 capitalize mb-2">
-          {platform.status}
-        </div>
+
         {data.userName && (
           <div className="text-xs text-gray-300 bg-gray-900/50 rounded px-2 py-1 truncate">
             {data.userName}
@@ -168,7 +145,7 @@ const UserNode: React.FC<NodeProps> = ({ data, selected }) => {
 
   return (
     <div
-      className={`px-3 py-2 border rounded-lg bg-gray-700 shadow-lg transition-all duration-200 min-w-32 ${
+      className={`px-3 py-2 border rounded-full bg-gray-700 shadow-lg transition-all duration-200 min-w-32 ${
         selected
           ? "border-purple-500 shadow-xl ring-2 ring-purple-500/30"
           : "border-gray-500 hover:border-purple-400 hover:shadow-xl"
@@ -184,28 +161,9 @@ const UserNode: React.FC<NodeProps> = ({ data, selected }) => {
         position={Position.Left}
         className="w-2.5 h-2.5 bg-purple-500 border border-gray-600"
       />
-      <div className="text-center">
-        <div className="flex items-center justify-center mb-2">
-          <div className="bg-purple-500/20 p-2 rounded-full">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-purple-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
-          </div>
-        </div>
-        <div className="text-gray-100 font-medium text-sm mb-1 truncate">
-          {String(userName)}
-        </div>
+      <div className="text-center text-center flex  gap-4 justify-center items-center">
+        <div className="flex items-center justify-center mb-2"></div>
+        <div className="text-gray-100 font-medium text-sm mb-1 truncate">{String(userName)}</div>
         {location && (
           <div className="text-xs text-gray-400 flex items-center justify-center">
             <svg
@@ -269,8 +227,8 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
     // Create email nodes with improved spacing
     const emails = Array.from(platformCounts.keys());
     emails.forEach((email, index) => {
-      const x = 400 + (index % 3) * 1000;
-      const y = 300 + Math.floor(index / 3) * 700;
+      const x = 1400 + index * 1000;
+      const y = 1500 + index * 1000;
       emailPositions.set(email, { x, y });
 
       nodes.push({
@@ -341,7 +299,7 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
         id: `edge-email-platform-${platformIndex}`,
         source: `email-${email}`,
         target: platformNodeId,
-        type: "smoothstep",
+        type: "bezier",
         style: {
           stroke: "#4b5563",
           strokeWidth: 2,
@@ -352,8 +310,8 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
       // Create user node if detailed user info exists
       if (userName && Object.keys(userInfo).length > 3) {
         const userNodeId = `user-${userName}-${platformIndex}`;
-        const userX = platformX + (Math.random() - 0.5) * 400;
-        const userY = platformY + 300 + Math.random() * 150;
+        const userX = platformX + (Math.random() - 0.5) * 1000;
+        const userY = platformY + 300 + Math.random() * 1000;
 
         nodes.push({
           id: userNodeId,
@@ -371,7 +329,7 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
           id: `edge-platform-user-${platformIndex}`,
           source: platformNodeId,
           target: userNodeId,
-          type: "smoothstep",
+          type: "bezier",
           style: {
             stroke: "#6b46c1",
             strokeWidth: 1.5,
@@ -403,13 +361,13 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
       const matchesSearch = searchTerm
         ? JSON.stringify(node.data).toLowerCase().includes(searchTerm.toLowerCase())
         : true;
-      
-      const matchesFilter = 
+
+      const matchesFilter =
         activeFilter === "all" ||
         (activeFilter === "email" && node.type === "email") ||
         (activeFilter === "platform" && node.type === "platform") ||
         (activeFilter === "user" && node.type === "user");
-      
+
       return matchesSearch && matchesFilter;
     });
   }, [nodes, searchTerm, activeFilter]);
@@ -426,13 +384,11 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
         nodeTypes={nodeTypes}
         fitView
         attributionPosition="bottom-left"
-        className="bg-gradient-to-br from-gray-950 to-gray-900"
+        className="bg-gradient-to-br from-black to-gray-900"
         defaultViewport={{ x: 0, y: 0, zoom: 0.4 }}
         minZoom={0.1}
         maxZoom={1.5}
       >
-       
-
         {/* Top Control Panel */}
         <Panel position="top-center" className="flex justify-center mt-4">
           <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-800 rounded-xl shadow-xl p-2 flex items-center">
@@ -455,16 +411,16 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
               <input
                 type="text"
                 placeholder="Search nodes..."
-                className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 w-64"
+                className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-full text-sm text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 w-64"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            
+
             <div className="flex space-x-1">
               <button
                 onClick={() => setActiveFilter("all")}
-                className={`px-3 py-1 text-xs rounded-lg transition-colors ${
+                className={`px-3 py-1 text-xs rounded-full transition-colors ${
                   activeFilter === "all"
                     ? "bg-blue-600 text-white"
                     : "bg-gray-800 text-gray-300 hover:bg-gray-700"
@@ -474,7 +430,7 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
               </button>
               <button
                 onClick={() => setActiveFilter("email")}
-                className={`px-3 py-1 text-xs rounded-lg transition-colors ${
+                className={`px-3 py-1 text-xs rounded-full transition-colors ${
                   activeFilter === "email"
                     ? "bg-blue-600 text-white"
                     : "bg-gray-800 text-gray-300 hover:bg-gray-700"
@@ -484,7 +440,7 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
               </button>
               <button
                 onClick={() => setActiveFilter("platform")}
-                className={`px-3 py-1 text-xs rounded-lg transition-colors ${
+                className={`px-3 py-1 text-xs rounded-full transition-colors ${
                   activeFilter === "platform"
                     ? "bg-green-600 text-white"
                     : "bg-gray-800 text-gray-300 hover:bg-gray-700"
@@ -494,7 +450,7 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
               </button>
               <button
                 onClick={() => setActiveFilter("user")}
-                className={`px-3 py-1 text-xs rounded-lg transition-colors ${
+                className={`px-3 py-1 text-xs rounded-full transition-colors ${
                   activeFilter === "user"
                     ? "bg-purple-600 text-white"
                     : "bg-gray-800 text-gray-300 hover:bg-gray-700"
@@ -502,30 +458,6 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
               >
                 Users
               </button>
-            </div>
-          </div>
-        </Panel>
-
-        {/* Stats Panel */}
-        <Panel position="bottom-left" className="mb-4 ml-4">
-          <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-800 rounded-xl shadow-xl p-3 text-xs">
-            <div className="flex space-x-4">
-              <div className="flex items-center">
-                <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
-                <span className="text-gray-300">Emails: {nodes.filter(n => n.type === "email").length}</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                <span className="text-gray-300">Platforms: {nodes.filter(n => n.type === "platform").length}</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
-                <span className="text-gray-300">Users: {nodes.filter(n => n.type === "user").length}</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-2 h-2 rounded-full bg-gray-500 mr-2"></div>
-                <span className="text-gray-300">Connections: {edges.length}</span>
-              </div>
             </div>
           </div>
         </Panel>
@@ -538,7 +470,7 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
             <h3 className="text-gray-100 font-semibold text-base flex items-center">
               {isEmailNodeData(selectedNodeData) && (
                 <>
-                  <svg
+                  {/* <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5 text-blue-400 mr-2"
                     fill="none"
@@ -551,7 +483,7 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
                       strokeWidth={2}
                       d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                     />
-                  </svg>
+                  </svg> */}
                   Email Details
                 </>
               )}
