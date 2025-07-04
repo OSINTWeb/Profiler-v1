@@ -54,16 +54,15 @@ const EmailNode: React.FC<NodeProps> = ({ data, selected }) => {
     >
       <Handle
         type="source"
-        position={Position.Right}
+        position={Position.Top}
         className="w-2.5 h-2.5 bg-blue-500 border border-gray-800"
       />
       <Handle
         type="target"
-        position={Position.Left}
+        position={Position.Bottom}
         className="w-2.5 h-2.5 bg-blue-500 border border-gray-800"
       />
-      <div className="text-center flex  gap-4 justify-center items-center">
-      
+      <div className="text-center flex gap-4 justify-center items-center">
         <div className="text-gray-100 font-medium text-sm mb-1 truncate">{data.email}</div>
         <div className="text-xs bg-gray-800 rounded-full px-2 py-1 inline-flex items-center">
           <span className="text-gray-400 mr-1">Platforms:</span>
@@ -92,33 +91,18 @@ const PlatformNode: React.FC<NodeProps> = ({ data, selected }) => {
     >
       <Handle
         type="source"
-        position={Position.Right}
+        position={Position.Top}
         className="w-2.5 h-2.5 bg-green-500 border border-gray-700"
       />
       <Handle
         type="target"
-        position={Position.Left}
+        position={Position.Bottom}
         className="w-2.5 h-2.5 bg-green-500 border border-gray-700"
       />
-      <div className="text-center  flex  gap-4 justify-center items-center">
+      <div className="text-center flex gap-4 justify-center items-center">
         <div className="flex items-center justify-center gap-2 mb-2">
           <div className="relative">
-            {/* <div className="bg-gray-700/50 p-1.5 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 text-gray-300"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                />
-              </svg>
-            </div> */}
+            {/* Platform icon removed for cleaner look */}
           </div>
         </div>
         <div className="text-gray-100 font-medium text-sm mb-1 truncate">
@@ -153,15 +137,15 @@ const UserNode: React.FC<NodeProps> = ({ data, selected }) => {
     >
       <Handle
         type="source"
-        position={Position.Right}
+        position={Position.Top}
         className="w-2.5 h-2.5 bg-purple-500 border border-gray-600"
       />
       <Handle
         type="target"
-        position={Position.Left}
+        position={Position.Bottom}
         className="w-2.5 h-2.5 bg-purple-500 border border-gray-600"
       />
-      <div className="text-center text-center flex  gap-4 justify-center items-center">
+      <div className="text-center text-center flex gap-4 justify-center items-center">
         <div className="flex items-center justify-center mb-2"></div>
         <div className="text-gray-100 font-medium text-sm mb-1 truncate">{String(userName)}</div>
         {location && (
@@ -208,8 +192,9 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
   const [selectedNodeData, setSelectedNodeData] = useState<Record<string, unknown> | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<"all" | "email" | "platform" | "user">("all");
+  const [expandedPlatformId, setExpandedPlatformId] = useState<string | null>(null);
 
-  // Transform PlatformData to React Flow format
+  // Transform PlatformData to React Flow format with improved positioning
   const { initialNodes, initialEdges } = useMemo(() => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
@@ -224,11 +209,18 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
       }
     });
 
-    // Create email nodes with improved spacing
+    // Create email nodes with better initial positioning
     const emails = Array.from(platformCounts.keys());
+    const centerX = 5000;
+    const centerY = 3000;
+    const radius = 1800;
+    
     emails.forEach((email, index) => {
-      const x = 1400 + index * 1000;
-      const y = 1500 + index * 1000;
+      // Position email nodes in a circle around the center
+      const angle = (index * (2 * Math.PI)) / emails.length;
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+      
       emailPositions.set(email, { x, y });
 
       nodes.push({
@@ -244,24 +236,20 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
     });
 
     // Create platform and user nodes with better scattering
-    let platformIndex = 0;
-    data.forEach((platform) => {
+    data.forEach((platform, platformIndex) => {
       const email = platform.query.includes("@") ? platform.query : null;
       if (!email) return;
 
       const emailPos = emailPositions.get(email);
       if (!emailPos) return;
 
-      // Calculate platform position with improved distribution
+      // Calculate platform position in a circular pattern around the email
       const platformsForEmail = data.filter((p) => p.query === email).length;
-      const baseAngle = platformIndex * (360 / Math.max(platformsForEmail, 6)) * (Math.PI / 180);
-      const angleVariation = (Math.random() - 0.5) * 0.6;
-      const angle = baseAngle + angleVariation;
-      const baseRadius = 500;
-      const radiusVariation = Math.random() * 250;
-      const radius = baseRadius + radiusVariation;
-      const platformX = emailPos.x + Math.cos(angle) * radius;
-      const platformY = emailPos.y + Math.sin(angle) * radius;
+      const angle = (platformIndex % platformsForEmail) * (2 * Math.PI / platformsForEmail);
+      const platformRadius = 1000 + (Math.random() * 800);
+      
+      const platformX = emailPos.x + platformRadius * Math.cos(angle);
+      const platformY = emailPos.y + platformRadius * Math.sin(angle);
 
       // Get user information
       const userInfo = platform.spec_format[0] || {};
@@ -310,8 +298,18 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
       // Create user node if detailed user info exists
       if (userName && Object.keys(userInfo).length > 3) {
         const userNodeId = `user-${userName}-${platformIndex}`;
-        const userX = platformX + (Math.random() - 0.5) * 1000;
-        const userY = platformY + 300 + Math.random() * 1000;
+        
+        // Calculate angle based on the platform's angle plus a slight offset
+        // This ensures user nodes appear on the outer edge relative to the email center
+        const emailCenterAngle = Math.atan2(platformY - emailPos.y, platformX - emailPos.x);
+        const userAngle = emailCenterAngle + (Math.random() * 0.5 - 0.25); // Small random deviation
+        
+        // Position user node further out from the platform node
+        const userRadius = 1000 + (Math.random() * 300); // More consistent radius with less randomness
+        
+        // Calculate position relative to platform node
+        const userX = platformX + userRadius * Math.cos(userAngle);
+        const userY = platformY + userRadius * Math.sin(userAngle);
 
         nodes.push({
           id: userNodeId,
@@ -320,30 +318,31 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
           data: {
             userInfo,
             platforms: [platform.pretty_name],
+            parentPlatformId: platformNodeId,
           },
           draggable: true,
+          hidden: true, // Initially hidden
         });
 
-        // Link platform to user
+        // Link platform to user with a curved edge
         edges.push({
           id: `edge-platform-user-${platformIndex}`,
           source: platformNodeId,
           target: userNodeId,
-          type: "bezier",
+          type: "bezier", // Changed from bezier for better curved appearance
           style: {
             stroke: "#6b46c1",
             strokeWidth: 1.5,
           },
+          hidden: true, // Initially hidden
         });
       }
-
-      platformIndex++;
     });
 
     return { initialNodes: nodes, initialEdges: edges };
   }, [data]);
 
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const onConnect = useCallback(
@@ -352,8 +351,50 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
   );
 
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
-    setSelectedNodeData(node.data);
-  }, []);
+    if (node.type === "platform") {
+      // Toggle visibility of connected user nodes
+      setNodes((nds) =>
+        nds.map((n) => {
+          if (n.data.parentPlatformId === node.id) {
+            const isCurrentlyHidden = expandedPlatformId !== node.id;
+            // Show the user details panel when expanding
+            if (isCurrentlyHidden) {
+              setSelectedNodeData(n.data);
+            }
+            return {
+              ...n,
+              hidden: !isCurrentlyHidden,
+            };
+          }
+          return n;
+        })
+      );
+
+      setEdges((eds) =>
+        eds.map((e) => {
+          if (e.source === node.id) {
+            return {
+              ...e,
+              hidden: expandedPlatformId === node.id,
+            };
+          }
+          return e;
+        })
+      );
+
+      setExpandedPlatformId((prev) => {
+        // Clear selected data when collapsing
+        if (prev === node.id) {
+          setSelectedNodeData(null);
+        }
+        return prev === node.id ? null : node.id;
+      });
+    } else if (node.type === "email") {
+      // Only show info panel for email nodes
+      setSelectedNodeData(node.data);
+    }
+    // User nodes are no longer clickable - removed the user node case
+  }, [expandedPlatformId, setNodes, setEdges]);
 
   // Filter nodes based on search and active filter
   const filteredNodes = useMemo(() => {
@@ -368,15 +409,19 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
         (activeFilter === "platform" && node.type === "platform") ||
         (activeFilter === "user" && node.type === "user");
 
-      return matchesSearch && matchesFilter;
+      return matchesSearch && matchesFilter && !node.hidden;
     });
   }, [nodes, searchTerm, activeFilter]);
+
+  const filteredEdges = useMemo(() => {
+    return edges.filter((edge) => !edge.hidden);
+  }, [edges]);
 
   return (
     <div className="w-full h-[800px] bg-gray-950 relative overflow-hidden rounded-xl border border-gray-800">
       <ReactFlow
         nodes={filteredNodes}
-        edges={edges}
+        edges={filteredEdges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
@@ -385,10 +430,13 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
         fitView
         attributionPosition="bottom-left"
         className="bg-gradient-to-br from-black to-gray-900"
-        defaultViewport={{ x: 0, y: 0, zoom: 0.4 }}
-        minZoom={0.1}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.2 }}
+        minZoom={0.05}
         maxZoom={1.5}
       >
+     
+        <Background gap={24} color="#374151" />
+
         {/* Top Control Panel */}
         <Panel position="top-center" className="flex justify-center mt-4">
           <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-800 rounded-xl shadow-xl p-2 flex items-center">
@@ -463,47 +511,14 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
         </Panel>
       </ReactFlow>
 
-      {/* Enhanced Node Details Panel */}
-      {selectedNodeData && (
+      {/* Enhanced Node Details Panel - Only show for email and user nodes */}
+      {selectedNodeData && (isEmailNodeData(selectedNodeData) || isUserNodeData(selectedNodeData)) && (
         <div className="absolute top-6 right-6 w-80 bg-gray-900/95 backdrop-blur-sm border border-gray-700 rounded-xl shadow-xl overflow-hidden">
           <div className="flex items-center justify-between p-4 border-b border-gray-700">
             <h3 className="text-gray-100 font-semibold text-base flex items-center">
               {isEmailNodeData(selectedNodeData) && (
                 <>
-                  {/* <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-blue-400 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    />
-                  </svg> */}
                   Email Details
-                </>
-              )}
-              {isPlatformNodeData(selectedNodeData) && (
-                <>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-green-400 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                    />
-                  </svg>
-                  Platform Details
                 </>
               )}
               {isUserNodeData(selectedNodeData) && (
@@ -562,61 +577,6 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
                       </div>
                     </div>
                   </div>
-                </div>
-              </>
-            )}
-
-            {isPlatformNodeData(selectedNodeData) && (
-              <>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-xs text-gray-400 block mb-1">Platform</label>
-                    <div className="text-gray-100 text-sm font-medium bg-gray-800 rounded px-3 py-2">
-                      {selectedNodeData.platform.pretty_name}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs text-gray-400 block mb-1">Status</label>
-                      <div
-                        className={`text-xs font-medium rounded-full px-3 py-1 capitalize ${
-                          selectedNodeData.platform.status === "valid"
-                            ? "bg-green-900/50 text-green-400"
-                            : "bg-yellow-900/50 text-yellow-400"
-                        }`}
-                      >
-                        {selectedNodeData.platform.status}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-400 block mb-1">Reliability</label>
-                      <div
-                        className={`text-xs font-medium rounded-full px-3 py-1 ${
-                          selectedNodeData.platform.reliable_source
-                            ? "bg-green-900/50 text-green-400"
-                            : "bg-gray-800 text-gray-400"
-                        }`}
-                      >
-                        {selectedNodeData.platform.reliable_source ? "Verified" : "Unverified"}
-                      </div>
-                    </div>
-                  </div>
-                  {selectedNodeData.platform.category?.name && (
-                    <div>
-                      <label className="text-xs text-gray-400 block mb-1">Category</label>
-                      <div className="text-gray-100 text-sm bg-gray-800 rounded px-3 py-1.5">
-                        {selectedNodeData.platform.category.name}
-                      </div>
-                    </div>
-                  )}
-                  {selectedNodeData.userName && (
-                    <div>
-                      <label className="text-xs text-gray-400 block mb-1">Associated User</label>
-                      <div className="text-gray-100 text-sm font-medium bg-gray-800 rounded px-3 py-2">
-                        {selectedNodeData.userName}
-                      </div>
-                    </div>
-                  )}
                 </div>
               </>
             )}
