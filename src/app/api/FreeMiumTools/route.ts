@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log("✅ API Route: External API response received",data);
+    // console.log("✅ API Route: External API response received",data);
 
     return NextResponse.json(data, { status: 200 });
 

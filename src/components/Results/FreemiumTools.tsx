@@ -107,27 +107,120 @@ interface FreemiumToolsProps {
   loading?: boolean;
 }
 
+// Add helper functions at the top of the file after the interfaces
+const renderObject = (obj: unknown, depth = 0): string => {
+  if (depth > 3) return '[Nested Object]'; // Prevent infinite recursion
+  if (obj === null) return 'null';
+  if (obj === undefined) return 'undefined';
+  if (typeof obj === 'string') return obj;
+  if (typeof obj === 'number' || typeof obj === 'boolean') return String(obj);
+  
+  if (Array.isArray(obj)) {
+    return obj.map(item => renderObject(item, depth + 1)).join(', ');
+  }
+  
+  if (typeof obj === 'object') {
+    try {
+      const entries = Object.entries(obj as Record<string, unknown>);
+      if (entries.length === 0) return '{}';
+      return `{ ${entries
+        .map(([key, value]) => `${key}: ${renderObject(value, depth + 1)}`)
+        .join(', ')} }`;
+    } catch {
+      return String(obj);
+    }
+  }
+  return String(obj);
+};
+
+const renderObjectAsTable = (obj: unknown, depth = 0): React.ReactElement => {
+  if (depth > 5) return <span className="text-zinc-300">[Maximum Depth Reached]</span>;
+  
+  if (typeof obj !== 'object' || obj === null) {
+    return <span className="text-zinc-300">{renderObject(obj)}</span>;
+  }
+
+  if (Array.isArray(obj)) {
+    return (
+      <div className="space-y-4">
+        {obj.map((item, index) => (
+          <div key={index} className="border border-zinc-700 rounded-lg p-4">
+            <div className="text-zinc-400 text-sm mb-2">Item {index + 1}</div>
+            {renderObjectAsTable(item, depth + 1)}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr>
+            <th className="p-2 border border-zinc-700 bg-zinc-800 text-white">Key</th>
+            <th className="p-2 border border-zinc-700 bg-zinc-800 text-white">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(obj).map(([key, value], index) => (
+            <tr key={index} className="hover:bg-zinc-800">
+              <td className="p-2 border border-zinc-700 text-zinc-300 font-medium">
+                {key}
+                {Array.isArray(value) && (
+                  <span className="ml-2 text-zinc-400 text-sm">
+                    ({value.length} items)
+                  </span>
+                )}
+              </td>
+              <td className="p-2 border border-zinc-700 text-zinc-300">
+                {typeof value === 'object' && value !== null ? (
+                  <details>
+                    <summary className="cursor-pointer text-zinc-400 hover:text-zinc-300 flex items-center gap-2">
+                      <span>View Details</span>
+                      {Array.isArray(value) && (
+                        <span className="text-xs bg-zinc-700 px-2 py-1 rounded">
+                          {value.length} items
+                        </span>
+                      )}
+                    </summary>
+                    <div className="mt-2 pl-4">
+                      {renderObjectAsTable(value, depth + 1)}
+                    </div>
+                  </details>
+                ) : (
+                  renderObject(value)
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
 const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumToolsProps) => {
   
   // Loading state
   if (loading) {
     return (
       <div className="w-full max-w-4xl mx-auto px-4 py-6">
-        <Card className="border border-gray-300 bg-white shadow-lg">
+        <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
           <div className="p-8 text-center space-y-4">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
-            <h3 className="text-xl font-bold text-black">Processing {selectedTool} Request</h3>
-            <p className="text-gray-600">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            <h3 className="text-xl font-bold text-white">Processing {selectedTool} Request</h3>
+            <p className="text-zinc-300">
               {selectedTool === "Mail2Linkedin" 
                 ? "Searching LinkedIn profiles..." 
                 : selectedTool === "EmailIntel" 
                 ? "Scanning platforms for email intelligence..." 
                 : "Processing your request..."}
             </p>
-            <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+            <div className="flex items-center justify-center space-x-2 text-sm text-zinc-400">
+              <div className="w-2 h-2 bg-zinc-300 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-zinc-300 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+              <div className="w-2 h-2 bg-zinc-300 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
             </div>
           </div>
         </Card>
@@ -141,7 +234,7 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
     return (
       <div className="w-full max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Header Section */}
-        <Card className="border border-gray-300 bg-white shadow-lg">
+        <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
           <div className="p-6">
             <div className="flex flex-col md:flex-row gap-6">
               {/* Profile Image */}
@@ -149,42 +242,42 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
                 <img
                   src={profile.photoUrl}
                   alt={profile.displayName}
-                  className="w-32 h-32 rounded-full border-4 border-gray-300 object-cover"
+                  className="w-32 h-32 rounded-full border-4 border-zinc-700 object-cover"
                 />
               </div>
               
               {/* Basic Info */}
               <div className="flex-1 space-y-3">
                 <div>
-                  <h1 className="text-3xl font-bold text-black">{profile.displayName}</h1>
-                  <p className="text-lg text-gray-700 mt-1">{profile.headline}</p>
+                  <h1 className="text-3xl font-bold text-white">{profile.displayName}</h1>
+                  <p className="text-lg text-zinc-300 mt-1">{profile.headline}</p>
                 </div>
                 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-black">Company:</span>
-                    <span className="text-gray-700">{profile.companyName}</span>
+                    <span className="font-semibold text-white">Company:</span>
+                    <span className="text-zinc-300">{profile.companyName}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-black">Location:</span>
-                    <span className="text-gray-700">{profile.location}</span>
+                    <span className="font-semibold text-white">Location:</span>
+                    <span className="text-zinc-300">{profile.location}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-black">Connections:</span>
-                    <span className="text-gray-700">
+                    <span className="font-semibold text-white">Connections:</span>
+                    <span className="text-zinc-300">
                       {profile.connectionCount}{profile.isConnectionCountObfuscated ? "+" : ""}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-black">Locale:</span>
-                    <span className="text-gray-700">
+                    <span className="font-semibold text-white">Locale:</span>
+                    <span className="text-zinc-300">
                       {profile.locale.language.toUpperCase()} - {profile.locale.country.toUpperCase()}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-black">Profile Status:</span>
+                    <span className="font-semibold text-white">Profile Status:</span>
                     <span className={`px-2 py-1 rounded text-sm font-medium ${
-                      profile.isPublic ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                      profile.isPublic ? "bg-green-900 text-green-100" : "bg-red-900 text-red-100"
                     }`}>
                       {profile.isPublic ? "Public" : "Private"}
                     </span>
@@ -195,14 +288,14 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
                 <div className="flex flex-wrap gap-3 pt-3">
                   <Button 
                     onClick={() => window.open(profile.linkedInUrl, '_blank')}
-                    className="bg-black text-white hover:bg-gray-800"
+                    className="bg-white text-[#18181B] hover:bg-zinc-200"
                   >
                     View LinkedIn Profile
                   </Button>
                   <Button 
                     onClick={() => window.open(profile.reportProfileUrl, '_blank')}
                     variant="outline"
-                    className="border-black text-black hover:bg-gray-100"
+                    className="border-white text-white hover:bg-zinc-800"
                   >
                     Report Profile
                   </Button>
@@ -214,14 +307,14 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
 
         {/* Skills Section */}
         {profile.skills && profile.skills.length > 0 && (
-          <Card className="border border-gray-300 bg-white shadow-lg">
+          <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
             <div className="p-6">
-              <h2 className="text-2xl font-bold text-black mb-4">Skills ({profile.skills.length})</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">Skills ({profile.skills.length})</h2>
               <div className="flex flex-wrap gap-2">
                 {profile.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 bg-gray-100 border border-gray-300 rounded-full text-sm font-medium text-black hover:bg-gray-200 transition-colors"
+                    className="px-3 py-1 bg-zinc-800 border border-zinc-700 rounded-full text-sm font-medium text-zinc-300 hover:bg-zinc-700 transition-colors"
                   >
                     {skill}
                   </span>
@@ -233,73 +326,73 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
 
         {/* Education Section */}
         {profile.schools && profile.schools.educationsCount > 0 && (
-          <Card className="border border-gray-300 bg-white shadow-lg">
+          <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
             <div className="p-6">
-              <h2 className="text-2xl font-bold text-black mb-4">
+              <h2 className="text-2xl font-bold text-white mb-4">
                 Education ({profile.schools.educationsCount})
               </h2>
               <div className="space-y-4">
-                {profile.schools.educationHistory.map((education, index) => (
-                  <div key={index} className="border-l-4 border-black pl-6 py-4 bg-gray-50 rounded-r-lg">
-                    <div className="space-y-2">
-                      <div className="flex items-start justify-between">
-                        <h3 className="text-lg font-bold text-black">
-                          {String(education.school || education.schoolName || `Education ${index + 1}`)}
-                        </h3>
-                        <span className="text-sm text-gray-500 bg-white px-2 py-1 rounded border">
-                          #{index + 1}
-                        </span>
+                {Array.isArray(profile.schools.educationHistory) && 
+                  profile.schools.educationHistory.map((education, index) => (
+                    <div key={index} className="border-l-4 border-white pl-6 py-4 bg-zinc-800 rounded-r-lg">
+                      <div className="space-y-2">
+                        <div className="flex items-start justify-between">
+                          <h3 className="text-lg font-bold text-white">
+                            {renderObject(education.schoolName || `Education ${index + 1}`)}
+                          </h3>
+                          <span className="text-sm text-zinc-300 bg-[#18181B] px-2 py-1 rounded border border-zinc-700">
+                            #{index + 1}
+                          </span>
+                        </div>
+                        
+                        {(education.degree || education.degreeName) && (
+                          <div className="text-white font-medium">
+                            <span className="text-zinc-400">Degree: </span>
+                            {renderObject(education.degree || education.degreeName)}
+                          </div>
+                        )}
+                        
+                        {(education.field || education.fieldOfStudy) && (
+                          <div className="text-zinc-300">
+                            <span className="text-zinc-400">Field: </span>
+                            {renderObject(education.field || education.fieldOfStudy)}
+                          </div>
+                        )}
+                        
+                        {(education.startDate || education.endDate) && (
+                          <div className="text-zinc-300 text-sm">
+                            <span className="text-zinc-400">Duration: </span>
+                            {renderObject(education.startDate || 'Unknown')} - {renderObject(education.endDate || 'Present')}
+                          </div>
+                        )}
+                        
+                        {education.activities && (
+                          <div className="text-zinc-300 text-sm">
+                            <span className="text-zinc-400">Activities: </span>
+                            {renderObject(education.activities)}
+                          </div>
+                        )}
+                        
+                        {education.description && (
+                          <div className="text-zinc-300 text-sm mt-2 p-2 bg-[#18181B] rounded border">
+                            {typeof education.description === 'object' 
+                              ? renderObjectAsTable(education.description)
+                              : renderObject(education.description)}
+                          </div>
+                        )}
+                        
+                        <details className="mt-3">
+                          <summary className="text-xs text-zinc-400 cursor-pointer hover:text-zinc-300 flex items-center gap-1">
+                            <span>🔍</span> View All Available Data
+                          </summary>
+                          <div className="text-xs text-zinc-400 mt-2 p-3 bg-[#18181B] rounded border border-zinc-700">
+                            <div className="font-medium mb-2">Available Fields:</div>
+                            {renderObjectAsTable(education)}
+                          </div>
+                        </details>
                       </div>
-                      
-                      {(education.degree || education.degreeName) && (
-                        <div className="text-black font-medium">
-                          <span className="text-gray-600">Degree: </span>
-                          {String(education.degree || education.degreeName)}
-                        </div>
-                      )}
-                      
-                      {(education.field || education.fieldOfStudy) && (
-                        <div className="text-gray-700">
-                          <span className="text-gray-600">Field: </span>
-                          {String(education.field || education.fieldOfStudy)}
-                        </div>
-                      )}
-                      
-                      {(education.startDate || education.endDate) && (
-                        <div className="text-gray-700 text-sm">
-                          <span className="text-gray-600">Duration: </span>
-                          {String(education.startDate || 'Unknown')} - {String(education.endDate || 'Present')}
-                        </div>
-                      )}
-                      
-                      {education.activities && (
-                        <div className="text-gray-700 text-sm">
-                          <span className="text-gray-600">Activities: </span>
-                          {String(education.activities)}
-                        </div>
-                      )}
-                      
-                      {education.description && (
-                        <div className="text-gray-700 text-sm mt-2 p-2 bg-white rounded border">
-                          {String(education.description)}
-                        </div>
-                      )}
-                      
-                      {/* Show all available fields for debugging */}
-                      <details className="mt-3">
-                        <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700 flex items-center gap-1">
-                          <span>🔍</span> View All Available Data
-                        </summary>
-                        <div className="text-xs text-gray-600 mt-2 p-3 bg-white rounded border">
-                          <div className="font-medium mb-2">Available Fields:</div>
-                          <pre className="overflow-auto max-h-40 whitespace-pre-wrap">
-                            {JSON.stringify(education, null, 2)}
-                          </pre>
-                        </div>
-                      </details>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           </Card>
@@ -307,67 +400,67 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
 
         {/* Work Experience Section */}
         {profile.positions && profile.positions.positionsCount > 0 && (
-          <Card className="border border-gray-300 bg-white shadow-lg">
+          <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
             <div className="p-6">
-              <h2 className="text-2xl font-bold text-black mb-4">
+              <h2 className="text-2xl font-bold text-white mb-4">
                 Work Experience ({profile.positions.positionsCount})
               </h2>
               <div className="space-y-4">
-                {profile.positions.positionHistory.map((position, index) => (
-                  <div key={index} className="border-l-4 border-black pl-6 py-4 bg-gray-50 rounded-r-lg">
-                    <div className="space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-bold text-black">
-                            {String(position.title || position.jobTitle || `Position ${index + 1}`)}
-                          </h3>
-                          <h4 className="text-base font-semibold text-gray-700 mt-1">
-                            {String(position.company || position.companyName || 'Company not specified')}
-                          </h4>
-                        </div>
-                        <span className="text-sm text-gray-500 bg-white px-2 py-1 rounded border">
-                          #{index + 1}
-                        </span>
-                      </div>
-                      
-                      {(position.startDate || position.endDate) && (
-                        <div className="text-gray-700 text-sm">
-                          <span className="text-gray-600">Duration: </span>
-                          {String(position.startDate || 'Unknown')} - {String(position.endDate || 'Present')}
-                        </div>
-                      )}
-                      
-                      {position.location && (
-                        <div className="text-gray-700 text-sm">
-                          <span className="text-gray-600">Location: </span>
-                          {String(position.location)}
-                        </div>
-                      )}
-                      
-                      {(position.description || position.summary) && (
-                        <div className="text-gray-700 text-sm mt-3 p-3 bg-white rounded border">
-                          <span className="text-gray-600 font-medium">Description: </span>
-                          <div className="mt-1">
-                            {String(position.description || position.summary)}
+                {Array.isArray(profile.positions.positionHistory) &&
+                  profile.positions.positionHistory.map((position, index) => (
+                    <div key={index} className="border-l-4 border-white pl-6 py-4 bg-zinc-800 rounded-r-lg">
+                      <div className="space-y-2">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-bold text-white">
+                              {renderObject(position.title || position.jobTitle || `Position ${index + 1}`)}
+                            </h3>
+                            <h4 className="text-base font-semibold text-zinc-300 mt-1">
+                              {renderObject(position.companyName || 'Company not specified')}
+                            </h4>
                           </div>
+                          <span className="text-sm text-zinc-300 bg-[#18181B] px-2 py-1 rounded border border-zinc-700">
+                            #{index + 1}
+                          </span>
                         </div>
-                      )}
-                      
-                      {/* Show all available fields for debugging */}
-                      <details className="mt-3">
-                        <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700 flex items-center gap-1">
-                          <span>🔍</span> View All Available Data
-                        </summary>
-                        <div className="text-xs text-gray-600 mt-2 p-3 bg-white rounded border">
-                          <div className="font-medium mb-2">Available Fields:</div>
-                          <pre className="overflow-auto max-h-40 whitespace-pre-wrap">
-                            {JSON.stringify(position, null, 2)}
-                          </pre>
-                        </div>
-                      </details>
+                        
+                        {(position.startDate || position.endDate) && (
+                          <div className="text-zinc-300 text-sm">
+                            <span className="text-zinc-400">Duration: </span>
+                            {renderObject(position.startDate || 'Unknown')} - {renderObject(position.endDate || 'Present')}
+                          </div>
+                        )}
+                        
+                        {position.location && (
+                          <div className="text-zinc-300 text-sm">
+                            <span className="text-zinc-400">Location: </span>
+                            {renderObject(position.location)}
+                          </div>
+                        )}
+                        
+                        {(position.description || position.summary) && (
+                          <div className="text-zinc-300 text-sm mt-3 p-3 bg-[#18181B] rounded border">
+                            <span className="text-zinc-400 font-medium">Description: </span>
+                            <div className="mt-1">
+                              {typeof position.description === 'object' || typeof position.summary === 'object'
+                                ? renderObjectAsTable(position.description || position.summary)
+                                : renderObject(position.description || position.summary)}
+                            </div>
+                          </div>
+                        )}
+                        
+                        <details className="mt-3">
+                          <summary className="text-xs text-zinc-400 cursor-pointer hover:text-zinc-300 flex items-center gap-1">
+                            <span>🔍</span> View All Available Data
+                          </summary>
+                          <div className="text-xs text-zinc-400 mt-2 p-3 bg-[#18181B] rounded border border-zinc-700">
+                            <div className="font-medium mb-2">Available Fields:</div>
+                            {renderObjectAsTable(position)}
+                          </div>
+                        </details>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           </Card>
@@ -376,59 +469,59 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
         {/* Additional Information */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Skill Endorsements */}
-          <Card className="border border-gray-300 bg-white shadow-lg">
+          <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
             <div className="p-4">
-              <h3 className="text-lg font-bold text-black mb-2">Skill Endorsements</h3>
-              <div className="text-2xl font-bold text-gray-700">
+              <h3 className="text-lg font-bold text-white mb-2">Skill Endorsements</h3>
+              <div className="text-2xl font-bold text-zinc-300">
                 {profile.skillEndorsements.skillEndorsementsCount}
               </div>
-              <div className="text-sm text-gray-600">Total Endorsements</div>
+              <div className="text-sm text-zinc-400">Total Endorsements</div>
             </div>
           </Card>
 
           {/* News Mentions */}
-          <Card className="border border-gray-300 bg-white shadow-lg">
+          <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
             <div className="p-4">
-              <h3 className="text-lg font-bold text-black mb-2">News Mentions</h3>
-              <div className="text-2xl font-bold text-gray-700">
+              <h3 className="text-lg font-bold text-white mb-2">News Mentions</h3>
+              <div className="text-2xl font-bold text-zinc-300">
                 {profile.newsMentions.newsMentionCount}
               </div>
-              <div className="text-sm text-gray-600">Media Coverage</div>
+              <div className="text-sm text-zinc-400">Media Coverage</div>
             </div>
           </Card>
 
           {/* User Generated Content */}
-          <Card className="border border-gray-300 bg-white shadow-lg">
+          <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
             <div className="p-4">
-              <h3 className="text-lg font-bold text-black mb-2">Posts & Content</h3>
-              <div className="text-2xl font-bold text-gray-700">
+              <h3 className="text-lg font-bold text-white mb-2">Posts & Content</h3>
+              <div className="text-2xl font-bold text-zinc-300">
                 {profile.userGeneratedContents.userGeneratedContentCount}
               </div>
-              <div className="text-sm text-gray-600">Published Content</div>
+              <div className="text-sm text-zinc-400">Published Content</div>
             </div>
           </Card>
         </div>
 
         {/* Contact Information */}
-        <Card className="border border-gray-300 bg-white shadow-lg">
+        <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-black mb-4">Contact Information</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">Contact Information</h2>
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-black">Profile ID:</span>
-                <span className="text-gray-700 font-mono text-sm break-all">{profile.id}</span>
+                <span className="font-semibold text-white">Profile ID:</span>
+                <span className="text-zinc-300 font-mono text-sm break-all">{profile.id}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-black">First Name:</span>
-                <span className="text-gray-700">{profile.firstName}</span>
+                <span className="font-semibold text-white">First Name:</span>
+                <span className="text-zinc-300">{profile.firstName}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-black">Last Name:</span>
-                <span className="text-gray-700">{profile.lastName}</span>
+                <span className="font-semibold text-white">Last Name:</span>
+                <span className="text-zinc-300">{profile.lastName}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-black">Phone Numbers:</span>
-                <span className="text-gray-700">
+                <span className="font-semibold text-white">Phone Numbers:</span>
+                <span className="text-zinc-300">
                   {profile.phoneNumbers.length > 0 ? profile.phoneNumbers.join(", ") : "Not available"}
                 </span>
               </div>
@@ -451,11 +544,11 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
 
     const getStatusColor = (status: string) => {
       switch (status) {
-        case 'found': return 'bg-green-100 text-green-800 border-green-300';
-        case 'not_found': return 'bg-gray-100 text-gray-800 border-gray-300';
-        case 'rate_limited': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-        case 'error': return 'bg-red-100 text-red-800 border-red-300';
-        default: return 'bg-blue-100 text-blue-800 border-blue-300';
+        case 'found': return 'bg-green-900 text-green-100 border-green-700';
+        case 'not_found': return 'bg-zinc-800 text-zinc-100 border-zinc-700';
+        case 'rate_limited': return 'bg-yellow-900 text-yellow-100 border-yellow-700';
+        case 'error': return 'bg-red-900 text-red-100 border-red-700';
+        default: return 'bg-blue-900 text-blue-100 border-blue-700';
       }
     };
 
@@ -478,14 +571,14 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
     return (
       <div className="w-full max-w-6xl mx-auto px-4 py-6 space-y-6">
         {/* Header Section */}
-        <Card className="border border-gray-300 bg-white shadow-lg">
+        <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
           <div className="p-6">
             <div className="text-center space-y-4">
-              <h1 className="text-3xl font-bold text-black">Email Intelligence Report</h1>
-              <div className="text-xl text-gray-700 font-mono bg-gray-100 p-3 rounded border">
+              <h1 className="text-3xl font-bold text-white">Email Intelligence Report</h1>
+              <div className="text-xl text-zinc-300 font-mono bg-zinc-800 p-3 rounded border">
                 {emailData.email}
               </div>
-              <p className="text-gray-600">
+              <p className="text-zinc-400">
                 Comprehensive scan across {totalPlatforms} platforms and services
               </p>
             </div>
@@ -494,48 +587,48 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
 
         {/* Summary Statistics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="border border-green-300 bg-white shadow-lg">
+          <Card className="border border-green-900 bg-[#18181B] shadow-lg">
             <div className="p-4 text-center">
-              <div className="text-3xl font-bold text-green-600">{foundCount}</div>
-              <div className="text-sm text-gray-600">Found</div>
-              <div className="text-xs text-green-600">Active Accounts</div>
+              <div className="text-3xl font-bold text-green-400">{foundCount}</div>
+              <div className="text-sm text-zinc-300">Found</div>
+              <div className="text-xs text-green-400">Active Accounts</div>
             </div>
           </Card>
           
-          <Card className="border border-gray-300 bg-white shadow-lg">
+          <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
             <div className="p-4 text-center">
-              <div className="text-3xl font-bold text-gray-600">{notFoundCount}</div>
-              <div className="text-sm text-gray-600">Not Found</div>
-              <div className="text-xs text-gray-600">No Account</div>
+              <div className="text-3xl font-bold text-zinc-300">{notFoundCount}</div>
+              <div className="text-sm text-zinc-300">Not Found</div>
+              <div className="text-xs text-zinc-400">No Account</div>
             </div>
           </Card>
           
-          <Card className="border border-yellow-300 bg-white shadow-lg">
+          <Card className="border border-yellow-900 bg-[#18181B] shadow-lg">
             <div className="p-4 text-center">
-              <div className="text-3xl font-bold text-yellow-600">{rateLimitedCount}</div>
-              <div className="text-sm text-gray-600">Rate Limited</div>
-              <div className="text-xs text-yellow-600">Temporary Block</div>
+              <div className="text-3xl font-bold text-yellow-400">{rateLimitedCount}</div>
+              <div className="text-sm text-zinc-300">Rate Limited</div>
+              <div className="text-xs text-yellow-400">Temporary Block</div>
             </div>
           </Card>
           
-          <Card className="border border-red-300 bg-white shadow-lg">
+          <Card className="border border-red-900 bg-[#18181B] shadow-lg">
             <div className="p-4 text-center">
-              <div className="text-3xl font-bold text-red-600">{errorCount}</div>
-              <div className="text-sm text-gray-600">Errors</div>
-              <div className="text-xs text-red-600">Check Failed</div>
+              <div className="text-3xl font-bold text-red-400">{errorCount}</div>
+              <div className="text-sm text-zinc-300">Errors</div>
+              <div className="text-xs text-red-400">Check Failed</div>
             </div>
           </Card>
         </div>
 
         {/* Detailed Results by Status */}
         {Object.entries(platformsByStatus).map(([status, platforms]) => (
-          <Card key={status} className="border border-gray-300 bg-white shadow-lg">
+          <Card key={status} className="border border-zinc-700 bg-[#18181B] shadow-lg">
             <div className="p-6">
-              <h2 className="text-2xl font-bold text-black mb-4 flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(status)}`}>
                   {getStatusIcon(status)} {status.replace('_', ' ').toUpperCase()}
                 </span>
-                <span className="text-gray-600 text-lg">({platforms.length})</span>
+                <span className="text-zinc-400 text-lg">({platforms.length})</span>
               </h2>
               
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
@@ -556,16 +649,16 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
         ))}
 
         {/* Platform List */}
-        <Card className="border border-gray-300 bg-white shadow-lg">
+        <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-black mb-4">All Platforms Checked</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">All Platforms Checked</h2>
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {Object.entries(emailData.results).map(([platform, status], index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                  className="flex items-center justify-between p-3 border border-zinc-700 rounded-lg hover:bg-zinc-800"
                 >
-                  <div className="font-medium text-black capitalize">
+                  <div className="font-medium text-white capitalize">
                     {platform.replace(/([A-Z])/g, ' $1').trim()}
                   </div>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(status || 'unknown')}`}>
@@ -578,11 +671,11 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
         </Card>
 
         {/* Security Notice */}
-        <Card className="border border-gray-300 bg-gray-50 shadow-lg">
+        <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
           <div className="p-6">
-            <h3 className="text-lg font-bold text-black mb-2">🔒 Security Notice</h3>
-            <p className="text-gray-700 text-sm">
-              This report shows where the email address <span className="font-mono font-bold">{emailData.email}</span> has 
+            <h3 className="text-lg font-bold text-white mb-2">🔒 Security Notice</h3>
+            <p className="text-zinc-300 text-sm">
+              This report shows where the email address <span className="font-mono font-bold text-white">{emailData.email}</span> has 
               registered accounts across various platforms. Results marked as &quot;found&quot; indicate active or previously active 
               accounts on those services. Rate-limited results may require manual verification.
             </p>
@@ -596,11 +689,11 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
   if (!results && !loading) {
     return (
       <div className="w-full max-w-4xl mx-auto px-4 py-6">
-        <Card className="border border-gray-300 bg-gray-50 shadow-lg">
+        <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
           <div className="p-8 text-center space-y-4">
-            <div className="text-4xl text-gray-400">📭</div>
-            <h3 className="text-xl font-bold text-black">No Results Found</h3>
-            <p className="text-gray-600">
+            <div className="text-4xl text-zinc-400">📭</div>
+            <h3 className="text-xl font-bold text-white">No Results Found</h3>
+            <p className="text-zinc-300">
               We couldn&apos;t find any data for your {selectedTool} search. Please try a different query.
             </p>
           </div>
@@ -613,13 +706,11 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
   if (results) {
     return (
       <div className="w-full max-w-4xl mx-auto px-4 py-6">
-        <Card className="border border-gray-300 bg-white shadow-lg">
+        <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
           <div className="p-6">
-            <h2 className="text-xl font-bold text-black mb-4">Results for {selectedTool}</h2>
-            <div className="bg-gray-100 p-4 rounded border">
-              <pre className="text-sm overflow-auto max-h-96 whitespace-pre-wrap">
-                {JSON.stringify(results, null, 2)}
-              </pre>
+            <h2 className="text-xl font-bold text-white mb-4">Results for {selectedTool}</h2>
+            <div className="bg-zinc-800 p-4 rounded border border-zinc-700">
+              {renderObjectAsTable(results)}
             </div>
           </div>
         </Card>
