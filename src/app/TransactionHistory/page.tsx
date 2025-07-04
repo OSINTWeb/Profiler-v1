@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "@auth0/nextjs-auth0";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { 
   CreditCard, 
   Calendar, 
@@ -13,7 +14,8 @@ import {
   RefreshCw,
   ChevronLeft,
   ChevronRight,
-  ExternalLink
+  ExternalLink,
+  Home
 } from "lucide-react";
 import { TransactionApiResponse, Transaction } from "@/types/types";
 
@@ -40,7 +42,6 @@ export default function TransactionHistoryPage() {
       if (!idToken) {
         throw new Error("No authentication token available");
       }
-
       // Fetch transactions from API
       const response = await fetch(
         `https://profiler-api-production.up.railway.app/api/user/transactions?page=${page}`,
@@ -58,6 +59,7 @@ export default function TransactionHistoryPage() {
       }
 
       const data: TransactionApiResponse = await response.json();
+      console.log(data);
       
       if (data && data.length > 0) {
         const transactionData = data[0];
@@ -144,6 +146,12 @@ export default function TransactionHistoryPage() {
       {/* Header with refresh and stats */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-4">
+          <Link href="/">
+            <Button variant="outline" size="sm" className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800">
+              <Home className="w-4 h-4 mr-2" />
+              Back to Home
+            </Button>
+          </Link>
           <div className="flex items-center gap-2 text-gray-400">
             <Mail className="w-4 h-4" />
             <span className="text-sm">{userEmail}</span>

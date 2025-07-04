@@ -15,8 +15,8 @@ const stripe = new Stripe(stripeSecretKey, {
 
 export async function POST(request: NextRequest) {
   try {
-    // Parse request body to get amount and currency
-    const { amount = 20, currency = 'usd' } = await request.json();
+    // Parse request body to get amount, currency, and referralId
+    const { amount = 20, currency = 'usd', referralId } = await request.json();
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -36,10 +36,15 @@ export async function POST(request: NextRequest) {
       ],
       success_url: `${request.nextUrl.origin}/success`,
       cancel_url: `${request.nextUrl.origin}/cancel`,
+      // Add referral ID to Stripe session if present
+      ...(referralId && { client_reference_id: referralId }),
     });
 
     console.log('Stripe session created:', session.id);
     console.log('Using secret key mode:', stripeSecretKey!.startsWith('sk_test_') ? 'test' : 'live');
+    if (referralId) {
+      console.log('Referral ID included:', referralId);
+    }
 
     return Response.json({ sessionId: session.id });
   } catch (err) {

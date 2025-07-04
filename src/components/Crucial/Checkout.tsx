@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import PaymentMethodSelector, { PaymentMethod } from './PaymentMethodSelector';
 import { RazorpayOptions, RazorpayResponse } from '@/types/razorpay';
+import { getRewardfulReferralId } from '@/lib/utils';
 
 // Stripe configuration
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
@@ -34,6 +35,12 @@ export default function CheckoutButton() {
     try {
       console.log('Using publishable key mode:', stripePublishableKey!.startsWith('pk_test_') ? 'test' : 'live');
       
+      // Get Rewardful referral ID if present
+      const referralId = getRewardfulReferralId();
+      if (referralId) {
+        console.log('Including Rewardful referral ID:', referralId);
+      }
+      
       const res = await fetch('/api/Payments/checkout', {
         method: 'POST',
         headers: {
@@ -41,7 +48,8 @@ export default function CheckoutButton() {
         },
         body: JSON.stringify({
           amount: PAYMENT_AMOUNT,
-          currency: 'usd'
+          currency: 'usd',
+          referralId, // Include referral ID in the request
         }),
       });
 

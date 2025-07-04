@@ -39,4 +39,22 @@ export interface TransactionResponse {
   total_items: number;
 }
 
-export interface TransactionApiResponse extends Array<TransactionResponse> {} 
+export interface TransactionApiResponse extends Array<TransactionResponse> {}
+
+export interface OsintResult {
+  username: string;
+  found_accounts: number;
+  sites: Site[];
+}
+
+export interface Site {
+  site: string;
+  url: string;
+  linked_accounts?: string[];
+}
+
+export interface AggregatedAccount {
+  platform: string;
+  url: string;
+  sources: string[];
+} 

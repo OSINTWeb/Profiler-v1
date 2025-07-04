@@ -227,6 +227,11 @@ export default function SearchBarFreeTools() {
             onChange={(e) => {
               setSearchQuery(e.target.value);
             }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && selectedTool && searchQuery.trim()) {
+                fetchData(searchQuery, selectedTool);
+              }
+            }}
             placeholder={
               selectedTool ? getInputPlaceholder(selectedTool) : "Select a tool first..."
             }
@@ -246,30 +251,105 @@ export default function SearchBarFreeTools() {
             <Search className="w-5 h-5" />
             <span>Search</span>
           </Button>
+
+          {/* Demo Result Button */}
+          <Button
+            type="button"
+            variant="outline"
+            className="h-12 px-4 bg-zinc-800 border-zinc-600 text-zinc-300 hover:bg-zinc-700 ml-2"
+            disabled={!selectedTool}
+            onClick={async () => {
+              if (!selectedTool) {
+                setResults([
+                  {
+                    tool: selectedTool,
+                    query: '',
+                    data: null,
+                    error: 'Please select a tool to load demo data.',
+                    loading: false,
+                    timestamp: Date.now(),
+                  },
+                ]);
+                return;
+              }
+              // Map tool name to file name
+              const toolToFile: Record<string, string> = {
+                Gravaton: 'Gravaton.json',
+                Linkook: 'Linkook.json',
+                'Proton Intelligence': 'Proton.json',
+                'Breach Guard': 'BreachGuard.json',
+                'Info-Stealer Lookup': 'InfoStealer.json',
+                TiktokerFinder: 'TiktokerFinder.json',
+              };
+              const fileName = toolToFile[selectedTool];
+              if (!fileName) {
+                setResults([
+                  {
+                    tool: selectedTool,
+                    query: '',
+                    data: null,
+                    error: 'No demo data available for this tool.',
+                    loading: false,
+                    timestamp: Date.now(),
+                  },
+                ]);
+                return;
+              }
+              setResults([
+                {
+                  tool: selectedTool,
+                  query: 'Demo',
+                  data: null,
+                  loading: true,
+                  timestamp: Date.now(),
+                },
+              ]);
+              try {
+                const res = await fetch(`/Data/${fileName}`);
+                if (!res.ok) throw new Error('Demo data not found');
+                const json = await res.json();
+                let demoData: unknown = json;
+                // For Breach Guard, wrap array in object
+                if (selectedTool === 'Breach Guard') {
+                  demoData = { breaches: json, email: 'demo@email.com', total_breaches: (json as unknown[]).length };
+                }
+                // For Gravaton, wrap in GravatarData shape
+                if (selectedTool === 'Gravaton') {
+                  demoData = { entry: [json] };
+                }
+                // For Info-Stealer Lookup, already correct
+                // For Linkook, already correct
+                // For TiktokerFinder, already correct
+                // For Proton Intelligence, already correct
+                setResults([
+                  {
+                    tool: selectedTool,
+                    query: 'Demo',
+                    data: demoData as string | object | null,
+                    loading: false,
+                    timestamp: Date.now(),
+                  },
+                ]);
+              } catch (err: unknown) {
+                let errorMsg = 'Failed to load demo data';
+                if (err instanceof Error) errorMsg = err.message;
+                setResults([
+                  {
+                    tool: selectedTool,
+                    query: 'Demo',
+                    data: null,
+                    error: errorMsg,
+                    loading: false,
+                    timestamp: Date.now(),
+                  },
+                ]);
+              }
+            }}
+          >
+            Demo Result
+          </Button>
         </div>
       </div>
-
-      {/* Selected Tool Info */}
-      {selectedToolData && (
-        <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-700 mb-8">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <h3 className="font-bold text-xl text-white mb-2">{selectedToolData.title}</h3>
-              <p className="text-zinc-400 text-sm">{selectedToolData.description}</p>
-              <div className="mt-2 text-xs text-zinc-500">
-                Expected input:{" "}
-                {getInputPlaceholder(selectedToolData.title)
-                  .replace(/\(.*\)/, "")
-                  .replace("Enter ", "")
-                  .trim()}
-              </div>
-            </div>
-            <span className="bg-green-500/20 text-green-400 text-xs font-bold px-3 py-1 rounded-full border border-green-500/30">
-              FREE
-            </span>
-          </div>
-        </div>
-      )}
 
       {/* Instructions */}
       {!selectedTool && results.length === 0 && (
@@ -285,7 +365,10 @@ export default function SearchBarFreeTools() {
       {results.length > 0 && (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white">Search Results</h2>
+            <h2 className="text-2xl font-bold text-white">
+              Search Results
+              <span className="text-teal-400 ml-2">{selectedTool}</span>
+            </h2>
             <Button
               onClick={clearResults}
               variant="outline"

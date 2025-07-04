@@ -1,0 +1,115 @@
+{
+    "message": "This username is associated with a computer that was infected by an info-stealer, all the credentials saved on this computer are at risk of being accessed by cybercriminals. Visit https://www.hudsonrock.com/free-tools to discover additional free tools and Infostealers related data.",
+    "stealers": [
+        {
+            "total_corporate_services": 15,
+            "total_user_services": 618,
+            "date_compromised": "2025-07-03T13:46:09.000Z",
+            "stealer_family": "Lumma",
+            "computer_name": "BILGUUN (bilgoon)",
+            "operating_system": "Windows 11 Home (10.0.26100) x64",
+            "malware_path": " C:\\Users\\bilgo\\AppData\\Local\\Temp\\IXP000.TMP\\1L25a4.exe",
+            "antiviruses": [
+                "Windows Defender [ON]"
+            ],
+            "ip": "66.181.***.***",
+            "top_passwords": [
+                "[*********]",
+                "g******i",
+                "G********1",
+                "h************4",
+                "L******d"
+            ],
+            "top_logins": [
+                "b******@gmail.com",
+                "b*****n",
+                "b******@whyze.agency",
+                "b*****n",
+                "a***n"
+            ]
+        },
+        {
+            "total_corporate_services": 0,
+            "total_user_services": 89,
+            "date_compromised": "2025-06-26T10:44:53.000Z",
+            "stealer_family": "Lumma",
+            "computer_name": "DESKTOP-FNA42Q2 (Dell)",
+            "operating_system": "Windows 10 Pro (10.0.18362) x64",
+            "malware_path": " C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe",
+            "antiviruses": [
+                "Windows Defender"
+            ],
+            "ip": "197.94.**.*",
+            "top_passwords": [
+                "N*******1",
+                "0********2",
+                "F***********1",
+                "f**********y",
+                "D**********1"
+            ],
+            "top_logins": [
+                "f***********@gmail.com",
+                "b***************@gmail.com",
+                "z*************@gmail.com",
+                "b***************@gmail.com",
+                "a***********x"
+            ]
+        },
+        {
+            "total_corporate_services": 8,
+            "total_user_services": 506,
+            "date_compromised": "2025-06-25T07:53:10.000Z",
+            "stealer_family": "Lumma",
+            "computer_name": "THINKPAD-LENOVO (USER)",
+            "operating_system": "Windows 11 Pro (10.0.26100) x64",
+            "malware_path": "Not Found",
+            "antiviruses": [
+                "Windows Defender [ON]"
+            ],
+            "ip": "197.237.***.***",
+            "top_passwords": [
+                "o********1",
+                "R**************3",
+                "R************1",
+                "O*********1",
+                "O********1"
+            ],
+            "top_logins": [
+                "n*************@gmail.com",
+                "b***************@gmail.com",
+                "0********0",
+                "b*******r",
+                "a***n"
+            ]
+        },
+        {
+            "total_corporate_services": 0,
+            "total_user_services": 74,
+            "date_compromised": "2025-06-24T20:06:17.000Z",
+            "stealer_family": "Lumma",
+            "computer_name": "DESKTOP-NQ73448 (Usuario)",
+            "operating_system": "Windows 10 Pro (10.0.19045) x64",
+            "malware_path": " C:\\Windows\\SysWOW64\\explorer.exe",
+            "antiviruses": [
+                "Windows Defender"
+            ],
+            "ip": "38.250.***.***",
+            "top_passwords": [
+                "m*********.",
+                "m***********.",
+                "m**********3",
+                "a********3",
+                "d*********."
+            ],
+            "top_logins": [
+                "a**********@gmail.com",
+                "v*************@gmail.com",
+                "c**********@gmail.com",
+                "a*****l",
+                "a*******5"
+            ]
+        }
+    ],
+    "total_corporate_services": 15,
+    "total_user_services": 618
+}
