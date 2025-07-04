@@ -3,7 +3,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
+import { SummaryCard, ResultsGrid } from "./EmailIntel";
 // Define proper TypeScript interfaces for the API responses
 interface Education {
   school?: string;
@@ -101,8 +101,19 @@ interface EmailIntelResults {
   };
 }
 
+interface EmailResult {
+  email: string;
+  summary: {
+    checked: number;
+    time: string;
+  };
+  used: string[];
+  not_used: string[];
+  rate_limited: string[];
+}
+
 interface FreemiumToolsProps {
-  results: LinkedInProfile | EmailIntelResults | Record<string, unknown> | null;
+  results: LinkedInProfile | EmailIntelResults | EmailResult | Record<string, unknown> | null;
   selectedTool: string;
   loading?: boolean;
 }
@@ -199,6 +210,65 @@ const renderObjectAsTable = (obj: unknown, depth = 0): React.ReactElement => {
     </div>
   );
 };
+
+// EmailIntel transformation and rendering logic
+function renderEmailIntel(selectedTool: string, results: LinkedInProfile | EmailIntelResults | EmailResult | Record<string, unknown> | null) {
+  if (selectedTool !== "EmailIntel" || !results) return null;
+  let emailResult: EmailResult | null = null;
+  if (
+    typeof results === "object" &&
+    results !== null &&
+    "email" in results &&
+    "summary" in results &&
+    "used" in results &&
+    "not_used" in results &&
+    "rate_limited" in results
+  ) {
+    emailResult = results as EmailResult;
+  } else if (
+    typeof results === "object" &&
+    results !== null &&
+    "email" in results &&
+    "results" in results
+  ) {
+    const platforms = Object.entries((results as EmailIntelResults).results);
+    const used: string[] = [];
+    const not_used: string[] = [];
+    const rate_limited: string[] = [];
+    platforms.forEach(([platform, status]) => {
+      if (status === "found") used.push(platform);
+      else if (status === "not_found") not_used.push(platform);
+      else if (status === "rate_limited") rate_limited.push(platform);
+    });
+    emailResult = {
+      email: (results as EmailIntelResults).email,
+      summary: {
+        checked: platforms.length,
+        time: "N/A",
+      },
+      used,
+      not_used,
+      rate_limited,
+    };
+  }
+  if (
+    emailResult &&
+    typeof emailResult === 'object' &&
+    'email' in emailResult &&
+    'summary' in emailResult &&
+    'used' in emailResult &&
+    'not_used' in emailResult &&
+    'rate_limited' in emailResult
+  ) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-4 py-6 space-y-6">
+        <SummaryCard results={emailResult} />
+        <ResultsGrid results={emailResult} />
+      </div>
+    );
+  }
+  return null;
+}
 
 const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumToolsProps) => {
   
@@ -531,159 +601,9 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
       </div>
     );
   }
-  if (selectedTool === "EmailIntel" && results) {
-    const emailData = results as EmailIntelResults;
-    
-    // Group platforms by status for better organization
-    const platformsByStatus = Object.entries(emailData.results).reduce((acc, [platform, status]) => {
-      const statusKey = status || 'unknown';
-      if (!acc[statusKey]) acc[statusKey] = [];
-      acc[statusKey].push(platform);
-      return acc;
-    }, {} as Record<string, string[]>);
-
-    const getStatusColor = (status: string) => {
-      switch (status) {
-        case 'found': return 'bg-green-900 text-green-100 border-green-700';
-        case 'not_found': return 'bg-zinc-800 text-zinc-100 border-zinc-700';
-        case 'rate_limited': return 'bg-yellow-900 text-yellow-100 border-yellow-700';
-        case 'error': return 'bg-red-900 text-red-100 border-red-700';
-        default: return 'bg-blue-900 text-blue-100 border-blue-700';
-      }
-    };
-
-    const getStatusIcon = (status: string) => {
-      switch (status) {
-        case 'found': return '✓';
-        case 'not_found': return '✗';
-        case 'rate_limited': return '⏳';
-        case 'error': return '⚠';
-        default: return '?';
-      }
-    };
-
-    const totalPlatforms = Object.keys(emailData.results).length;
-    const foundCount = Object.values(emailData.results).filter(status => status === 'found').length;
-    const notFoundCount = Object.values(emailData.results).filter(status => status === 'not_found').length;
-    const rateLimitedCount = Object.values(emailData.results).filter(status => status === 'rate_limited').length;
-    const errorCount = Object.values(emailData.results).filter(status => status === 'error').length;
-
-    return (
-      <div className="w-full max-w-6xl mx-auto px-4 py-6 space-y-6">
-        {/* Header Section */}
-        <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
-          <div className="p-6">
-            <div className="text-center space-y-4">
-              <h1 className="text-3xl font-bold text-white">Email Intelligence Report</h1>
-              <div className="text-xl text-zinc-300 font-mono bg-zinc-800 p-3 rounded border">
-                {emailData.email}
-              </div>
-              <p className="text-zinc-400">
-                Comprehensive scan across {totalPlatforms} platforms and services
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        {/* Summary Statistics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="border border-green-900 bg-[#18181B] shadow-lg">
-            <div className="p-4 text-center">
-              <div className="text-3xl font-bold text-green-400">{foundCount}</div>
-              <div className="text-sm text-zinc-300">Found</div>
-              <div className="text-xs text-green-400">Active Accounts</div>
-            </div>
-          </Card>
-          
-          <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
-            <div className="p-4 text-center">
-              <div className="text-3xl font-bold text-zinc-300">{notFoundCount}</div>
-              <div className="text-sm text-zinc-300">Not Found</div>
-              <div className="text-xs text-zinc-400">No Account</div>
-            </div>
-          </Card>
-          
-          <Card className="border border-yellow-900 bg-[#18181B] shadow-lg">
-            <div className="p-4 text-center">
-              <div className="text-3xl font-bold text-yellow-400">{rateLimitedCount}</div>
-              <div className="text-sm text-zinc-300">Rate Limited</div>
-              <div className="text-xs text-yellow-400">Temporary Block</div>
-            </div>
-          </Card>
-          
-          <Card className="border border-red-900 bg-[#18181B] shadow-lg">
-            <div className="p-4 text-center">
-              <div className="text-3xl font-bold text-red-400">{errorCount}</div>
-              <div className="text-sm text-zinc-300">Errors</div>
-              <div className="text-xs text-red-400">Check Failed</div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Detailed Results by Status */}
-        {Object.entries(platformsByStatus).map(([status, platforms]) => (
-          <Card key={status} className="border border-zinc-700 bg-[#18181B] shadow-lg">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(status)}`}>
-                  {getStatusIcon(status)} {status.replace('_', ' ').toUpperCase()}
-                </span>
-                <span className="text-zinc-400 text-lg">({platforms.length})</span>
-              </h2>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                {platforms.map((platform, index) => (
-                  <div
-                    key={index}
-                    className={`p-3 rounded-lg border-2 text-center font-medium ${getStatusColor(status)} hover:shadow-md transition-shadow`}
-                  >
-                    <div className="text-sm">{getStatusIcon(status)}</div>
-                    <div className="text-xs mt-1 capitalize font-bold">
-                      {platform.replace(/([A-Z])/g, ' $1').trim()}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Card>
-        ))}
-
-        {/* Platform List */}
-        <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-white mb-4">All Platforms Checked</h2>
-            <div className="space-y-2 max-h-96 overflow-y-auto">
-              {Object.entries(emailData.results).map(([platform, status], index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 border border-zinc-700 rounded-lg hover:bg-zinc-800"
-                >
-                  <div className="font-medium text-white capitalize">
-                    {platform.replace(/([A-Z])/g, ' $1').trim()}
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(status || 'unknown')}`}>
-                    {getStatusIcon(status || 'unknown')} {(status || 'unknown').replace('_', ' ')}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
-
-        {/* Security Notice */}
-        <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
-          <div className="p-6">
-            <h3 className="text-lg font-bold text-white mb-2">🔒 Security Notice</h3>
-            <p className="text-zinc-300 text-sm">
-              This report shows where the email address <span className="font-mono font-bold text-white">{emailData.email}</span> has 
-              registered accounts across various platforms. Results marked as &quot;found&quot; indicate active or previously active 
-              accounts on those services. Rate-limited results may require manual verification.
-            </p>
-          </div>
-        </Card>
-      </div>
-    );
-  }
+  // EmailIntel rendering block
+  const emailIntelRender = renderEmailIntel(selectedTool, results);
+  if (emailIntelRender) return emailIntelRender;
 
   // No results or null results
   if (!results && !loading) {
@@ -708,7 +628,7 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
       <div className="w-full max-w-4xl mx-auto px-4 py-6">
         <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
           <div className="p-6">
-            <h2 className="text-xl font-bold text-white mb-4">Results for {selectedTool}</h2>
+            
             <div className="bg-zinc-800 p-4 rounded border border-zinc-700">
               {renderObjectAsTable(results)}
             </div>
@@ -722,3 +642,7 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
 };
 
 export default FreemiumTools;
+
+
+
+

@@ -1,0 +1,329 @@
+{
+  "id": "urn:li:person:DgEr49s_MZr7adJR14NJNV6JZTO8bqSwztkxLH8eeKc",
+  "displayName": "Vishwajeet Gehlot",
+  "firstName": "Vishwajeet",
+  "lastName": "Gehlot",
+  "emails": ["vishwajeet@osintambition.org"],
+  "phoneNumbers": [],
+  "headline": "CTO @OSINTAmbition | Co-Founder @OSINTIndia | Organizer @OSINTCon | OSINT Innovator | Cybersecurity & Privacy Advocate",
+  "summary": "As the Chief Technology Officer (CTO) at OSINT Ambition, I lead the technical vision and innovation strategy, driving the development of cutting-edge Open-Source Intelligence (OSINT) solutions. Passionate about advancing OSINT capabilities, I focus on creating scalable, secure, and high-performance technologies that empower researchers, analysts, and organizations.\n\n- Spearheading R&D for new OSINT tools to enhance investigations and intelligence gathering.\n- Driving innovation to strengthen technological infrastructure and support privacy and security.\n- Ensuring scalability, security, and reliability of platforms to meet industry standards.\n- Fostering a culture of creativity and excellence, encouraging new approaches to complex challenges.\n\nWe established OSINTResources to address the challenge of finding reliable OSINT tools and information scattered across the internet and OSINTCon Conference to spread valuable insights among the OSINTCommunity.\n\nAlongside this, I run a personal newsletter where I share daily insights on tech, time-saving tools, and the latest industry updates.",
+  "companyName": "OSINT INDIA",
+  "location": "Delhi, India",
+  "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQFf-bM7E7bvMQ/profile-displayphoto-shrink_400_400/B4DZXHGLmJGkAs-/0/1742802041733?e=1747083600&v=beta&t=V7a2ymP_cSkmwLkoRU_i0I-IMZ9VNM7hxNEV4cKLiaE",
+  "linkedInUrl": "https://linkedin.com/in/v1shwajeet",
+  "reportProfileUrl": "https://linkedin.com/in/v1shwajeet/report",
+  "connectionCount": 500,
+  "isConnectionCountObfuscated": true,
+  "connectionDegree": "Distance_1",
+  "connectionStatus": "Connected",
+  "skills": [
+    "Continuous Integration (CI)",
+    "Github Actions",
+    "Machine Learning",
+    "Java",
+    "PL/SQL",
+    "Front-End Development",
+    "Jupyter",
+    "Cloud Computing IaaS",
+    "Application Programming Interfaces (API)",
+    "Amazon Web Services (AWS)",
+    "Solution Architecture",
+    "API Key Authorization",
+    "Project Management",
+    "GitHub",
+    "Git",
+    "Full-Stack Development",
+    "Privacy,Security and Administration",
+    "Natural Language Processing (NLP)",
+    "Python (Programming Language)",
+    "Large Language Models (LLM)",
+    "Computer Vision",
+    "Deep Learning",
+    "Back-End Web Development",
+    "Cloud Computing",
+    "Cloud Applications",
+    "Cloud Security",
+    "Cloud Storage",
+    "DevOps",
+    "Build Pipeline"
+  ],
+  "locale": {
+    "country": "us",
+    "language": "en"
+  },
+  "schools": {
+    "educationsCount": 0,
+    "educationHistory": []
+  },
+  "positions": {
+    "positionsCount": 5,
+    "positionHistory": [
+      {
+        "title": "Co-Founder",
+        "startEndDate": {
+          "start": {
+            "month": 3,
+            "year": 2025
+          },
+          "end": {}
+        },
+        "description": "- Co-founder & Technology Lead at OSINT India, the country's first dedicated OSINT community.\n- Leading OSINT Tool Development – Building and optimizing open-source intelligence tools.\n- Automation & Efficiency – Streamlining investigative workflows with cutting-edge automation.\n- Empowering Professionals – Providing OSINT resources for law enforcement, journalists, and cybersecurity experts.\n- Innovation & Growth – Driving India's position as a global leader in OSINT through collaboration and research.",
+        "company": {
+          "companyName": "OSINT INDIA",
+          "companyLogo": "https://media.licdn.com/dms/image/v2/D4D0BAQHkIWZJJGyvHg/company-logo_400_400/B4DZXsGSkaHsAY-/0/1743422827404/osintindiacom_logo?e=1747083600&v=beta&t=8UQQzi9ykurzIFVu9hG2Ls_Zq9ksl1S7I7cc7lVLffQ",
+          "linkedInUrl": "https://www.linkedin.com/company/osintindiacom"
+        },
+        "companyName": "OSINT INDIA",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/D4D0BAQHkIWZJJGyvHg/company-logo_400_400/B4DZXsGSkaHsAY-/0/1743422827404/osintindiacom_logo?e=1747083600&v=beta&t=8UQQzi9ykurzIFVu9hG2Ls_Zq9ksl1S7I7cc7lVLffQ",
+        "linkedInUrl": "https://www.linkedin.com/company/osintindiacom"
+      },
+      {
+        "title": "Co-Founder and CTO",
+        "startEndDate": {
+          "start": {
+            "month": 2,
+            "year": 2024
+          },
+          "end": {}
+        },
+        "description": "Driving the development of cutting-edge Open-Source Intelligence (OSINT) solutions. Passionate about advancing OSINT capabilities, I focus on creating scalable, secure, and high-performance technologies that empower researchers, analysts, and organizations.",
+        "company": {
+          "companyName": "OSINT Ambition",
+          "companyLogo": "https://media.licdn.com/dms/image/v2/D4D0BAQE8h_X7JRE5Cw/company-logo_400_400/B4DZaWK85IGwAY-/0/1746276177154/osintambition_logo?e=1747083600&v=beta&t=IxoJbRP9LOj8wsTZl3f2ZpRjWxOW3jIEZNr-T9Hw8Nw",
+          "linkedInUrl": "https://www.linkedin.com/company/osintambition"
+        },
+        "companyName": "OSINT Ambition",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/D4D0BAQE8h_X7JRE5Cw/company-logo_400_400/B4DZaWK85IGwAY-/0/1746276177154/osintambition_logo?e=1747083600&v=beta&t=IxoJbRP9LOj8wsTZl3f2ZpRjWxOW3jIEZNr-T9Hw8Nw",
+        "linkedInUrl": "https://www.linkedin.com/company/osintambition"
+      },
+      {
+        "title": "Contributor",
+        "startEndDate": {
+          "start": {
+            "month": 2,
+            "year": 2024
+          },
+          "end": {
+            "month": 5,
+            "year": 2024
+          }
+        },
+        "company": {
+          "companyName": "GirlScript Summer of Code",
+          "companyLogo": "https://media.licdn.com/dms/image/v2/C510BAQGSObrO0QPlMQ/company-logo_400_400/company-logo_400_400/0/1630597186826/girlscriptsoc_logo?e=1747083600&v=beta&t=BRh1phhOCA5Dw4itq_oeRjvABaQHmo4vHbhCckxlwwk",
+          "linkedInUrl": "https://www.linkedin.com/company/girlscriptsoc"
+        },
+        "companyName": "GirlScript Summer of Code",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/C510BAQGSObrO0QPlMQ/company-logo_400_400/company-logo_400_400/0/1630597186826/girlscriptsoc_logo?e=1747083600&v=beta&t=BRh1phhOCA5Dw4itq_oeRjvABaQHmo4vHbhCckxlwwk",
+        "linkedInUrl": "https://www.linkedin.com/company/girlscriptsoc"
+      }
+    ]
+  },
+  "highlight": {
+    "sharedConnectionsInfo": {
+      "linkedInUrl": "https://www.linkedin.com/search/results/people/?facetNetwork=%5B%22F%22%5D&facetConnectionOf=%5B%22AFQAAE2zWVIBn2Gq0co9ypML4k4v9U7daUhONYE%22%5D",
+      "sharedConnections": [
+        {
+          "displayName": "Mario Khawam",
+          "firstName": "Mario",
+          "lastName": "Khawam",
+          "photoUrl": "https://media.licdn.com/dms/image/v2/D4E03AQFGgteGYPp0vw/profile-displayphoto-shrink_400_400/B4EZW5vJm2HMAg-/0/1742577900510?e=1747083600&v=beta&t=1Vxbkc5m71mCTY-93XqcGxyG8BUdBIb0XTT9rrNRCX4"
+        }
+      ],
+      "totalCount": 144
+    },
+    "sharedExperiences": [
+      {
+        "company": {
+          "companyName": "OSINT Ambition",
+          "companyLocation": "Delhi, India",
+          "companyLogo": "https://media.licdn.com/dms/image/v2/D4D0BAQE8h_X7JRE5Cw/company-logo_400_400/B4DZaWK85IGwAY-/0/1746276177154/osintambition_logo?e=1747083600&v=beta&t=IxoJbRP9LOj8wsTZl3f2ZpRjWxOW3jIEZNr-T9Hw8Nw",
+          "linkedInUrl": "https://www.linkedin.com/company/osintambition"
+        },
+        "overlapInfo": {
+          "detail": {
+            "startEndDate": {
+              "start": {},
+              "end": {}
+            },
+            "duration": {
+              "numMonths": 8,
+              "numYears": 0
+            }
+          },
+          "overlapType": "BOTH_CURRENT_VIEWER_STARTED_FIRST"
+        }
+      }
+    ],
+    "sharedEducations": [],
+    "positionChange": {
+      "newPosition": {
+        "title": "Co-Founder",
+        "startEndDate": {
+          "start": {
+            "month": 3,
+            "year": 2025
+          },
+          "end": {}
+        },
+        "description": "- Co-founder & Technology Lead at OSINT India, the country's first dedicated OSINT community.\n- Leading OSINT Tool Development – Building and optimizing open-source intelligence tools.\n- Automation & Efficiency – Streamlining investigative workflows with cutting-edge automation.\n- Empowering Professionals – Providing OSINT resources for law enforcement, journalists, and cybersecurity experts.\n- Innovation & Growth – Driving India's position as a global leader in OSINT through collaboration and research.",
+        "company": {
+          "companyName": "OSINT INDIA",
+          "companyLogo": "https://media.licdn.com/dms/image/v2/D4D0BAQHkIWZJJGyvHg/company-logo_400_400/B4DZXsGSkaHsAY-/0/1743422827404/osintindiacom_logo?e=1747083600&v=beta&t=8UQQzi9ykurzIFVu9hG2Ls_Zq9ksl1S7I7cc7lVLffQ",
+          "linkedInUrl": "https://www.linkedin.com/search/results/companies/?keywords=OSINT INDIA"
+        },
+        "companyName": "OSINT INDIA",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/D4D0BAQHkIWZJJGyvHg/company-logo_400_400/B4DZXsGSkaHsAY-/0/1743422827404/osintindiacom_logo?e=1747083600&v=beta&t=8UQQzi9ykurzIFVu9hG2Ls_Zq9ksl1S7I7cc7lVLffQ",
+        "linkedInUrl": "https://www.linkedin.com/search/results/companies/?keywords=OSINT INDIA"
+      },
+      "oldPosition": {
+        "title": "Co-Founder and CTO",
+        "startEndDate": {
+          "start": {
+            "month": 2,
+            "year": 2024
+          },
+          "end": {}
+        },
+        "description": "Driving the development of cutting-edge Open-Source Intelligence (OSINT) solutions. Passionate about advancing OSINT capabilities, I focus on creating scalable, secure, and high-performance technologies that empower researchers, analysts, and organizations.",
+        "company": {
+          "companyName": "OSINT Ambition",
+          "companyLogo": "https://media.licdn.com/dms/image/v2/D4D0BAQE8h_X7JRE5Cw/company-logo_400_400/B4DZaWK85IGwAY-/0/1746276177154/osintambition_logo?e=1747083600&v=beta&t=IxoJbRP9LOj8wsTZl3f2ZpRjWxOW3jIEZNr-T9Hw8Nw",
+          "linkedInUrl": "https://www.linkedin.com/search/results/companies/?keywords=OSINT Ambition"
+        },
+        "companyName": "OSINT Ambition",
+        "companyLogo": "https://media.licdn.com/dms/image/v2/D4D0BAQE8h_X7JRE5Cw/company-logo_400_400/B4DZaWK85IGwAY-/0/1746276177154/osintambition_logo?e=1747083600&v=beta&t=IxoJbRP9LOj8wsTZl3f2ZpRjWxOW3jIEZNr-T9Hw8Nw",
+        "linkedInUrl": "https://www.linkedin.com/search/results/companies/?keywords=OSINT Ambition"
+      },
+      "positionChangeType": "AdditionalPosition"
+    }
+  },
+  "skillEndorsements": {
+    "skillEndorsementsCount": 3,
+    "skillEndorsements": [
+      {
+        "skillName": "Github Actions",
+        "endorsementCount": 1,
+        "endorsers": [
+          {
+            "id": "urn:li:person:DgEPmFc249TvxekVuQjR7qvtikZxaQmTw1wRpx5UHdo",
+            "displayName": "Dheeraj Yadav",
+            "firstName": "Dheeraj",
+            "lastName": "Yadav",
+            "photoUrl": "https://media.licdn.com/dms/image/v2/D5603AQFFU_82FH6ZrQ/profile-displayphoto-shrink_400_400/B56ZPtL8PJHIAk-/0/1734851152431?e=1747083600&v=beta&t=TM2lBpRnhDsAwlGOY9PRMJQtiq2SCk_eoCKHZULWaAE",
+            "locale": {
+              "country": "us",
+              "language": "en"
+            },
+            "schools": {
+              "educationsCount": 0,
+              "educationHistory": []
+            },
+            "positions": {
+              "positionsCount": 0,
+              "positionHistory": []
+            },
+            "skillEndorsements": {
+              "skillEndorsementsCount": 0,
+              "skillEndorsements": []
+            },
+            "newsMentions": {
+              "newsMentionCount": 0,
+              "newsMentions": []
+            },
+            "userGeneratedContents": {
+              "userGeneratedContentCount": 0,
+              "userGeneratedContents": []
+            },
+            "isPublic": false
+          }
+        ]
+      },
+      {
+        "skillName": "Amazon Web Services (AWS)",
+        "endorsementCount": 1,
+        "endorsers": [
+          {
+            "id": "urn:li:person:DgEPmFc249TvxekVuQjR7qvtikZxaQmTw1wRpx5UHdo",
+            "displayName": "Dheeraj Yadav",
+            "firstName": "Dheeraj",
+            "lastName": "Yadav",
+            "photoUrl": "https://media.licdn.com/dms/image/v2/D5603AQFFU_82FH6ZrQ/profile-displayphoto-shrink_400_400/B56ZPtL8PJHIAk-/0/1734851152431?e=1747083600&v=beta&t=TM2lBpRnhDsAwlGOY9PRMJQtiq2SCk_eoCKHZULWaAE",
+            "locale": {
+              "country": "us",
+              "language": "en"
+            },
+            "schools": {
+              "educationsCount": 0,
+              "educationHistory": []
+            },
+            "positions": {
+              "positionsCount": 0,
+              "positionHistory": []
+            },
+            "skillEndorsements": {
+              "skillEndorsementsCount": 0,
+              "skillEndorsements": []
+            },
+            "newsMentions": {
+              "newsMentionCount": 0,
+              "newsMentions": []
+            },
+            "userGeneratedContents": {
+              "userGeneratedContentCount": 0,
+              "userGeneratedContents": []
+            },
+            "isPublic": false
+          }
+        ]
+      },
+      {
+        "skillName": "Full-Stack Development",
+        "endorsementCount": 1,
+        "endorsers": [
+          {
+            "id": "urn:li:person:DgEPmFc249TvxekVuQjR7qvtikZxaQmTw1wRpx5UHdo",
+            "displayName": "Dheeraj Yadav",
+            "firstName": "Dheeraj",
+            "lastName": "Yadav",
+            "photoUrl": "https://media.licdn.com/dms/image/v2/D5603AQFFU_82FH6ZrQ/profile-displayphoto-shrink_400_400/B56ZPtL8PJHIAk-/0/1734851152431?e=1747083600&v=beta&t=TM2lBpRnhDsAwlGOY9PRMJQtiq2SCk_eoCKHZULWaAE",
+            "locale": {
+              "country": "us",
+              "language": "en"
+            },
+            "schools": {
+              "educationsCount": 0,
+              "educationHistory": []
+            },
+            "positions": {
+              "positionsCount": 0,
+              "positionHistory": []
+            },
+            "skillEndorsements": {
+              "skillEndorsementsCount": 0,
+              "skillEndorsements": []
+            },
+            "newsMentions": {
+              "newsMentionCount": 0,
+              "newsMentions": []
+            },
+            "userGeneratedContents": {
+              "userGeneratedContentCount": 0,
+              "userGeneratedContents": []
+            },
+            "isPublic": false
+          }
+        ]
+      }
+    ]
+  },
+  "newsMentions": {
+    "newsMentionCount": 0,
+    "newsMentions": []
+  },
+  "userGeneratedContents": {
+    "userGeneratedContentCount": 0,
+    "userGeneratedContents": []
+  },
+  "isPublic": false
+}

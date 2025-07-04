@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchFreeTools } from "@/types/types";
 import FreemiumTools from "@/components/Results/FreemiumTools";
+import emailIntelDemo from "public/Data/Emailintel.json";
+import mail2LinkedinDemo from "public/Data/Mail2Linkedin.json";
 // Define ApiResult interface locally
 interface ApiResult {
   tool: string;
@@ -52,8 +54,6 @@ export default function SearchBarFreeMiumTools() {
     // Clear any existing results and errors
     clearResults();
   };
-
-  const selectedToolData = FreeTools.find((tool) => tool.title === selectedTool);
 
   // Validation for email input
   const isValidInput = (query: string, tool: string): boolean => {
@@ -268,30 +268,45 @@ export default function SearchBarFreeMiumTools() {
             <Search className="w-5 h-5" />
             <span>Search</span>
           </Button>
+          {/* Demo Result Button */}
+          <Button
+            type="button"
+            onClick={() => {
+              let demoData = null;
+              const tool = selectedTool;
+              let query = "";
+              if (selectedTool === "EmailIntel") {
+                demoData = emailIntelDemo;
+                query = emailIntelDemo.email || "user@example.com";
+              } else if (selectedTool === "Mail2Linkedin") {
+                demoData = mail2LinkedinDemo;
+                query = "demo@email.com";
+              }
+              if (demoData) {
+                setResultsData(demoData);
+                setResults([
+                  {
+                    tool,
+                    query,
+                    data: demoData,
+                    loading: false,
+                    timestamp: Date.now(),
+                  },
+                ]);
+                setIsLoading(false);
+                setError(null);
+              }
+            }}
+            disabled={!(selectedTool === "EmailIntel" || selectedTool === "Mail2Linkedin") || isLoading}
+            className="bg-[#18181B] hover:bg-[#202023] text-white px-4 h-12 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-semibold shadow-lg hover:shadow-xl"
+          >
+            Demo Result
+          </Button>
         </div>
       </div>
 
       {/* Selected Tool Info */}
-      {selectedToolData && (
-        <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-700 mb-8">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <h3 className="font-bold text-xl text-white mb-2">{selectedToolData.title}</h3>
-              <p className="text-zinc-400 text-sm">{selectedToolData.description}</p>
-              <div className="mt-2 text-xs text-zinc-500">
-                Expected input:{" "}
-                {getInputPlaceholder(selectedToolData.title)
-                  .replace(/\(.*\)/, "")
-                  .replace("Enter ", "")
-                  .trim()}
-              </div>
-            </div>
-            <span className="bg-green-500/20 text-green-400 text-xs font-bold px-3 py-1 rounded-full border border-green-500/30">
-              FREE
-            </span>
-          </div>
-        </div>
-      )}
+      
 
       {/* Instructions */}
       {!selectedTool && results.length === 0 && (
