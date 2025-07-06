@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import PaymentMethodSelector, { PaymentMethod } from './PaymentMethodSelector';
 import { RazorpayOptions, RazorpayResponse } from '@/types/razorpay';
-import { getRewardfulReferralId } from '@/lib/utils';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
 
 // Stripe configuration
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
@@ -26,17 +26,32 @@ declare global {
 export default function CheckoutButton() {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('stripe');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [amount, setAmount] = useState<number>(20); // Custom amount state
+  const [amountError, setAmountError] = useState<string>('');
+  const [currency, setCurrency] = useState<string>('usd'); // Currency state
+
+  // Currency config
+  const currencyOptions = [
+    { value: 'usd', label: 'USD ($)' },
+    { value: 'eur', label: 'EUR (€)' },
+    { value: 'inr', label: 'INR (₹)' },
+  ];
+  const currencySymbols: Record<string, string> = {
+    usd: '$',
+    eur: '€',
+    inr: '₹',
+  };
 
   // Payment configuration
-  const PAYMENT_AMOUNT = 20; // $20 USD or ₹20 INR equivalent
+  // const PAYMENT_AMOUNT = 20; // $20 USD or ₹20 INR equivalent (removed)
 
   // Stripe payment handler
   const handleStripePayment = async () => {
     try {
       console.log('Using publishable key mode:', stripePublishableKey!.startsWith('pk_test_') ? 'test' : 'live');
       
-      // Get Rewardful referral ID if present
-      const referralId = getRewardfulReferralId();
+      // Get Rewardful referral ID using official API
+      const referralId = typeof window !== 'undefined' && window.Rewardful ? window.Rewardful.referral : undefined;
       if (referralId) {
         console.log('Including Rewardful referral ID:', referralId);
       }
@@ -47,8 +62,8 @@ export default function CheckoutButton() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: PAYMENT_AMOUNT,
-          currency: 'usd',
+          amount: amount, // Use custom amount
+          currency: currency,
           referralId, // Include referral ID in the request
         }),
       });
@@ -91,7 +106,7 @@ export default function CheckoutButton() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: PAYMENT_AMOUNT, // Will be converted to appropriate currency amount
+          amount: amount, // Use custom amount
           currency: 'INR'
         }),
       });
@@ -182,7 +197,18 @@ export default function CheckoutButton() {
   // Main payment handler
   const handlePayment = async () => {
     if (isProcessing) return;
-    
+    // Validate amount
+    let minAmount = 1;
+    if (selectedPaymentMethod === 'stripe') {
+      minAmount = currency === 'usd' ? 0.5 : currency === 'eur' ? 0.5 : 1;
+    } else if (selectedPaymentMethod === 'razorpay') {
+      minAmount = 1;
+    }
+    if (!amount || isNaN(amount) || amount < minAmount) {
+      setAmountError(`Please enter a valid amount (minimum ${currencySymbols[currency] || ''}${minAmount})`);
+      return;
+    }
+    setAmountError('');
     setIsProcessing(true);
     
     try {
@@ -204,7 +230,33 @@ export default function CheckoutButton() {
         selectedMethod={selectedPaymentMethod}
         onMethodChange={setSelectedPaymentMethod}
       />
-      
+      <div className="my-4">
+        <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+        <Select value={currency} onValueChange={setCurrency}>
+          <SelectTrigger className="w-full" id="currency">
+            <SelectValue placeholder="Select currency" />
+          </SelectTrigger>
+          <SelectContent>
+            {currencyOptions.map(opt => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="my-4">
+        <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+        <input
+          id="amount"
+          type="number"
+          min={selectedPaymentMethod === 'stripe' ? (currency === 'usd' || currency === 'eur' ? 0.5 : 1) : 1}
+          step={selectedPaymentMethod === 'stripe' ? 0.01 : 1}
+          value={amount}
+          onChange={e => setAmount(Number(e.target.value))}
+          disabled={isProcessing}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {amountError && <p className="text-red-500 text-xs mt-1">{amountError}</p>}
+      </div>
       <button 
         onClick={handlePayment}
         disabled={isProcessing}
@@ -222,7 +274,7 @@ export default function CheckoutButton() {
             Processing...
           </div>
         ) : (
-          `Pay ${selectedPaymentMethod === 'stripe' ? '$' : '₹'}${PAYMENT_AMOUNT} with ${selectedPaymentMethod === 'stripe' ? 'Stripe' : 'Razorpay'}`
+          `Pay ${currencySymbols[currency] || ''}${amount} with ${selectedPaymentMethod === 'stripe' ? 'Stripe' : 'Razorpay'}`
         )}
       </button>
       

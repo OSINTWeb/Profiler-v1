@@ -16,8 +16,8 @@ const stripe = new Stripe(stripeSecretKey, {
 export async function POST(request: NextRequest) {
   try {
     // Parse request body to get amount, currency, and referralId
-    const { amount = 20, currency = 'usd', referralId } = await request.json();
-
+    const { amount = 20, currency, referralId } = await request.json();
+    console.log('Referral ID:', referralId);  
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',

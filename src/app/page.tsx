@@ -11,6 +11,13 @@ import { useUser } from "@auth0/nextjs-auth0";
 import CountrySelect from "@/components/paidcomponents/contryselect";
 import { Button } from "@/components/ui/button";
 import { SearchTypes } from "@/components/paidcomponents/SearchTypes";
+
+declare global {
+  interface Window {
+    Refgrow: (id: number, event: string, email: string) => void;
+  }
+}
+
 export default function Profile() {
   const { user, isLoading } = useUser();
   const [input, setInput] = useState({ datatype: "Email", value: "" });
@@ -59,7 +66,11 @@ export default function Profile() {
         if (!response.ok) {
           throw new Error(`Signup request failed: ${response.status} ${response.statusText}`);
         }
-
+        else{
+          if (window.Refgrow) {
+            window.Refgrow(0, 'signup', user?.email || "");
+          }
+        }
         const signupData = await response.json();
         // console.log("Signup successful:", signupData);
         // console.log("Signup successful:", signupData.user);
