@@ -14,6 +14,7 @@ declare global {
     Rewardful?: {
       referral: string;
     };
+    RefgrowNoAutoInit?: boolean;
   }
 }
 
@@ -35,45 +36,35 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       window.location.href = "/auth/login";
     }
   }, [isSharedPage, user, isLoading]);
-
-  // Handle Rewardful tracking
-  // useEffect(() => {
-  //   // Initialize Rewardful tracking
-  //   window.rewardful('ready', function() {
-  //     if (window.Rewardful?.affiliate) {
-  //       console.log('Current referral ID: ', window.Rewardful.affiliate);
-  //       // You can store the referral ID in localStorage or state if needed
-  //     } else {
-  //       console.log('No referral present.');
-  //     }
-  //   });
-  // }, []); // Empty dependency array since we only want this to run once
-
-  // Log the refgrow_ref_code cookie for debugging
   useEffect(() => {
     const match = document.cookie.match(/(?:^|; )refgrow_ref_code=([^;]*)/);
+    window.RefgrowNoAutoInit = true;
     if (match) {
-      console.log('refgrow_ref_code:', decodeURIComponent(match[1]));
+      console.log("refgrow_ref_code:", decodeURIComponent(match[1]));
     } else {
-      console.log('refgrow_ref_code cookie not set');
+      console.log("refgrow_ref_code cookie not set");
     }
   }, []);
+
+  useEffect(() => {
+    function tryInit() {
+      if (window.Refgrow && window.Refgrow.init) {
+        window.Refgrow.reset?.();
+        window.Refgrow.init();
+      } else {
+        setTimeout(tryInit, 100); // Try again in 100ms
+      }
+    }
+    tryInit();
+  }, [user]);
 
   return (
     <html lang="en">
       <head>
-        {/* Rewardful initialization */}
-        {/* <script dangerouslySetInnerHTML={{ 
-          __html: `(function(w,r){w._rwq=r;w[r]=w[r]||function(){(w[r].q=w[r].q||[]).push(arguments)}})(window,'rewardful');`
-        }} />
-        <script async src="https://r.wdfl.co/rw.js" data-rewardful="0bc73b"></script>
-         */}
-
+        <script dangerouslySetInnerHTML={{ __html: "window.RefgrowNoAutoInit = true;" }} />
         <script src="https://refgrow.com/tracking.js" data-project-id="252" async defer></script>
-        {/* This script sets a cookie named
-refgrow_ref_code
-if a valid referral link is used.
- */}
+        <script src="https://refgrow.com/js/page.js" async defer></script>
+
         {/* Main */}
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />

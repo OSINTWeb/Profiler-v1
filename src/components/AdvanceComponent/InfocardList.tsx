@@ -16,7 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { BarChart, Grid, List } from "lucide-react";
+import { BarChart, Grid, List, XCircle, FileDown, Ban, Check, X, CheckCircle2 } from "lucide-react";
 
 interface PlatformVariable {
   key: string;
@@ -89,6 +89,7 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
   const [filteredUsers, setFilteredUsers] = useState<PlatformData[]>([]);
   const [Cards, setCards] = useState<PlatformData[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list" | "graph">("list");
+  const [deletedItemKeys, setDeletedItemKeys] = useState<Set<string>>(new Set());
 
   // Function to check if spec_format has only registered and platform_variables
   const hasSimpleSpecFormat = (specFormat: SpecFormatItem[]) => {
@@ -98,14 +99,36 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
     );
   };
 
+  // Function to generate unique key for an item
+  const getItemKey = (item: PlatformData) => {
+    return `${item.module}-${item.query}-${item.from}`;
+  };
+
   // Update data with 2-second interval
   useEffect(() => {
     const updateData = () => {
-      const filtered = users.filter((user) => !hasSimpleSpecFormat(user.spec_format));
+      // Filter out simple spec format AND permanently deleted items
+      const filtered = users
+        .filter((user) => !hasSimpleSpecFormat(user.spec_format))
+        .filter((user) => !deletedItemKeys.has(getItemKey(user)));
+      
       const cardData = users.filter((user) => hasSimpleSpecFormat(user.spec_format));
-      setFilteredUsers(filtered);
+      
+      setFilteredUsers(prevFiltered => {
+        // Only clear selections if the actual data content has changed significantly
+        const dataChanged = prevFiltered.length !== filtered.length || 
+          JSON.stringify(prevFiltered.map(getItemKey)) !== JSON.stringify(filtered.map(getItemKey));
+        
+        if (dataChanged) {
+          setSelectedIndices(prevSelected => 
+            prevSelected.filter(index => index < filtered.length)
+          );
+        }
+        
+        return filtered;
+      });
+      
       setCards(cardData);
-      setSelectedIndices([]);
     };
 
     // Initial update
@@ -116,7 +139,7 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
-  }, [users]);
+  }, [users, deletedItemKeys]);
 
   // Function to handle card selection
   const handleCardSelect = (index: number) => {
@@ -127,15 +150,28 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
 
   // Function to permanently delete selected cards
   const permanentlyDeleteSelectedCards = () => {
-    const updatedUsers = filteredUsers.filter((_, index) => !selectedIndices.includes(index));
-    setFilteredUsers(updatedUsers);
+    // Track the keys of items being deleted
+    const itemsToDelete = selectedIndices.map(index => getItemKey(filteredUsers[index]));
+    setDeletedItemKeys(prev => {
+      const newSet = new Set(prev);
+      itemsToDelete.forEach(key => newSet.add(key));
+      return newSet;
+    });
+    
+    // Clear selections and modes
     setSelectedIndices([]);
     setenableselect(false);
     setdeletebutton(false);
   };
 
   const handleDelete = (index: number) => {
-    setFilteredUsers(filteredUsers.filter((_, i) => i !== index));
+    // Track the deleted item key
+    const itemKey = getItemKey(filteredUsers[index]);
+    setDeletedItemKeys(prev => {
+      const newSet = new Set(prev);
+      newSet.add(itemKey);
+      return newSet;
+    });
   };
 
   // Get data for export based on mode
@@ -249,18 +285,34 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
                         setSelectedIndices([]);
                       }
                     }}
-                    className={`flex items-center gap-2 px-6 py-2.5 rounded-lg transition-all duration-200 font-medium shadow-lg hover:shadow-xl ${
+                    className={`flex items-center gap-2 px-6 py-2.5 rounded-lg transition-all duration-200 font-medium shadow-lg hover:shadow-xl relative group overflow-hidden ${
                       enableselect
-                        ? "bg-white text-black hover:bg-gray-200"
+                        ? "bg-emerald-500 text-white hover:bg-emerald-600"
                         : "bg-black text-white border border-gray-600 hover:bg-gray-900"
                     }`}
                   >
-                    <span>{enableselect ? "Cancel Selection" : "Select for Export"}</span>
-                    {enableselect && selectedCount > 0 && (
-                      <span className="bg-black/20 px-2 py-0.5 rounded-full text-sm">
-                        {selectedCount}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2 relative z-10">
+                      {enableselect ? (
+                        <>
+                          <X size={18} />
+                          <span>Cancel Selection</span>
+                        </>
+                      ) : (
+                        <>
+                          <FileDown size={18} />
+                          <span>Select for Export</span>
+                        </>
+                      )}
+                      {enableselect && selectedCount > 0 && (
+                        <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full text-sm font-semibold flex items-center gap-1">
+                          <Check size={14} />
+                          {selectedCount}
+                        </span>
+                      )}
+                    </div>
+                    <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                      enableselect ? "bg-emerald-600" : "bg-gray-900"
+                    }`} />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent className="bg-black text-white border border-gray-600">
@@ -289,20 +341,34 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
                         setSelectedIndices([]);
                       }
                     }}
-                    className={`flex items-center gap-2 px-6 py-2.5 rounded-lg transition-all duration-200 font-medium shadow-lg hover:shadow-xl ${
+                    className={`flex items-center gap-2 px-6 py-2.5 rounded-lg transition-all duration-200 font-medium shadow-lg hover:shadow-xl relative group overflow-hidden ${
                       deletebutton
-                        ? "bg-gray-400 text-black hover:bg-gray-300"
+                        ? "bg-red-500 text-white hover:bg-red-600"
                         : "bg-black text-white border border-gray-600 hover:bg-gray-900"
                     }`}
                   >
-                    <span>
-                      {deletebutton ? "Cancel Exclude" : "Exclude from Export"}
+                    <div className="flex items-center gap-2 relative z-10">
+                      {deletebutton ? (
+                        <>
+                          <X size={18} />
+                          <span>Cancel Exclude</span>
+                        </>
+                      ) : (
+                        <>
+                          <Ban size={18} />
+                          <span>Exclude from Export</span>
+                        </>
+                      )}
                       {deletebutton && selectedCount > 0 && (
-                        <span className="bg-black/20 px-2 py-0.5 rounded-full text-sm ml-2">
-                          {selectedCount} excluded
+                        <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full text-sm font-semibold flex items-center gap-1 ml-1">
+                          <XCircle size={14} />
+                          {selectedCount}
                         </span>
                       )}
-                    </span>
+                    </div>
+                    <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                      deletebutton ? "bg-red-600" : "bg-gray-900"
+                    }`} />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent className="bg-black text-white border border-gray-600">
@@ -321,36 +387,67 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
         {(enableselect || deletebutton) && (
           <div>
             <div
-              className={`p-4 rounded-lg border text-sm font-medium shadow-lg ${
+              className={`p-4 rounded-lg border text-sm font-medium shadow-lg backdrop-blur-sm ${
                 enableselect
-                  ? "bg-gray-100 border-gray-300 text-black"
-                  : "bg-gray-800 border-gray-600 text-gray-200"
+                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
+                  : deletebutton
+                    ? "bg-red-500/10 border-red-500/20 text-red-500"
+                    : "bg-gray-800 border-gray-600 text-gray-200"
               }`}
             >
               {enableselect ? (
                 selectedCount > 0 ? (
-                  <span className="flex items-center gap-2">
-                    <span className="text-lg">📤</span>
-                    Export will include ONLY {selectedCount} selected record(s)
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-emerald-500/20">
+                      <CheckCircle2 size={20} className="text-emerald-500" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold">Ready to Export</span>
+                      <span className="text-emerald-500/80 text-xs">
+                        Will export ONLY {selectedCount} selected record(s)
+                      </span>
+                    </div>
+                  </div>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    <span className="text-lg">👆</span>
-                    Select cards to export ONLY those specific records
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-emerald-500/20">
+                      <FileDown size={20} className="text-emerald-500" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold">Select Records to Export</span>
+                      <span className="text-emerald-500/80 text-xs">
+                        Click on records you want to include in the export
+                      </span>
+                    </div>
+                  </div>
                 )
-              ) : selectedCount > 0 ? (
-                <span className="flex items-center gap-2">
-                  <span className="text-lg">📤</span>
-                  Export will include {filteredUsers.length - selectedCount} record(s) (excluding{" "}
-                  {selectedCount} selected)
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  <span className="text-lg">❌</span>
-                  Select cards to EXCLUDE from export
-                </span>
-              )}
+              ) : deletebutton ? (
+                selectedCount > 0 ? (
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-red-500/20">
+                      <XCircle size={20} className="text-red-500" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold">Records Excluded</span>
+                      <span className="text-red-500/80 text-xs">
+                        Will export {filteredUsers.length - selectedCount} record(s), excluding {selectedCount} selected
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-red-500/20">
+                      <Ban size={20} className="text-red-500" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold">Select Records to Exclude</span>
+                      <span className="text-red-500/80 text-xs">
+                        Click on records you want to exclude from the export
+                      </span>
+                    </div>
+                  </div>
+                )
+              ) : null}
             </div>
           </div>
         )}

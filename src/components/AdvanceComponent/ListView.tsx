@@ -188,7 +188,7 @@ const ListView: React.FC<ListViewProps> = ({
 
     return (
       <div
-        className={`relative flex items-start p-4 rounded-lg border transition-all duration-200 cursor-pointer hover:border-gray-100 ${
+        className={`relative flex items-start p-4 rounded-lg border transition-all duration-200 cursor-pointer hover:border-gray-100 border overflow-x-scroll ${
           isSelected
             ? enableselect
               ? "border-white bg-gray-100/10 shadow-lg"
@@ -477,9 +477,9 @@ const ListView: React.FC<ListViewProps> = ({
     };
 
     return (
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col ">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 bg-black">
+        <div className="flex items-center justify-between p-6 bg-black ">
           <div className="flex items-center space-x-6">
             <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-900 flex items-center justify-center">
               {primaryInfo.picture_url ? (
@@ -537,7 +537,7 @@ const ListView: React.FC<ListViewProps> = ({
 
                 return (
                   <div key={key} className="group">
-                    <div className="text-gray-400 text-xs mb-1.5 uppercase tracking-wider font-medium">
+                    <div className="text-gray-400 text-xs mb-1.5 uppercase tracking-wider font-medium ">
                       {formatTitle(key)}
                     </div>
                     <div className="flex items-center justify-between gap-3">
@@ -638,14 +638,52 @@ const ListView: React.FC<ListViewProps> = ({
   return (
     <div
       id="list-detail-container"
-      className="flex h-[1000px] border border-gray-600 rounded-lg overflow-hidden bg-gray-900/20"
+      className="flex h-[1000px] border border-gray-600 rounded-lg overflow-hidden bg-gray-900/20 "
     >
       {/* Left Panel - List View */}
       <div
         className="flex flex-col overflow-hidden border-r border-gray-700"
         style={{ width: `${leftPanelWidth}%` }}
       >
-        <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+        {/* List Header */}
+        <div className="p-4 border-b border-gray-700 bg-black/40">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-white">Variable Window</h2>
+            
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <span>Resize window:</span>
+              <div className="flex items-center gap-1.5">
+                <button 
+                  onClick={() => setLeftPanelWidth(30)}
+                  className={`px-2 py-1 rounded transition-colors ${
+                    leftPanelWidth <= 30 ? 'bg-white/10 text-white' : 'hover:bg-white/5'
+                  }`}
+                >
+                  30%
+                </button>
+                <button 
+                  onClick={() => setLeftPanelWidth(50)}
+                  className={`px-2 py-1 rounded transition-colors ${
+                    leftPanelWidth > 30 && leftPanelWidth <= 50 ? 'bg-white/10 text-white' : 'hover:bg-white/5'
+                  }`}
+                >
+                  50%
+                </button>
+                <button 
+                  onClick={() => setLeftPanelWidth(70)}
+                  className={`px-2 py-1 rounded transition-colors ${
+                    leftPanelWidth > 50 ? 'bg-white/10 text-white' : 'hover:bg-white/5'
+                  }`}
+                >
+                  70%
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex-1 overflow-x-hidden overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 ">
           {memoizedUsers.length > 0 ? (
             memoizedUsers.map((user, index) => (
               <div 
@@ -675,10 +713,11 @@ const ListView: React.FC<ListViewProps> = ({
 
       {/* Resizer */}
       <div
-        className="w-1 bg-gray-700 hover:bg-gray-600 cursor-col-resize flex items-center justify-center group"
+        className="w-1.5 bg-gradient-to-b from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 cursor-col-resize flex items-center justify-center group transition-all duration-200 relative"
         onMouseDown={handleMouseDown}
       >
-        <div className="w-1 h-8 bg-gray-500 group-hover:bg-gray-400 rounded-full"></div>
+        <div className="w-0.5 h-12 bg-gray-400 group-hover:bg-white rounded-full shadow-sm transition-all duration-200"></div>
+        <div className="absolute inset-0 bg-transparent group-hover:bg-white/5 rounded-sm transition-all duration-200"></div>
       </div>
 
       {/* Right Panel - Detail View */}
