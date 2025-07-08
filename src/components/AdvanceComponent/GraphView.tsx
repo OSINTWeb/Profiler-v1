@@ -2,8 +2,6 @@ import React, { useMemo, useState, useCallback } from "react";
 import {
   ReactFlow,
   addEdge,
-  MiniMap,
-  Controls,
   Background,
   useNodesState,
   useEdgesState,
@@ -27,7 +25,14 @@ const isEmailNodeData = (
 
 const isPlatformNodeData = (
   data: Record<string, unknown>
-): data is { platform: PlatformData; userName?: string } => {
+): data is { 
+  platform: PlatformData; 
+  userName?: string; 
+  platformIndex?: number;
+  isSelected?: boolean;
+  showSelection?: boolean;
+  enableselect?: boolean;
+} => {
   return data.platform !== undefined && typeof data.platform === "object";
 };
 
@@ -73,19 +78,23 @@ const EmailNode: React.FC<NodeProps> = ({ data, selected }) => {
   );
 };
 
-// Platform Node Component - Enhanced Design
+// Platform Node Component - Enhanced Design with selection support
 const PlatformNode: React.FC<NodeProps> = ({ data, selected }) => {
   if (!isPlatformNodeData(data)) return null;
 
   const platform = data.platform;
-  const isReliable = platform.reliable_source;
-  const statusColor = platform.status === "valid" ? "bg-green-500" : "bg-yellow-500";
+  const isSelected = data.isSelected;
+  const showSelection = data.showSelection;
 
   return (
     <div
-      className={`px-3 py-2 border rounded-full bg-gray-800 shadow-lg transition-all duration-200 min-w-36 ${
+      className={`px-3 py-2 border rounded-full bg-gray-800 shadow-lg transition-all duration-200 min-w-36 relative ${
         selected
           ? "border-green-500 shadow-xl ring-2 ring-green-500/30"
+          : isSelected
+          ? data.enableselect
+            ? "border-white bg-gray-100/10 shadow-lg ring-2 ring-white/30"
+            : "border-gray-400 bg-gray-400/10 shadow-lg ring-2 ring-gray-400/30"
           : "border-gray-600 hover:border-green-400 hover:shadow-xl"
       }`}
     >
@@ -99,6 +108,32 @@ const PlatformNode: React.FC<NodeProps> = ({ data, selected }) => {
         position={Position.Bottom}
         className="w-2.5 h-2.5 bg-green-500 border border-gray-700"
       />
+
+      {/* Selection checkbox */}
+      {showSelection && (
+        <div className="absolute -top-2 -right-2 cursor-pointer">
+          <div
+            className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+              isSelected
+                ? data.enableselect
+                  ? "bg-white border-white text-black"
+                  : "bg-gray-400 border-gray-400 text-black"
+                : "border-gray-500 hover:border-white bg-gray-800"
+            }`}
+          >
+            {isSelected && (
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="text-center flex gap-4 justify-center items-center">
         <div className="flex items-center justify-center gap-2 mb-2">
           <div className="relative">
@@ -186,9 +221,19 @@ const nodeTypes = {
 
 interface GraphViewProps {
   data: PlatformData[];
+  selectedIndices: number[];
+  handleCardSelect: (index: number) => void;
+  enableselect: boolean;
+  deletebutton: boolean;
 }
 
-const GraphView: React.FC<GraphViewProps> = ({ data }) => {
+const GraphView: React.FC<GraphViewProps> = ({ 
+  data, 
+  selectedIndices, 
+  handleCardSelect, 
+  enableselect, 
+  deletebutton 
+}) => {
   const [selectedNodeData, setSelectedNodeData] = useState<Record<string, unknown> | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<"all" | "email" | "platform" | "user">("all");
@@ -271,6 +316,9 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
 
       // Create platform node
       const platformNodeId = `platform-${platform.module}-${platformIndex}`;
+      const isSelected = selectedIndices.includes(platformIndex);
+      const showSelection = enableselect || deletebutton;
+      
       nodes.push({
         id: platformNodeId,
         type: "platform",
@@ -278,6 +326,10 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
         data: {
           platform,
           userName,
+          platformIndex,
+          isSelected,
+          showSelection,
+          enableselect,
         },
         draggable: true,
       });
@@ -340,7 +392,7 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
     });
 
     return { initialNodes: nodes, initialEdges: edges };
-  }, [data]);
+  }, [data, selectedIndices, enableselect, deletebutton]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -352,49 +404,80 @@ const GraphView: React.FC<GraphViewProps> = ({ data }) => {
 
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
     if (node.type === "platform") {
-      // Toggle visibility of connected user nodes
-      setNodes((nds) =>
-        nds.map((n) => {
-          if (n.data.parentPlatformId === node.id) {
-            const isCurrentlyHidden = expandedPlatformId !== node.id;
-            // Show the user details panel when expanding
-            if (isCurrentlyHidden) {
-              setSelectedNodeData(n.data);
-            }
-            return {
-              ...n,
-              hidden: !isCurrentlyHidden,
-            };
-          }
-          return n;
-        })
-      );
-
-      setEdges((eds) =>
-        eds.map((e) => {
-          if (e.source === node.id) {
-            return {
-              ...e,
-              hidden: expandedPlatformId === node.id,
-            };
-          }
-          return e;
-        })
-      );
-
-      setExpandedPlatformId((prev) => {
-        // Clear selected data when collapsing
-        if (prev === node.id) {
-          setSelectedNodeData(null);
+      const showSelection = enableselect || deletebutton;
+      
+      if (showSelection) {
+        // Handle selection when selection mode is enabled
+        const platformIndex = node.data.platformIndex;
+        if (typeof platformIndex === 'number') {
+          handleCardSelect(platformIndex);
         }
-        return prev === node.id ? null : node.id;
-      });
+      } else {
+        // Handle expansion when selection mode is disabled (current behavior)
+        // Toggle visibility of connected user nodes
+        setNodes((nds) =>
+          nds.map((n) => {
+            if (n.data.parentPlatformId === node.id) {
+              const isCurrentlyHidden = expandedPlatformId !== node.id;
+              // Show the user details panel when expanding
+              if (isCurrentlyHidden) {
+                setSelectedNodeData(n.data);
+              }
+              return {
+                ...n,
+                hidden: !isCurrentlyHidden,
+              };
+            }
+            return n;
+          })
+        );
+
+        setEdges((eds) =>
+          eds.map((e) => {
+            if (e.source === node.id) {
+              return {
+                ...e,
+                hidden: expandedPlatformId === node.id,
+              };
+            }
+            return e;
+          })
+        );
+
+        setExpandedPlatformId((prev) => {
+          // Clear selected data when collapsing
+          if (prev === node.id) {
+            setSelectedNodeData(null);
+          }
+          return prev === node.id ? null : node.id;
+        });
+      }
     } else if (node.type === "email") {
       // Only show info panel for email nodes
       setSelectedNodeData(node.data);
     }
     // User nodes are no longer clickable - removed the user node case
-  }, [expandedPlatformId, setNodes, setEdges]);
+  }, [expandedPlatformId, setNodes, setEdges, enableselect, deletebutton, handleCardSelect]);
+
+  // Update nodes when selection state changes
+  React.useEffect(() => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.type === "platform" && typeof node.data.platformIndex === 'number') {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              isSelected: selectedIndices.includes(node.data.platformIndex),
+              showSelection: enableselect || deletebutton,
+              enableselect,
+            },
+          };
+        }
+        return node;
+      })
+    );
+  }, [selectedIndices, enableselect, deletebutton, setNodes]);
 
   // Filter nodes based on search and active filter
   const filteredNodes = useMemo(() => {

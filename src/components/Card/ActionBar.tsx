@@ -177,229 +177,6 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     return { ...baseFields, ...specFields };
   };
 
-  const exportToPDF = async () => {
-    try {
-      const doc = new jsPDF();
-
-      // Set up fonts and styling
-      doc.setFont("helvetica", "normal");
-
-      // Add title
-      doc.setFontSize(24);
-      doc.text("Platform Data Report", 105, 20, { align: "center" });
-
-      // Add generation date and selection info
-      doc.setFontSize(12);
-      doc.text(`Generated on ${new Date().toLocaleString()}`, 105, 30, { align: "center" });
-      if (selectedData && selectedData.length > 0) {
-        doc.text(`Selected Records: ${selectedData.length} of ${resultCount}`, 105, 40, { align: "center" });
-      }
-
-      let yPos = 50;
-      const margin = 20;
-      const pageWidth = doc.internal.pageSize.width;
-
-      // Helper function to add image
-      const addImage = async (imageUrl: string, y: number) => {
-        try {
-          const response = await fetch(imageUrl);
-          const blob = await response.blob();
-          return new Promise<number>((resolve) => {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-              if (event.target?.result) {
-                const imgData = event.target.result as string;
-                // Add image with 40x40 dimensions
-                const imgWidth = 40;
-                const imgHeight = 40;
-                const xPos = margin;
-                doc.addImage(imgData, "JPEG", xPos, y, imgWidth, imgHeight);
-                resolve(imgHeight + 5); // Return height + padding
-              } else {
-                resolve(0);
-              }
-            };
-            reader.readAsDataURL(blob);
-          });
-        } catch (error) {
-          console.error("Error loading image:", error);
-          return 0;
-        }
-      };
-
-      // Process each record
-      for (const item of dataToExport) {
-        // Check if we need a new page
-        if (yPos > 250) {
-          doc.addPage();
-          yPos = 20;
-        }
-
-        // Record header with background
-        doc.setFillColor(240, 240, 240);
-        doc.rect(margin, yPos, pageWidth - 2 * margin, 10, "F");
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-        doc.text(item.module || "Unknown Platform", margin + 2, yPos + 7);
-        yPos += 15;
-
-        // Add profile image if available
-        const imageUrl =
-          item.spec_format?.[0]?.picture_url?.value || item.front_schemas?.[0]?.image;
-
-        if (imageUrl) {
-          const imageHeight = await addImage(imageUrl, yPos);
-          yPos += imageHeight;
-        }
-
-        // Basic Information Section
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "bold");
-        doc.text("Basic Information", margin, yPos);
-        yPos += 7;
-        doc.setFont("helvetica", "normal");
-
-        const addField = (label: string, value: unknown) => {
-          if (value !== undefined && value !== null && typeof value !== "object") {
-            if (yPos > 270) {
-              doc.addPage();
-              yPos = 20;
-            }
-            doc.setFont("helvetica", "bold");
-            doc.text(`${label}:`, margin, yPos);
-            doc.setFont("helvetica", "normal");
-            const valueStr = String(value);
-            // Handle long text with word wrap
-            const splitText = doc.splitTextToSize(valueStr, pageWidth - 2 * margin - 40);
-            doc.text(splitText, margin + 40, yPos);
-            yPos += splitText.length * 7;
-          }
-        };
-
-        // Add basic fields
-        addField("Module", item.module);
-        addField("Query", item.query);
-        addField("Category", item.category?.name);
-        addField("Status", item.status);
-        addField("Source", item.from);
-        addField("Reliable Source", item.reliable_source ? "Yes" : "No");
-
-        // Add all data fields
-        if (item.data) {
-          Object.entries(item.data).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-              const formattedKey = key.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-              const formattedValue =
-                typeof value === "boolean"
-                  ? value
-                    ? "Yes"
-                    : "No"
-                  : Array.isArray(value)
-                  ? `${value.length} items`
-                  : String(value);
-              addField(formattedKey, formattedValue);
-            }
-          });
-        }
-
-        // Add front_schemas body data
-        if (item.front_schemas?.[0]?.body) {
-          Object.entries(item.front_schemas[0].body).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-              addField(key, String(value));
-            }
-          });
-        }
-
-        // Account Status Section
-        if (item.spec_format?.[0]) {
-          yPos += 5;
-          doc.setFont("helvetica", "bold");
-          doc.text("Account Status", margin, yPos);
-          yPos += 7;
-
-          const spec = item.spec_format[0];
-          if (spec.registered?.value !== undefined) {
-            addField("Registered", spec.registered.value ? "Yes" : "No");
-          }
-          if (spec.breach?.value !== undefined) {
-            addField("Breached", spec.breach.value ? "Yes" : "No");
-          }
-        }
-
-        // Personal Information Section
-        if (item.spec_format?.[0]) {
-          const spec = item.spec_format[0];
-          const personalInfo = {
-            Name: spec.name?.value,
-            Username: spec.username?.value,
-            ID: spec.id?.value,
-            Bio: spec.bio?.value,
-            Website: spec.website?.value,
-            Location: spec.location?.value,
-            "Phone Number": spec.phone_number?.value,
-            Gender: spec.gender?.value,
-            Age: spec.age?.value,
-            Language: spec.language?.value,
-          };
-
-          const hasPersonalInfo = Object.values(personalInfo).some((v) => v !== undefined);
-
-          if (hasPersonalInfo) {
-            yPos += 5;
-            doc.setFont("helvetica", "bold");
-            doc.text("Personal Information", margin, yPos);
-            yPos += 7;
-
-            Object.entries(personalInfo).forEach(([key, value]) => {
-              if (value !== undefined) {
-                addField(key, value);
-              }
-            });
-          }
-        }
-
-        // Dates Section
-        if (item.spec_format?.[0]) {
-          const spec = item.spec_format[0];
-          const dates = {
-            "Creation Date": spec.creation_date?.value,
-            "Last Seen": spec.last_seen?.value,
-            Birthday: spec.birthday?.value,
-          };
-
-          const hasDates = Object.values(dates).some((v) => v !== undefined);
-
-          if (hasDates) {
-            yPos += 5;
-            doc.setFont("helvetica", "bold");
-            doc.text("Dates", margin, yPos);
-            yPos += 7;
-
-            Object.entries(dates).forEach(([key, value]) => {
-              if (value !== undefined) {
-                addField(key, value);
-              }
-            });
-          }
-        }
-
-        // Add separator
-        yPos += 10;
-        doc.setDrawColor(200, 200, 200);
-        doc.line(margin, yPos, pageWidth - margin, yPos);
-        yPos += 15;
-      }
-
-      // Save the PDF
-      const filename = selectedData && selectedData.length > 0 
-        ? `selected_platform_data_${selectedData.length}_records.pdf`
-        : "platform_data.pdf";
-      doc.save(filename);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-    }
-  };
 
   const exportToCSV = () => {
     try {
@@ -463,25 +240,35 @@ export const ActionBar: React.FC<ActionBarProps> = ({
 
   const exportToPDFWithImages = async () => {
     try {
-      const doc = new jsPDF();
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: "a4",
+      });
 
       // Set up fonts and styling
       doc.setFont("helvetica", "normal");
 
       // Add title
       doc.setFontSize(24);
-      doc.text("Platform Data Report with Images", 105, 20, { align: "center" });
+      doc.setTextColor(34, 34, 34);
+      doc.text(`Profiler.me Data Report for ${selectedData?.length} records` , doc.internal.pageSize.getWidth() / 2, 50, { align: "center" });
 
       // Add generation date and selection info
       doc.setFontSize(12);
-      doc.text(`Generated on ${new Date().toLocaleString()}`, 105, 30, { align: "center" });
+      doc.setTextColor(80, 80, 80);
+      doc.text(`Generated on ${new Date().toLocaleString()}`, doc.internal.pageSize.getWidth() / 2, 70, { align: "center" });
       if (selectedData && selectedData.length > 0) {
-        doc.text(`Selected Records: ${selectedData.length} of ${resultCount}`, 105, 40, { align: "center" });
+        doc.text(`Selected Records: ${selectedData.length} of ${resultCount}`, doc.internal.pageSize.getWidth() / 2, 90, { align: "center" });
       }
 
-      let yPos = selectedData && selectedData.length > 0 ? 60 : 50;
-      const margin = 20;
-      const pageWidth = doc.internal.pageSize.width;
+      let yPos = selectedData && selectedData.length > 0 ? 110 : 90;
+      const margin = 40;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const sectionSpacing = 18;
+      const fieldSpacing = 12;
+      const minBottomMargin = 60;
 
       // Enhanced image handling function
       const addImageEnhanced = async (imageUrl: string, y: number) => {
@@ -494,11 +281,14 @@ export const ActionBar: React.FC<ActionBarProps> = ({
               if (event.target?.result) {
                 const imgData = event.target.result as string;
                 // Add larger image with better quality
-                const imgWidth = 60;
-                const imgHeight = 60;
-                const xPos = margin;
-                doc.addImage(imgData, "JPEG", xPos, y, imgWidth, imgHeight);
-                resolve(imgHeight + 10); // Return height + padding
+                const imgWidth = 80;
+                const imgHeight = 80;
+                const xPos = pageWidth - margin - imgWidth;
+                doc.setDrawColor(220, 220, 220);
+                doc.setLineWidth(0.5);
+                doc.roundedRect(xPos - 6, y - 6, imgWidth + 12, imgHeight + 12, 8, 8, "S");
+                doc.addImage(imgData, "JPEG", xPos, y, imgWidth, imgHeight, undefined, "FAST");
+                resolve(imgHeight + 16); // Return height + padding
               } else {
                 resolve(0);
               }
@@ -511,58 +301,70 @@ export const ActionBar: React.FC<ActionBarProps> = ({
         }
       };
 
+      // Helper to check for page break and add new page if needed
+      const ensureSpace = (needed = 0) => {
+        if (yPos + needed > pageHeight - minBottomMargin) {
+          doc.addPage();
+          yPos = margin;
+        }
+      };
+
       // Process each record with enhanced image display
       for (const item of dataToExport) {
-        // Check if we need a new page
-        if (yPos > 230) {
-          doc.addPage();
-          yPos = 20;
-        }
+        ensureSpace(60);
 
-        // Record header with background
-        doc.setFillColor(240, 240, 240);
-        doc.rect(margin, yPos, pageWidth - 2 * margin, 10, "F");
-        doc.setFontSize(14);
+        // Record header with background and shadow
+        doc.setFillColor(245, 245, 245);
+        doc.setDrawColor(220, 220, 220);
+        doc.setLineWidth(1);
+        doc.roundedRect(margin, yPos, pageWidth - 2 * margin, 32, 8, 8, "FD");
+        doc.setFontSize(16);
         doc.setFont("helvetica", "bold");
-        doc.text(item.module || "Unknown Platform", margin + 2, yPos + 7);
-        yPos += 15;
+        doc.setTextColor(44, 62, 80);
+        doc.text(item.module || "Unknown Platform", margin + 16, yPos + 22);
+        yPos += 40;
 
         // Add profile images with enhanced display
         const imageUrl =
           item.spec_format?.[0]?.picture_url?.value || item.front_schemas?.[0]?.image;
 
         if (imageUrl) {
+          ensureSpace(100);
           const imageHeight = await addImageEnhanced(imageUrl, yPos);
-          yPos += imageHeight;
+          yPos += imageHeight + 6;
         }
 
         // Add all available images from data
         if (item.data?.profile_pic) {
+          ensureSpace(100);
           const imageHeight = await addImageEnhanced(item.data.profile_pic as string, yPos);
-          yPos += imageHeight;
+          yPos += imageHeight + 6;
         }
 
-        // Basic Information Section
-        doc.setFontSize(12);
+        // Section: Basic Information
+        ensureSpace(sectionSpacing);
+        doc.setFontSize(13);
         doc.setFont("helvetica", "bold");
+        doc.setTextColor(52, 73, 94);
         doc.text("Basic Information", margin, yPos);
-        yPos += 7;
+        yPos += sectionSpacing;
         doc.setFont("helvetica", "normal");
+        doc.setFontSize(11);
+        doc.setTextColor(33, 33, 33);
 
         const addField = (label: string, value: unknown) => {
           if (value !== undefined && value !== null && typeof value !== "object") {
-            if (yPos > 270) {
-              doc.addPage();
-              yPos = 20;
-            }
+            ensureSpace(fieldSpacing * 2);
             doc.setFont("helvetica", "bold");
-            doc.text(`${label}:`, margin, yPos);
+            doc.setTextColor(52, 73, 94);
+            doc.text(`${label}:`, margin + 8, yPos);
             doc.setFont("helvetica", "normal");
+            doc.setTextColor(33, 33, 33);
             const valueStr = String(value);
             // Handle long text with word wrap
-            const splitText = doc.splitTextToSize(valueStr, pageWidth - 2 * margin - 40);
-            doc.text(splitText, margin + 40, yPos);
-            yPos += splitText.length * 7;
+            const splitText = doc.splitTextToSize(valueStr, pageWidth - 2 * margin - 120);
+            doc.text(splitText, margin + 120, yPos);
+            yPos += splitText.length * fieldSpacing;
           }
         };
 
@@ -605,10 +407,15 @@ export const ActionBar: React.FC<ActionBarProps> = ({
 
         // Account Status Section
         if (item.spec_format?.[0]) {
-          yPos += 5;
+          ensureSpace(sectionSpacing);
           doc.setFont("helvetica", "bold");
+          doc.setFontSize(13);
+          doc.setTextColor(52, 73, 94);
           doc.text("Account Status", margin, yPos);
-          yPos += 7;
+          yPos += sectionSpacing;
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(11);
+          doc.setTextColor(33, 33, 33);
 
           const spec = item.spec_format[0];
           if (spec.registered?.value !== undefined) {
@@ -639,10 +446,15 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           const hasPersonalInfo = Object.values(personalInfo).some((v) => v !== undefined);
 
           if (hasPersonalInfo) {
-            yPos += 5;
+            ensureSpace(sectionSpacing);
             doc.setFont("helvetica", "bold");
+            doc.setFontSize(13);
+            doc.setTextColor(52, 73, 94);
             doc.text("Personal Information", margin, yPos);
-            yPos += 7;
+            yPos += sectionSpacing;
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(11);
+            doc.setTextColor(33, 33, 33);
 
             Object.entries(personalInfo).forEach(([key, value]) => {
               if (value !== undefined) {
@@ -664,10 +476,15 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           const hasDates = Object.values(dates).some((v) => v !== undefined);
 
           if (hasDates) {
-            yPos += 5;
+            ensureSpace(sectionSpacing);
             doc.setFont("helvetica", "bold");
+            doc.setFontSize(13);
+            doc.setTextColor(52, 73, 94);
             doc.text("Dates", margin, yPos);
-            yPos += 7;
+            yPos += sectionSpacing;
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(11);
+            doc.setTextColor(33, 33, 33);
 
             Object.entries(dates).forEach(([key, value]) => {
               if (value !== undefined) {
@@ -679,13 +496,18 @@ export const ActionBar: React.FC<ActionBarProps> = ({
 
         // Platform Variables Section
         if (item.spec_format?.[0]?.platform_variables?.length) {
-          yPos += 5;
+          ensureSpace(sectionSpacing);
           doc.setFont("helvetica", "bold");
+          doc.setFontSize(13);
+          doc.setTextColor(52, 73, 94);
           doc.text("Platform Variables", margin, yPos);
-          yPos += 7;
+          yPos += sectionSpacing;
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(11);
+          doc.setTextColor(33, 33, 33);
 
           item.spec_format[0].platform_variables.forEach((variable) => {
-            const key = variable.proper_key || 
+            const key = variable.proper_key ||
               variable.key.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
             addField(key, variable.value);
           });
@@ -693,10 +515,15 @@ export const ActionBar: React.FC<ActionBarProps> = ({
 
         // Tags Section
         if (item.front_schemas?.[0]?.tags?.length) {
-          yPos += 5;
+          ensureSpace(sectionSpacing);
           doc.setFont("helvetica", "bold");
+          doc.setFontSize(13);
+          doc.setTextColor(52, 73, 94);
           doc.text("Tags", margin, yPos);
-          yPos += 7;
+          yPos += sectionSpacing;
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(11);
+          doc.setTextColor(33, 33, 33);
 
           item.front_schemas[0].tags.forEach((tag, index) => {
             addField(`Tag ${index + 1}`, tag.tag);
@@ -707,16 +534,16 @@ export const ActionBar: React.FC<ActionBarProps> = ({
         }
 
         // Add separator
-        yPos += 10;
+        ensureSpace(30);
+        yPos += 8;
         doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.7);
         doc.line(margin, yPos, pageWidth - margin, yPos);
-        yPos += 15;
+        yPos += 24;
       }
 
       // Save the PDF
-      const filename = selectedData && selectedData.length > 0 
-        ? `selected_platform_data_with_images_${selectedData.length}_records.pdf`
-        : "platform_data_with_images.pdf";
+      const filename = `profiler.me_data_report_${selectedData?.length}_records.pdf`;
       doc.save(filename);
     } catch (error) {
       console.error("Error generating PDF with images:", error);

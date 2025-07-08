@@ -176,13 +176,13 @@ const ListView: React.FC<ListViewProps> = ({
   }, []);
 
   // Memoize ListViewItem component
-  const MemoizedListViewItem = useMemo(() => React.memo(({ user, isSelected, onSelect, showSelection, index }: {
+  const ListViewItem = React.memo<{
     user: PlatformData;
     isSelected: boolean;
     onSelect: () => void;
     showSelection: boolean;
     index: number;
-  }) => {
+  }>(({ user, isSelected, onSelect, showSelection, index }) => {
     const primaryInfo = getPrimaryInfo(user.spec_format);
     const displayName = primaryInfo.name || primaryInfo.username || primaryInfo.email || "Unknown";
 
@@ -327,7 +327,9 @@ const ListView: React.FC<ListViewProps> = ({
         </div>
       </div>
     );
-  }), [enableselect, handleOpenDetails]);
+  });
+
+  ListViewItem.displayName = "ListViewItem";
 
   // Memoize the list of users
   const memoizedUsers = useMemo(() => filteredUsers, [filteredUsers]);
@@ -690,7 +692,7 @@ const ListView: React.FC<ListViewProps> = ({
                 key={`${user.module}-${user.query}-${index}`}
                 className={`transition-all duration-200 ${selectedItemIndex === index ? 'ring-2 ring-blue-500 rounded-lg' : ''}`}
               >
-                <MemoizedListViewItem
+                <ListViewItem
                   user={user}
                   isSelected={selectedIndices.includes(index)}
                   onSelect={() => handleCardSelect(index)}

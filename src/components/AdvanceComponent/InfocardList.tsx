@@ -499,7 +499,13 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
           handleDelete={handleDelete}
         />
       ) : viewMode === "graph" ? (
-        <GraphView data={filteredUsers} />
+        <GraphView 
+          data={filteredUsers}
+          selectedIndices={selectedIndices}
+          handleCardSelect={handleCardSelect}
+          enableselect={enableselect}
+          deletebutton={deletebutton}
+        />
       ) : (
         <ListView
           filteredUsers={filteredUsers}
