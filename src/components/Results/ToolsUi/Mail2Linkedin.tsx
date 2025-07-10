@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ExternalLink, MapPin } from "lucide-react";
-import mail2LinkedinProfile from "public/Data/Mail2Linkedin.json";
+import NoResultFound from "./NoResultFound";
 
 // --- Types ---
 interface Education {
@@ -78,6 +78,11 @@ export interface LinkedInProfile {
     userGeneratedContents: unknown[];
   };
   isPublic: boolean;
+}
+
+// Component Props Interface
+interface Mail2LinkedinProps {
+  data: unknown;
 }
 
 // --- Components ---
@@ -163,7 +168,7 @@ interface ExperienceSectionProps {
   profile: LinkedInProfile;
 }
 
-const formatDate = (date?: { month?: number; year?: number }) => {
+const formatDate = (date?: { month?: number; year?: number }): string => {
   if (!date || (!date.month && !date.year)) return "";
   const monthNames = [
     "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
@@ -275,19 +280,17 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ profile }) => {
 
 // --- Main Component ---
 
-const Mail2Linkedin: React.FC = () => {
-  // Using the imported JSON data directly as the profile data
-  const profile = mail2LinkedinProfile as unknown as LinkedInProfile;
-  
+export default function Mail2Linkedin({ data }: Mail2LinkedinProps) {
+  if (!data) {
+    return <NoResultFound toolName="Mail2Linkedin" message="No LinkedIn profile found." />;
+  }
+
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6 py-8">
-      <ProfileHeader profile={profile} />
-      {/* Summary/About section - displays the summary from JSON data */}
-      <ProfileSummary profile={profile} />
-      <ExperienceSection profile={profile} />
-      <SkillsSection profile={profile} />
+      <ProfileHeader profile={data as LinkedInProfile} />
+      <ProfileSummary profile={data as LinkedInProfile} />
+      <ExperienceSection profile={data as LinkedInProfile} />
+      <SkillsSection profile={data as LinkedInProfile} />
     </div>
   );
 };
-
-export default Mail2Linkedin;
