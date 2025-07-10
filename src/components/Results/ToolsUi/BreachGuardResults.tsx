@@ -1,161 +1,324 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { BreachGuardData, BreachGuardEntry } from '@/types/breachguard';
-import NoResultFound from './NoResultFound';
-import { Shield, AlertCircle, Key, User, MapPin, Phone, CreditCard, Calendar, Globe, FileText, LayoutGrid, List } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+"use client";
+import React, { useState } from "react";
+import { AlertCircle, Shield, Grid, List, Calendar, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { formatDate, formatDateShort, getRelativeTime } from "../utils/dateUtils";
+import { BreachEntry } from "../utils/advancedTypes";
 
 interface BreachGuardResultsProps {
-  data: unknown;
+  data: BreachEntry[] | string | null;
   query: string;
 }
 
-// Helper function to format date
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-};
+type ViewMode = 'grid' | 'list';
 
-// Helper function to get icon for data class
-const getIconForDataClass = (dataClass: string) => {
-  const lowerClass = dataClass.toLowerCase();
-  if (lowerClass.includes('email')) return <Shield className="w-4 h-4" />;
-  if (lowerClass.includes('password')) return <Key className="w-4 h-4" />;
-  if (lowerClass.includes('name') || lowerClass.includes('username')) return <User className="w-4 h-4" />;
-  if (lowerClass.includes('address')) return <MapPin className="w-4 h-4" />;
-  if (lowerClass.includes('phone')) return <Phone className="w-4 h-4" />;
-  if (lowerClass.includes('credit') || lowerClass.includes('payment')) return <CreditCard className="w-4 h-4" />;
-  if (lowerClass.includes('date')) return <Calendar className="w-4 h-4" />;
-  if (lowerClass.includes('url') || lowerClass.includes('website')) return <Globe className="w-4 h-4" />;
-  return <FileText className="w-4 h-4" />;
-};
-
-export default function BreachGuardResults({ data, query }: BreachGuardResultsProps) {
-  const [isGridView, setIsGridView] = useState(true);
+const BreachGuardResults: React.FC<BreachGuardResultsProps> = ({ data }) => {
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   if (!data) {
-    return <NoResultFound toolName="Breach Guard" message={`No breach data found for ${query}`} />;
+    return null;
   }
 
-  const typedData = data as BreachGuardData;
-  const breaches = typedData.breaches || [];
+  // Parse the string data to extract breach information
+  let breachData: BreachEntry[] = [];
 
-  if (breaches.length === 0) {
-    return (
-      <div className="w-full max-w-4xl mx-auto p-6">
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader>
-            <CardTitle className="text-xl text-emerald-400 flex items-center gap-2">
-              <Shield className="w-6 h-6" />
-              No Breaches Found
-            </CardTitle>
-            <CardDescription className="text-zinc-400">
-              Good news! We could not find any breaches associated with {query}
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
+  if (typeof data === "string") {
+    try {
+      // Extract JSON array from the API route response string
+      const jsonMatch = data.match(/Parsed JSON data: (\[.*\])/);
+      if (jsonMatch) {
+        const parsedData = JSON.parse(jsonMatch[1]);
+        breachData = Array.isArray(parsedData) ? parsedData : [];
+      }
+    } catch (error) {
+      console.error("Failed to parse breach data:", error);
+    }
+  } else if (Array.isArray(data)) {
+    breachData = data;
   }
 
-  const renderBreachCard = (breach: BreachGuardEntry) => (
-    <Card key={breach.Name}  className=" bg-zinc-900 border-zinc-800 hover:border-zinc-700 transition-colors">
-      <CardHeader>
-        <div className="flex items-center gap-4">
-          {breach.LogoPath && (
-            <img 
-              src={breach.LogoPath} 
-              alt={`${breach.Name} logo`} 
-              className="w-12 h-12 object-contain rounded bg-white/10 p-1"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = `https://placehold.co/100x100?text=${breach.Name.charAt(0)}`;
-              }}
-            />
-          )}
-          <div>
-            <CardTitle className="text-lg text-zinc-100">{breach.Title}</CardTitle>
-            <CardDescription className="text-zinc-400">
-              Breach Date: {formatDate(breach.BreachDate)} • {breach.PwnCount.toLocaleString()} records affected
-            </CardDescription>
+  // Helper function to get icon for data class
+  const getDataClassIcon = (dataClass: string) => {
+    const lower = dataClass.toLowerCase();
+    if (lower.includes('email')) return '📧';
+    if (lower.includes('password')) return '🔒';
+    if (lower.includes('credit') || lower.includes('card')) return '💳';
+    if (lower.includes('phone')) return '📱';
+    if (lower.includes('address')) return '📍';
+    if (lower.includes('name')) return '👤';
+    if (lower.includes('username')) return '👤';
+    if (lower.includes('ip')) return '🌐';
+    if (lower.includes('message')) return '💬';
+    return '📄';
+  };
+
+
+
+  const GridView = () => (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {breachData.map((breach, index) => (
+        <div key={index} className="bg-black border border-white rounded-lg p-4 hover:border-teal-400 transition-colors">
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-3">
+            {breach.LogoPath ? (
+              <img 
+                src={breach.LogoPath} 
+                alt={`${breach.Name} logo`} 
+                className="w-12 h-12 object-contain rounded"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            ) : (
+              <div className="w-12 h-12 bg-white/10 rounded flex items-center justify-center">
+                <Shield className="w-6 h-6 text-teal-400" />
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-white truncate">{breach.Name}</h3>
+              <p className="text-sm text-white/60">{breach.Domain}</p>
+            </div>
+          </div>
+
+          {/* Breach Info */}
+          <div className="space-y-2 mb-3">
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="w-4 h-4 text-teal-400" />
+              <span className="text-white/80">
+                {formatDateShort(breach.BreachDate)} • {getRelativeTime(breach.BreachDate)}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Users className="w-4 h-4 text-teal-400" />
+              <span className="text-white/80">
+                {breach.PwnCount.toLocaleString()} accounts affected
+              </span>
+            </div>
+          </div>
+
+          {/* Status Badges */}
+          <div className="flex flex-wrap gap-1 mb-3">
+            {breach.IsVerified && (
+              <span className="px-2 py-1 bg-teal-400 text-black text-xs rounded border border-teal-400">
+                Verified
+              </span>
+            )}
+            {breach.IsSensitive && (
+              <span className="px-2 py-1 bg-white text-black text-xs rounded border border-white">
+                Sensitive
+              </span>
+            )}
+            {breach.IsFabricated && (
+              <span className="px-2 py-1 bg-white/20 text-white text-xs rounded border border-white/20">
+                Fabricated
+              </span>
+            )}
+            {breach.IsSpamList && (
+              <span className="px-2 py-1 bg-white/20 text-white text-xs rounded border border-white/20">
+                Spam List
+              </span>
+            )}
+          </div>
+
+          {/* Data Classes */}
+          <div className="mb-3">
+            <p className="text-xs text-teal-400 mb-2">Compromised Data:</p>
+            <div className="flex flex-wrap gap-1">
+              {breach.DataClasses.slice(0, 4).map((dataClass, i) => (
+                <span key={i} className="inline-flex items-center gap-1 px-2 py-1 bg-white/10 text-xs rounded">
+                  <span>{getDataClassIcon(dataClass)}</span>
+                  <span className="text-white">{dataClass}</span>
+                </span>
+              ))}
+              {breach.DataClasses.length > 4 && (
+                <span className="px-2 py-1 bg-white/10 text-xs rounded text-white/60">
+                  +{breach.DataClasses.length - 4} more
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Description Preview */}
+          <div className="text-xs text-white/60 line-clamp-2">
+            {breach.Description.replace(/<[^>]*>/g, '')}
           </div>
         </div>
-      </CardHeader>
+      ))}
+    </div>
+  );
 
-      <CardContent>
-        <div className="space-y-4">
-          <div>
-            <p className="text-sm text-zinc-500">Added: {formatDate(breach.AddedDate)}</p>
-            <div className="mt-2 text-sm text-zinc-300 prose prose-zinc prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: breach.Description }} />
-          </div>
-
-          <div>
-            <h4 className="text-sm font-medium mb-3 text-zinc-300">Compromised Data:</h4>
-            <div className="grid grid-cols-2 gap-2">
-              {breach.DataClasses.map((dataClass: string, index: number) => (
-                <div 
-                  key={index}
-                  className="flex items-center gap-2 p-2 rounded-lg bg-zinc-800/50 hover:bg-zinc-800 transition-colors"
-                >
-                  <span className="text-zinc-400">
-                    {getIconForDataClass(dataClass)}
-                  </span>
-                  <span className="text-sm text-zinc-300">{dataClass}</span>
+  const ListView = () => (
+    <div className="space-y-3">
+      {breachData.map((breach, index) => (
+        <div key={index} className="bg-black border border-white rounded-lg p-4 hover:border-teal-400 transition-colors">
+          <div className="flex items-start gap-4">
+            {/* Logo */}
+            <div className="flex-shrink-0">
+              {breach.LogoPath ? (
+                <img 
+                  src={breach.LogoPath} 
+                  alt={`${breach.Name} logo`} 
+                  className="w-16 h-16 object-contain rounded"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div className="w-16 h-16 bg-white/10 rounded flex items-center justify-center">
+                  <Shield className="w-8 h-8 text-teal-400" />
                 </div>
-              ))}
+              )}
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <h3 className="font-semibold text-white text-lg">{breach.Name}</h3>
+                  <p className="text-sm text-white/60">{breach.Domain}</p>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {breach.IsVerified && (
+                    <span className="px-2 py-1 bg-teal-400 text-black text-xs rounded border border-teal-400">
+                      Verified
+                    </span>
+                  )}
+                  {breach.IsSensitive && (
+                    <span className="px-2 py-1 bg-white text-black text-xs rounded border border-white">
+                      Sensitive
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Info Row */}
+              <div className="flex items-center gap-6 mb-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-teal-400" />
+                  <span className="text-white/80">
+                    {formatDate(breach.BreachDate)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-teal-400" />
+                  <span className="text-white/80">
+                    {breach.PwnCount.toLocaleString()} accounts
+                  </span>
+                </div>
+              </div>
+
+              {/* Data Classes */}
+              <div className="mb-3">
+                <p className="text-xs text-teal-400 mb-2">Compromised Data:</p>
+                <div className="flex flex-wrap gap-1">
+                  {breach.DataClasses.map((dataClass, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 px-2 py-1 bg-white/10 text-xs rounded">
+                      <span>{getDataClassIcon(dataClass)}</span>
+                      <span className="text-white">{dataClass}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="text-sm text-white/80">
+                {breach.Description.replace(/<[^>]*>/g, '')}
+              </div>
             </div>
           </div>
         </div>
-      </CardContent>
-
-      {breach.Domain && (
-        <CardFooter className="text-xs text-zinc-600">
-          Domain: {breach.Domain}
-        </CardFooter>
-      )}
-    </Card>
+      ))}
+    </div>
   );
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-6 ">
-      <div className="mb-6 flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-zinc-100 flex items-center gap-2">
-            <AlertCircle className="w-6 h-6 text-red-400" />
-            Found {breaches.length} Breaches
-          </h2>
-          <p className="text-zinc-400 mt-2">
-            The following breaches were found associated with {query}
-          </p>
-        </div>
-        <div className="flex gap-2 items-center bg-black/90 rounded-lg px-3 py-2 shadow-inner border border-white/10">
-          <span className="text-xs text-white mr-2">View:</span>
-          <Button
-            variant={isGridView ? "secondary" : "ghost"}
-            size="icon"
-            aria-label="Grid view"
-            onClick={() => setIsGridView(true)}
-            className={`transition-colors border border-white/20 ${isGridView ? "bg-white text-black ring-2 ring-white" : "bg-black text-white hover:bg-white/10"}`}
-          >
-            <LayoutGrid className={`w-5 h-5 ${isGridView ? "text-black" : "text-white/70"}`} />
-          </Button>
-          <Button
-            variant={!isGridView ? "secondary" : "ghost"}
-            size="icon"
-            aria-label="List view"
-            onClick={() => setIsGridView(false)}
-            className={`transition-colors border border-white/20 ${!isGridView ? "bg-white text-black ring-2 ring-white" : "bg-black text-white hover:bg-white/10"}`}
-          >
-            <List className={`w-5 h-5 ${!isGridView ? "text-black" : "text-white/70"}`} />
-          </Button>
-        </div>
-      </div>
+        <div className="w-full flex flex-col items-center justify-center">
+      <div className="w-full mx-auto mt-8 overflow-hidden animate-slide-up">
+        <div className="border border-white rounded-xl p-6 bg-black backdrop-blur-sm">
+          <div className="space-y-6">
+            {/* Header Section */}
+            <div className="text-center space-y-2">
+              <span className="inline-block px-3 py-1 rounded bg-teal-400 text-black text-sm font-medium">
+                Breach Guard
+              </span>
+              <h1 className="text-3xl font-bold text-white">Data Breach Report</h1>
+            </div>
 
-      <div className={isGridView ? "grid gap-6 md:grid-cols-2" : "flex flex-col gap-6"}>
-        {breaches.map(renderBreachCard)}
+            {/* Summary Statistics with View Toggle */}
+            <div className="bg-white/5 rounded-lg p-4 border border-white/20 flex flex-col md:flex-row items-center justify-center gap-4 text-center">
+              <div className="flex-1 flex flex-col items-center gap-1">
+                <span className="text-2xl font-bold text-teal-400">
+                  {breachData.length}
+                </span>
+                <span className="text-sm text-white">Total Breaches</span>
+              </div>
+              <div className="w-px h-8 bg-white/20 hidden md:block" />
+              <div className="flex-1 flex flex-col items-center gap-1">
+                <span className="text-2xl font-bold text-teal-400">
+                  {breachData.filter((breach) => breach.IsVerified).length}
+                </span>
+                <span className="text-sm text-white">Verified</span>
+              </div>
+              <div className="w-px h-8 bg-white/20 hidden md:block" />
+              <div className="flex-1 flex flex-col items-center gap-1">
+                <span className="text-2xl font-bold text-teal-400">
+                  {breachData.filter((breach) => breach.IsSensitive).length}
+                </span>
+                <span className="text-sm text-white">Sensitive</span>
+              </div>
+              <div className="w-px h-8 bg-white/20 hidden md:block" />
+              <div className="flex items-center gap-2 bg-black/50 rounded-lg p-1 border border-white/20">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                  className={`h-8 w-8 p-0 ${viewMode === 'grid' ? 'bg-teal-400 text-black' : 'text-white hover:text-black hover:bg-white'}`}
+                >
+                  <Grid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                  className={`h-8 w-8 p-0 ${viewMode === 'list' ? 'bg-teal-400 text-black' : 'text-white hover:text-black hover:bg-white'}`}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Breach Results */}
+            {breachData.length > 0 ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-teal-400 text-lg font-semibold">
+                    <AlertCircle className="h-5 w-5" />
+                    Found {breachData.length} breach{breachData.length !== 1 ? 'es' : ''}
+                  </div>
+                  <div className="text-sm text-white/60">
+                    Showing {viewMode} view
+                  </div>
+                </div>
+                
+                {viewMode === 'grid' ? <GridView /> : <ListView />}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="flex items-center justify-center mb-4">
+                  <Shield className="h-16 w-16 text-teal-400" />
+                </div>
+                <h3 className="text-2xl font-semibold text-white mb-2">Good News!</h3>
+                <p className="text-white/80 text-lg max-w-md mx-auto">
+                  No data breaches were found for this query. Your information appears to be secure.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default BreachGuardResults;

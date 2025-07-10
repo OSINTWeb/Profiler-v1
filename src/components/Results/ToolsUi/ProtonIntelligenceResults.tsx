@@ -1,21 +1,23 @@
-import { ProtonResult } from "@/types/proton";
+"use client";
+import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Copy, CheckCircle, XCircle, Shield, Key, Calendar } from "lucide-react";
 import { formatDistanceToNow, fromUnixTime, format } from "date-fns";
 import { toast } from "sonner";
-import { Shield, Key, Calendar, CheckCircle, XCircle, Copy } from "lucide-react";
-import NoResultFound from "./NoResultFound";
+import { Separator } from "@/components/ui/separator";
+import { ProtonResult } from "@/types/proton";
 
-interface ProtonResultsProps {
-  result: unknown;
+interface ProtonIntelligenceResultsProps {
+  data: unknown;
 }
 
-export default function ProtonResults({ result }: ProtonResultsProps) {
-  if (!result) {
-    return <NoResultFound toolName="Proton" message="No Proton key data found." />;
-  }
+// Define ResultCard at the top-level
+interface ResultCardProps {
+  result: ProtonResult;
+}
 
+const ResultCard = ({ result }: ResultCardProps) => {
   const copyToClipboard = (text: string, type: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${type} copied to clipboard`);
@@ -37,7 +39,7 @@ export default function ProtonResults({ result }: ProtonResultsProps) {
 
   return (
     <div className="animate-fade-in w-full">
-      <Card className="overflow-hidden border-white/20 p-6 bg-[#17181a] shadow-xl">
+      <Card className="overflow-hidden border-white/20 p-6  bg-[#17181a] shadow-xl">
         <div>
           {/* Header Section */}
           <div className="flex items-center justify-between mb-6">
@@ -133,4 +135,60 @@ export default function ProtonResults({ result }: ProtonResultsProps) {
       </Card>
     </div>
   );
-} 
+};
+
+function parseProtonResult(raw: unknown): ProtonResult {
+  // Example raw input: 'pub:610eeaca8dc1d15f6bca0ba6bdd07f62e32809a1:1::1400277585::\nuid:UserID:1400277585::'
+  // We'll extract keyId, creationDate, and set isOfficialDomain based on email domain
+  let keyId = "";
+  let creationDate = 0;
+  let email = "";
+  let isOfficialDomain = false;
+
+  if (typeof raw === "object" && raw !== null) {
+    // If already in correct format
+    if ("keyId" in raw && "creationDate" in raw && "email" in raw) {
+      return raw as ProtonResult;
+    }
+    if ("data" in raw) raw = (raw as { data: unknown }).data;
+  }
+  if (typeof raw === "string") {
+    // Try to extract keyId and creationDate from the string
+    // Example: pub:610eeaca8dc1d15f6bca0ba6bdd07f62e32809a1:1::1400277585::
+    const pubMatch = raw.match(/pub:([a-f0-9]{40,}):[0-9]*::([0-9]+)::/);
+    if (pubMatch) {
+      keyId = pubMatch[1];
+      creationDate = parseInt(pubMatch[2], 10);
+    }
+    // Try to extract email if present
+    const emailMatch = raw.match(/[\w.-]+@[\w.-]+/);
+    if (emailMatch) {
+      email = emailMatch[0];
+    }
+    // Fallback: if not found, set demo email
+    if (!email) email = "unknown@protonmail.com";
+    isOfficialDomain = email.endsWith("@protonmail.com") || email.endsWith("@proton.me");
+  }
+  return {
+    email,
+    keyId,
+    creationDate,
+    isOfficialDomain,
+  };
+}
+
+const ProtonIntelligenceResults: React.FC<ProtonIntelligenceResultsProps> = ({ data }) => {
+  if (!data) {
+    return null;
+  }
+
+  const parsedResult = parseProtonResult(data);
+  
+  return (
+    <div className="w-full flex flex-col items-center justify-center">
+      <ResultCard result={parsedResult} />
+    </div>
+  );
+};
+
+export default ProtonIntelligenceResults; 

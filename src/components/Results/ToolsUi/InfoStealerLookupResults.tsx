@@ -1,15 +1,44 @@
-import { InfoStealerData } from "@/types/types";
-import { AlertCircle, Shield, Computer, HardDrive, Wifi, Lock, User } from "lucide-react";
-import NoResultFound from "./NoResultFound";
+"use client";
+import React from "react";
+import {
+  AlertCircle,
+  Computer,
+  HardDrive,
+  Shield,
+  Wifi,
+  Lock,
+  User,
+} from "lucide-react";
 
-interface InfoStealerResultsProps {
-  data: unknown;
+interface InfoStealerEntry {
+  stealer_family: string;
+  date_compromised: string;
+  computer_name: string;
+  operating_system: string;
+  malware_path: string;
+  antiviruses: string[];
+  ip: string;
+  top_passwords: string[];
+  top_logins: string[];
 }
 
-export default function InfoStealerResults({ data }: InfoStealerResultsProps) {
-  if (!data) {
-    return <NoResultFound toolName="Info-Stealer" message="No info-stealer data found." />;
+interface InfoStealerData {
+  message: string;
+  stealers: InfoStealerEntry[];
+  total_corporate_services: number;
+  total_user_services: number;
+}
+
+interface InfoStealerLookupResultsProps {
+  data: InfoStealerData | null;
+}
+
+const InfoStealerLookupResults: React.FC<InfoStealerLookupResultsProps> = ({ data }) => {
+  if (!data || !("message" in data) || !("stealers" in data)) {
+    return null;
   }
+
+  const infoStealerData = data as InfoStealerData;
 
   return (
     <div className="w-full max-w-4xl mx-auto mt-8 overflow-hidden animate-slide-up">
@@ -28,7 +57,9 @@ export default function InfoStealerResults({ data }: InfoStealerResultsProps) {
             <AlertCircle className="h-6 w-6 text-teal-400" />
             <div>
               <h3 className="text-base font-semibold text-teal-400 mb-1">Result</h3>
-              <p className="text-white leading-relaxed text-sm">{data.message}</p>
+              <p className="text-white leading-relaxed text-sm">
+                {infoStealerData.message}
+              </p>
             </div>
           </div>
 
@@ -36,34 +67,34 @@ export default function InfoStealerResults({ data }: InfoStealerResultsProps) {
           <div className="bg-[#18181B] rounded-lg p-4 flex flex-col md:flex-row items-center justify-center gap-2 text-center border border-teal-400/10">
             <div className="flex-1 flex flex-col items-center gap-1">
               <span className="text-lg font-bold text-teal-400">
-                {data.total_corporate_services}
+                {infoStealerData.total_corporate_services}
               </span>
               <span className="text-xs text-white">Corporate</span>
             </div>
             <div className="w-px h-6 bg-teal-400/10 hidden md:block" />
             <div className="flex-1 flex flex-col items-center gap-1">
               <span className="text-lg font-bold text-teal-400">
-                {data.total_user_services}
+                {infoStealerData.total_user_services}
               </span>
               <span className="text-xs text-white">User</span>
             </div>
             <div className="w-px h-6 bg-teal-400/10 hidden md:block" />
             <div className="flex-1 flex flex-col items-center gap-1">
               <span className="text-lg font-bold text-teal-400">
-                {data.stealers.length}
+                {infoStealerData.stealers.length}
               </span>
               <span className="text-xs text-white">Stealer Instances</span>
             </div>
           </div>
 
-          {/* Stealer Details */}
-          {data.stealers.length > 0 ? (
+          {/* Stealer Details (if any found) */}
+          {infoStealerData.stealers.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-teal-400 text-sm font-semibold mb-1">
                 <Shield className="h-4 w-4" />
                 Detected Info-Stealer Instances
               </div>
-              {data.stealers.map((stealer, index) => (
+              {infoStealerData.stealers.map((stealer, index) => (
                 <div
                   key={index}
                   className="bg-[#232326] rounded-md border border-teal-400/10 px-3 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-sm"
@@ -76,13 +107,16 @@ export default function InfoStealerResults({ data }: InfoStealerResultsProps) {
                       </span>
                       <span className="text-xs text-teal-400 font-normal">
                         (
-                        {new Date(stealer.date_compromised).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {new Date(stealer.date_compromised).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}
                         )
                       </span>
                     </div>
@@ -159,14 +193,18 @@ export default function InfoStealerResults({ data }: InfoStealerResultsProps) {
                 </div>
               ))}
             </div>
-          ) : (
+          )}
+
+          {/* No Results Message */}
+          {infoStealerData.stealers.length === 0 && (
             <div className="text-center py-8">
               <div className="flex items-center justify-center mb-2">
                 <Shield className="h-10 w-10 text-teal-400" />
               </div>
               <h3 className="text-lg font-semibold text-white mb-1">Good News!</h3>
               <p className="text-white text-sm max-w-md mx-auto">
-                No info-stealer infections were found associated with this email address.
+                No info-stealer infections were found associated with this email
+                address.
               </p>
             </div>
           )}
@@ -174,4 +212,6 @@ export default function InfoStealerResults({ data }: InfoStealerResultsProps) {
       </div>
     </div>
   );
-} 
+};
+
+export default InfoStealerLookupResults; 

@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ExternalLink, MapPin } from "lucide-react";
-import NoResultFound from "./NoResultFound";
 
 // --- Types ---
 interface Education {
@@ -82,7 +81,7 @@ export interface LinkedInProfile {
 
 // Component Props Interface
 interface Mail2LinkedinProps {
-  data: unknown;
+  data: LinkedInProfile;
 }
 
 // --- Components ---
@@ -280,17 +279,15 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ profile }) => {
 
 // --- Main Component ---
 
-export default function Mail2Linkedin({ data }: Mail2LinkedinProps) {
-  if (!data) {
-    return <NoResultFound toolName="Mail2Linkedin" message="No LinkedIn profile found." />;
-  }
-
+const Mail2Linkedin: React.FC<Mail2LinkedinProps> = ({ data }) => {
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6 py-8">
-      <ProfileHeader profile={data as LinkedInProfile} />
-      <ProfileSummary profile={data as LinkedInProfile} />
-      <ExperienceSection profile={data as LinkedInProfile} />
-      <SkillsSection profile={data as LinkedInProfile} />
+      <ProfileHeader profile={data} />
+      <ProfileSummary profile={data} />
+      <ExperienceSection profile={data} />
+      <SkillsSection profile={data} />
     </div>
   );
 };
+
+export default Mail2Linkedin;
