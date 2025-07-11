@@ -336,6 +336,7 @@ const FreemiumTools = ({ results, selectedTool, loading = false }: FreemiumTools
       <div className="w-full max-w-4xl mx-auto px-4 py-6">
         <Card className="border border-zinc-700 bg-[#18181B] shadow-lg">
           <div className="p-6">
+           
             <div className="bg-zinc-800 p-4 rounded border border-zinc-700">
               {renderObjectAsTable(results)}
             </div>

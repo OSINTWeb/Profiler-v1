@@ -58,12 +58,12 @@ export default function SearchBarFreeMiumTools() {
   // Validation for email input
   const isValidInput = (query: string, tool: string): boolean => {
     if (!query.trim()) return false;
-    
+
     if (tool === "Mail2Linkedin" || tool === "EmailIntel") {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return emailRegex.test(query.trim());
     }
-    
+
     return true;
   };
 
@@ -104,18 +104,15 @@ export default function SearchBarFreeMiumTools() {
     try {
       // Use our proxy API to bypass CORS issues
       const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
-      
+
       const idTokenResponse = await fetch(`${baseUrl}/api/auth/id-token`);
       const idTokenData = await idTokenResponse.json();
-      
+
       const authToken = idTokenData.idToken;
-  
 
       const proxyUrl = `${baseUrl}/api/FreeMiumTools?tool=${encodeURIComponent(
         selectedTool
       )}&query=${encodeURIComponent(query)}&authToken=${authToken}`;
-
-
 
       const response = await fetch(proxyUrl, {
         method: "GET",
@@ -123,7 +120,6 @@ export default function SearchBarFreeMiumTools() {
           "Content-Type": "application/json",
         },
       });
-
 
       if (!response.ok) {
         // Try to get more detailed error information
@@ -186,6 +182,9 @@ export default function SearchBarFreeMiumTools() {
   return (
     <div className={`w-full max-w-7xl mx-auto px-4 `}>
       {/* Tool Selection and Search Controls */}
+      <div className="mb-4 text-center">
+        <h3 className="text-xl font-semibold text-teal-400">Each search costs $0.05</h3>
+      </div>
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         {/* Tool Selection Dropdown */}
         <div className="relative">
@@ -246,12 +245,12 @@ export default function SearchBarFreeMiumTools() {
                 : "border-zinc-700 focus:border-blue-500 focus:ring-blue-500/20"
             }`}
           />
-          
+
           {/* Input validation feedback */}
           {showValidation && !inputIsValid && (
             <div className="absolute top-full left-0 mt-1 text-red-400 text-xs">
-              {selectedTool === "Mail2Linkedin" || selectedTool === "EmailIntel" 
-                ? "Please enter a valid email address" 
+              {selectedTool === "Mail2Linkedin" || selectedTool === "EmailIntel"
+                ? "Please enter a valid email address"
                 : "Invalid input format"}
             </div>
           )}
@@ -297,7 +296,9 @@ export default function SearchBarFreeMiumTools() {
                 setError(null);
               }
             }}
-            disabled={!(selectedTool === "EmailIntel" || selectedTool === "Mail2Linkedin") || isLoading}
+            disabled={
+              !(selectedTool === "EmailIntel" || selectedTool === "Mail2Linkedin") || isLoading
+            }
             className="bg-[#18181B] hover:bg-[#202023] text-white px-4 h-12 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-semibold shadow-lg hover:shadow-xl"
           >
             Demo Result
@@ -306,7 +307,6 @@ export default function SearchBarFreeMiumTools() {
       </div>
 
       {/* Selected Tool Info */}
-      
 
       {/* Instructions */}
       {!selectedTool && results.length === 0 && (

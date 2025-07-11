@@ -6,7 +6,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import PaymentMethodSelector, { PaymentMethod } from './PaymentMethodSelector';
 import { RazorpayOptions, RazorpayResponse } from '@/types/razorpay';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
-
+import { useUser } from '@/hooks/useUser';
 // Stripe configuration
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 
@@ -29,7 +29,7 @@ export default function CheckoutButton() {
   const [amount, setAmount] = useState<number>(20); // Custom amount state
   const [amountError, setAmountError] = useState<string>('');
   const [currency, setCurrency] = useState<string>('usd'); // Currency state
-
+  const { user } = useUser();
   // Currency config
   const currencyOptions = [
     { value: 'usd', label: 'USD ($)' },
@@ -139,8 +139,8 @@ export default function CheckoutButton() {
         key: data.keyId,
         amount: data.amount,
         currency: data.currency,
-        name: 'Your Company Name',
-        description: 'Payment for premium services',
+        name: 'Profiler.me',
+        description: 'Payment for Profiler.me',
         order_id: data.orderId,
         handler: async function (response: RazorpayResponse) {
           try {
@@ -171,8 +171,8 @@ export default function CheckoutButton() {
           }
         },
         prefill: {
-          name: 'Customer Name',
-          email: 'customer@example.com',
+          name: user?.name,
+          email: user?.email,
         },
         theme: {
           color: '#3B82F6',
