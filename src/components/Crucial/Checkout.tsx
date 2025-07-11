@@ -6,7 +6,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import PaymentMethodSelector, { PaymentMethod } from './PaymentMethodSelector';
 import { RazorpayOptions, RazorpayResponse } from '@/types/razorpay';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
-import { useUser } from '@/hooks/useUser';
+import { useUser } from "@auth0/nextjs-auth0";
 // Stripe configuration
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 
