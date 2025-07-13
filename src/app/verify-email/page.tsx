@@ -5,7 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { MailCheck, MailX, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
@@ -14,6 +14,7 @@ function VerifyEmailContent() {
   const [hasAttemptedVerification, setHasAttemptedVerification] = useState(false);
   const [verificationState, setVerificationState] = useState<'loading' | 'success' | 'error' | 'suspicious'>('loading');
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Only attempt verification once
@@ -51,7 +52,7 @@ function VerifyEmailContent() {
         setHasAttemptedVerification(true);
         
         // After successful verification, redirect to login after 3 seconds
-        setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
           setIsRedirecting(true);
           router.push('/auth/login');
         }, 3000);
@@ -63,7 +64,16 @@ function VerifyEmailContent() {
     };
 
     verifyEmail();
-  }, [state, router, hasAttemptedVerification]);
+  }, [state]); // Remove router and hasAttemptedVerification from dependency array
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   if (verificationState === 'loading') {
     return (
