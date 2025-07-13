@@ -5,62 +5,65 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { MailCheck, MailX, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const email = searchParams.get('email');
-  const reason = searchParams.get('reason');
-  const token = searchParams.get('token');
-  
+  const state = searchParams.get('state');
+  const [hasAttemptedVerification, setHasAttemptedVerification] = useState(false);
   const [verificationState, setVerificationState] = useState<'loading' | 'success' | 'error' | 'suspicious'>('loading');
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const verificationAttempted = useRef(false);
 
   useEffect(() => {
+    // Only attempt verification once
+    if (hasAttemptedVerification) return;
+
     const verifyEmail = async () => {
-      // Prevent multiple verification attempts
-      if (verificationAttempted.current) {
-        return;
-      }
-      verificationAttempted.current = true;
-
-      if (!email || !token) {
+      if (!state) {
         setVerificationState('error');
-        return;
-      }
-
-      if (reason === 'suspicious') {
-        setVerificationState('suspicious');
+        setHasAttemptedVerification(true);
         return;
       }
 
       try {
-        // If there's a token, attempt to verify
-        if (token) {
-          // Here you would typically make an API call to verify the token
-          // For now, we'll simulate success after a brief delay
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          setVerificationState('success');
-          
-          // After successful verification, redirect to login after 3 seconds
-          const redirectTimeout = setTimeout(() => {
-            setIsRedirecting(true);
-            router.push('/auth/login');
-          }, 3000);
+        // Decode and verify the Auth0 state parameter
+        const response = await fetch('/api/auth/verify-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ state }),
+        });
 
-          // Cleanup timeout on unmount
-          return () => clearTimeout(redirectTimeout);
+        if (!response.ok) {
+          const data = await response.json();
+          if (data.reason === 'suspicious') {
+            setVerificationState('suspicious');
+          } else {
+            setVerificationState('error');
+          }
+          setHasAttemptedVerification(true);
+          return;
         }
+
+        setVerificationState('success');
+        setHasAttemptedVerification(true);
+        
+        // After successful verification, redirect to login after 3 seconds
+        setTimeout(() => {
+          setIsRedirecting(true);
+          router.push('/auth/login');
+        }, 3000);
       } catch (err) {
         console.error('Email verification failed:', err);
         setVerificationState('error');
+        setHasAttemptedVerification(true);
       }
     };
 
     verifyEmail();
-  }, [email, token, reason]); // Remove router from dependencies
+  }, [state, router, hasAttemptedVerification]);
 
   if (verificationState === 'loading') {
     return (
