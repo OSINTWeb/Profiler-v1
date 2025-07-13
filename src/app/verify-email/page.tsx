@@ -1,176 +1,77 @@
-"use client";
-import { useSearchParams, useRouter } from 'next/navigation';
+'use client';
+
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { MailCheck, MailX, Loader2 } from 'lucide-react';
+import { MailCheck, MailX } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { useState, useEffect, useRef } from 'react';
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const state = searchParams.get('state');
-  const [hasAttemptedVerification, setHasAttemptedVerification] = useState(false);
-  const [verificationState, setVerificationState] = useState<'loading' | 'success' | 'error' | 'suspicious'>('loading');
-  const [isRedirecting, setIsRedirecting] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const email = searchParams.get('email');
+  const reason = searchParams.get('reason');
 
-  useEffect(() => {
-    // Only attempt verification once
-    if (hasAttemptedVerification) return;
-
-    const verifyEmail = async () => {
-      if (!state) {
-        setVerificationState('error');
-        setHasAttemptedVerification(true);
-        return;
-      }
-
-      try {
-        // Decode and verify the Auth0 state parameter
-        const response = await fetch('/api/auth/verify-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ state }),
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          if (data.reason === 'suspicious') {
-            setVerificationState('suspicious');
-          } else {
-            setVerificationState('error');
-          }
-          setHasAttemptedVerification(true);
-          return;
-        }
-
-        setVerificationState('success');
-        setHasAttemptedVerification(true);
-        
-        // After successful verification, redirect to login after 3 seconds
-        timeoutRef.current = setTimeout(() => {
-          setIsRedirecting(true);
-          router.push('/auth/login');
-        }, 3000);
-      } catch (err) {
-        console.error('Email verification failed:', err);
-        setVerificationState('error');
-        setHasAttemptedVerification(true);
-      }
-    };
-
-    verifyEmail();
-  }, [state]); // Remove router and hasAttemptedVerification from dependency array
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
-
-  if (verificationState === 'loading') {
-    return (
-      <div className="relative w-full max-w-md bg-zinc-900 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.1)] p-8 space-y-6 border border-zinc-800">
-        <div className="text-center">
-          <div className="relative">
-            <div className="absolute -inset-1 bg-white/20 blur-sm rounded-full"></div>
-            <Loader2 className="relative mx-auto text-white h-12 w-12 animate-spin" />
-          </div>
-          <h1 className="text-2xl font-semibold mt-6 text-white">Verifying Email</h1>
-          <p className="text-sm text-zinc-400 mt-3">
-            Please wait while we verify your email address...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const suspicious = reason === 'suspicious';
 
   return (
-    <div className="relative w-full max-w-md bg-zinc-900 rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.1)] p-8 space-y-6 border border-zinc-800">
-      <div className="text-center">
-        {verificationState === 'suspicious' ? (
-          <>
-            <div className="relative">
-              <div className="absolute -inset-1 bg-white/20 blur-sm rounded-full"></div>
-              <MailX className="relative mx-auto text-white h-12 w-12" />
-            </div>
-            <h1 className="text-2xl font-semibold mt-6 text-white">Invalid Email Address</h1>
-            <p className="text-sm text-zinc-400 mt-3">
-              The email you provided appears to be invalid or randomly generated. Please contact support to update your email.
-            </p>
-          </>
-        ) : verificationState === 'success' ? (
-          <>
-            <div className="relative">
-              <div className="absolute -inset-1 bg-white/20 blur-sm rounded-full"></div>
-              <MailCheck className="relative mx-auto text-white h-12 w-12" />
-            </div>
-            <h1 className="text-2xl font-semibold mt-6 text-white">Email Verified!</h1>
-            <p className="text-sm text-zinc-400 mt-3">
-              {isRedirecting ? (
-                "Redirecting you to login..."
-              ) : (
-                "Your email has been successfully verified. You'll be redirected to login shortly."
-              )}
-            </p>
-          </>
-        ) : (
-          <>
-            <div className="relative">
-              <div className="absolute -inset-1 bg-white/20 blur-sm rounded-full"></div>
-              <MailX className="relative mx-auto text-white h-12 w-12" />
-            </div>
-            <h1 className="text-2xl font-semibold mt-6 text-white">Verification Failed</h1>
-            <p className="text-sm text-zinc-400 mt-3">
-              We couldn&apos;t verify your email address. The verification link might be expired or invalid.
-            </p>
-          </>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white to-slate-100 px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-6">
+        <div className="text-center">
+          {suspicious ? (
+            <>
+              <MailX className="mx-auto text-red-500 h-12 w-12" />
+              <h1 className="text-2xl font-semibold mt-4">Invalid Email Address</h1>
+              <p className="text-sm text-gray-500 mt-2">
+                The email you provided appears to be invalid or randomly generated. Please contact support to update your email.
+              </p>
+            </>
+          ) : (
+            <>
+              <MailCheck className="mx-auto text-green-600 h-12 w-12" />
+              <h1 className="text-2xl font-semibold mt-4">Verify Your Email</h1>
+              <p className="text-sm text-gray-500 mt-2">
+                We&apos;ve sent a verification link to <span className="font-medium">{email}</span>. Please check your inbox and verify to continue.
+              </p>
+            </>
+          )}
+        </div>
+
+        {!suspicious && (
+          <div className="text-center">
+            <p className="text-sm text-gray-600 mb-4">Already verified?</p>
+            <Link href="/login">
+              <Button variant="default">Try Logging In Again</Button>
+            </Link>
+          </div>
+        )}
+
+        {suspicious && (
+          <Alert variant="destructive">
+            <AlertTitle>Need help?</AlertTitle>
+            <AlertDescription>
+              Contact us at <a href="mailto:support@profiler.me" className="underline">support@profiler.me</a> to update your email address.
+            </AlertDescription>
+          </Alert>
         )}
       </div>
-
-      {verificationState === 'error' && (
-        <div className="text-center mt-8">
-          <Link href="/auth/login" className="block">
-            <Button variant="outline" className="w-full bg-transparent border-zinc-700 text-white hover:bg-white hover:text-black transition-all duration-300">
-              Return to Login
-            </Button>
-          </Link>
-        </div>
-      )}
-
-      {verificationState === 'suspicious' && (
-        <Alert variant="destructive" className="bg-zinc-800 border-zinc-700 text-white">
-          <AlertTitle>Need help?</AlertTitle>
-          <AlertDescription>
-            Contact us at <a href="mailto:support@profiler.me" className="underline hover:text-zinc-300 transition-colors">support@profiler.me</a> to update your email address.
-          </AlertDescription>
-        </Alert>
-      )}
     </div>
   );
 }
 
 export default function VerifyEmailPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white px-4">
-      <Suspense fallback={
-        <div className="w-full max-w-md p-8 space-y-6 text-center">
-          <div className="animate-pulse">
-            <div className="h-12 w-12 bg-zinc-800 rounded-full mx-auto"></div>
-            <div className="h-6 bg-zinc-800 rounded mt-6 w-3/4 mx-auto"></div>
-            <div className="h-4 bg-zinc-800 rounded mt-3 w-full"></div>
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white to-slate-100 px-4">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-6">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <h1 className="text-2xl font-semibold mt-4">Loading...</h1>
           </div>
         </div>
-      }>
-        <VerifyEmailContent />
-      </Suspense>
-    </div>
+      </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
