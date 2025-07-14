@@ -1,62 +1,52 @@
+"use client";
 
-'use client';
+import { Button } from "@/components/ui/button";
+import { MailCheck } from "lucide-react";
+import Link from "next/link";
+import { Suspense } from "react";
 
-import { useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { Suspense } from 'react';
+function VerifyEmailContent() {
 
-function HandleRedirectContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  
-  useEffect(() => {
-    // Get all query parameters and forward them to verify-email
-    const params = new URLSearchParams();
-    
-    // Forward all existing parameters
-    searchParams.forEach((value, key) => {
-      params.append(key, value);
-    });
-    
-    // Build the target URL with all parameters
-    const queryString = params.toString();
-    const targetUrl = queryString ? `/verify-email?${queryString}` : '/verify-email';
-    
-    // Use replace to avoid adding to history
-    router.replace(targetUrl);
-  }, [searchParams, router]);
-
-  // Show loading state while redirecting
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white to-slate-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-black px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border-2 border-black p-8 space-y-6">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <h1 className="text-2xl font-semibold mt-4">Redirecting...</h1>
-          <p className="text-sm text-gray-500 mt-2">
-            Please wait while we redirect you to the verification page.
+          <MailCheck className="mx-auto text-black h-12 w-12" />
+          <h1 className="text-2xl font-semibold mt-4 text-black">Verify Your Email</h1>
+          <p className="text-sm text-black mt-2">
+            We&apos;ve sent a verification link to your email.
+            Please check your inbox and verify to continue.
           </p>
         </div>
+
+          <div className="text-center">
+            <p className="text-sm text-black mb-4">Already verified?</p>
+            <Link href="/login">
+              <Button variant="default" className="bg-black text-white hover:bg-white hover:text-black border-2 border-black">
+                Try Logging In Again
+              </Button>
+            </Link>
+          </div>    
       </div>
     </div>
   );
 }
 
-export default function HandleRedirect() {
+export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white to-slate-100 px-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-6">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <h1 className="text-2xl font-semibold mt-4">Loading...</h1>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-black px-4">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border-2 border-black p-8 space-y-6">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
+              <h1 className="text-2xl font-semibold mt-4 text-black">Loading...</h1>
+            </div>
           </div>
         </div>
-      </div>
-    }>
-      <HandleRedirectContent />
+      }
+    >
+      <VerifyEmailContent />
     </Suspense>
   );
 }
-
-
