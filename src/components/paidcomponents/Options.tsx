@@ -17,7 +17,8 @@ export const SearchOptions: React.FC<SearchOptionsProps> = ({
   const [selectedOption, setSelectedOption] = useState<string>(PaidSearch);
 
   useEffect(() => {
-    if (typeofsearch === "Basic" && (PaidSearch === "Phone" || PaidSearch === "Username")) {
+    // Removed the restriction on Phone search
+    if (typeofsearch === "Basic" && PaidSearch === "Username") {
       setPaidSearch("Email");
       setInput((prev) => ({ ...prev, datatype: "Email", value: "" }));
       setSelectedOption("Email");
@@ -39,10 +40,7 @@ export const SearchOptions: React.FC<SearchOptionsProps> = ({
   const options = [
     {
       type: "Phone",
-      message:
-        typeofsearch === "Basic"
-          ? "Coming Soon"
-          : "Phone Number: Please enter the phone number in international format",
+      message: "Phone Number: Please enter the phone number in international format",
     },
     {
       type: "Username",
@@ -55,7 +53,7 @@ export const SearchOptions: React.FC<SearchOptionsProps> = ({
     <div className="w-full max-w-2xl mx-auto">
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 p-6">
         {options.map(({ type, message }) => {
-          const isDisabled = type === "Phone" && typeofsearch === "Basic";
+          // Removed the isDisabled check for Phone
           const isSelected = selectedOption === type;
 
           if (type === "Username" && typeofsearch !== "Advance") return null;
@@ -64,29 +62,19 @@ export const SearchOptions: React.FC<SearchOptionsProps> = ({
             <button
               key={type}
               onClick={() => handleUpdate(type)}
-              disabled={isDisabled}
               title={message}
               className={`
                 relative flex-1 sm:flex-none sm:w-40 h-12 flex items-center justify-center 
                 text-base font-semibold rounded-xl border transition-all duration-300 ease-out
                 shadow-lg hover:shadow-xl overflow-hidden group
                 ${
-                  isDisabled
-                    ? "opacity-50 cursor-not-allowed bg-zinc-800 border-zinc-600 text-zinc-500"
-                    : isSelected
+                  isSelected
                     ? "bg-white text-black border-white hover:bg-zinc-100"
                     : "bg-zinc-900 border-zinc-700 text-white hover:bg-zinc-800 hover:border-zinc-600 hover:scale-105 active:scale-95"
                 }
               `}
             >
               <span className="relative z-10">{type}</span>
-
-              {/* Status indicator for disabled buttons */}
-              {isDisabled && (
-                <span className="absolute top-1 right-2 text-xs text-zinc-600 font-medium">
-                  Soon
-                </span>
-              )}
             </button>
           );
         })}

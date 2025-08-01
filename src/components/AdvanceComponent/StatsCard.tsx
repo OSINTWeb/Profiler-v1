@@ -440,7 +440,7 @@ const InfoCardsContainer = ({
   };
 
   return (
-    <div className="w-full px-2 sm:px-4">
+    <div className="w-full px-2 sm:px-4 ">
       <div className="w-full">
         {/* Display HIBP Count if available */}
         {hibpCount > 0 && (
@@ -460,8 +460,8 @@ const InfoCardsContainer = ({
         )}
 
         {/* Custom Tabs Implementation */}
-        <div className="flex justify-center w-full mb-4 sm:mb-6">
-          <div className="bg-black border border-gray-700 px-2 py-2 overflow-x-auto overflow-y-hidden custom-scrollbar h-18 w-full flex gap-2 sm:gap-3 rounded-2xl mx-auto shadow-2xl">
+        <div className="flex justify-center w-full mb-4 sm:mb-6 ">
+          <div className="bg-black border border-gray-700 px-2 py-2 overflow-x-scroll overflow-y-hidden custom-scrollbar h-18 w-full flex gap-2 sm:gap-3 rounded-2xl mx-auto shadow-2xl">
             {filteredCardData.map((card, index) => (
               <button
                 key={index}

@@ -1,15 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import "@/app/globals.css";
-import { Menu, X } from "lucide-react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+
 import { useUser } from "@auth0/nextjs-auth0";
-import { ShareButton } from "@/components/ui/share-button";
-import { generateShareableLink } from "@/lib/utils";
+import { useUserData } from "@/hooks/user-data";
 
 export const Header = () => {
-  const [UserCredits, setUserCredits] = useState(0);
   const { user, isLoading, error } = useUser();
+  const { userData: fetchedUserData, loading, error: userDataError } = useUserData(user ?? null);
   const [userData, setUserData] = useState({
     _id: "",
     email: "",
@@ -17,57 +16,12 @@ export const Header = () => {
     phone: "",
     credits: 0,
   });
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        // Step 1: Get the ID token (JWT) from Auth0 session
-
-        const idTokenResponse = await fetch("/api/auth/id-token");
-        const idTokenData = await idTokenResponse.json();
-        const idToken = idTokenData.idToken;
-        const authToken = idToken;
-        if (!authToken) {
-          console.error("No authentication token available");
-          return;
-        }
-
-        // Step 2: Make the signup POST request with the bearer token
-        const response = await fetch(
-          "https://profiler-api-production.up.railway.app/api/user/profile",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`Profile request failed: ${response.status} ${response.statusText}`);
-        }
-        const profileData = await response.json();
-        // console.log("Profile section successful:", profileData);
-
-        // Update user data with the response
-        if (profileData) {
-          setUserData({
-            _id: profileData._id || "",
-            email: profileData.email || "",
-            name: profileData.name || "Customer",
-            phone: profileData.phone || "",
-            credits: profileData.credits || 0,
-          });
-        }
-      } catch (error) {
-        console.error("Error in fetchUserData:", error);
-      }
-    };
-
-    if (user) {
-      fetchUserData();
+    if (fetchedUserData) {
+      setUserData(fetchedUserData);
     }
-  }, [user]);
+  }, [fetchedUserData]);
 
   const toProfile = () => {
     window.location.href = `/profile`;
@@ -80,16 +34,18 @@ export const Header = () => {
   const handleLogin = () => {
     window.location.href = "/auth/login";
   };
+
   // Show loading state
-  if (isLoading) {
+  if (isLoading || loading) {
     return (
       <div className="main flex justify-center p-2 sm:p-4 md:p-5 w-full">
         <header className="bg-black border border-white/10 rounded-xl w-full max-w-7xl px-3 sm:px-4 md:px-6 lg:px-10 py-2 sm:py-3">
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <img
-                loading="lazy"
                 src="https://cdn.builder.io/api/v1/image/assets/08f1489d1012429aa8532f7dba7fd4a0/8b7be49b2687943ef40ce83de105e4f9918e4f114fe8607fd737b4484c1182e4?placeholderIfAbsent=true"
+                width={155}
+                height={50}
                 className="object-contain w-[130px] sm:w-[120px] md:w-[140px] lg:w-[155px]"
                 alt="Logo"
               />
@@ -102,8 +58,8 @@ export const Header = () => {
   }
 
   // Show error state
-  if (error) {
-    console.error("Header auth error:", error);
+  if (error || userDataError) {
+    console.error("Header auth error:", error || userDataError);
   }
 
   const isAuthenticated = !!user;
@@ -122,6 +78,8 @@ export const Header = () => {
             <img
               loading="lazy"
               src="https://cdn.builder.io/api/v1/image/assets/08f1489d1012429aa8532f7dba7fd4a0/8b7be49b2687943ef40ce83de105e4f9918e4f114fe8607fd737b4484c1182e4?placeholderIfAbsent=true"
+              width={155}
+              height={50}
               className="object-contain w-[130px] sm:w-[120px] md:w-[140px] lg:w-[155px] transition-transform duration-500 group-hover:scale-105"
               alt="Logo"
             />

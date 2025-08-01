@@ -17,6 +17,7 @@ export interface SearchTypesProps {
   settypeofsearch: (type: string) => void;
   selected: string;
   typeofsearch: string;
+  Credits: number;
 }
 
 // Transaction types

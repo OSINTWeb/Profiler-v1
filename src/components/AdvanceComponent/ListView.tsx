@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from "react";
+import img from "next/img";
 import {
   Eye,
   MapPin,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 import { PlatformData } from "./InfocardList";
 
+// Types and Interfaces
 interface PlatformVariable {
   key: string;
   proper_key?: string;
@@ -22,11 +24,7 @@ interface PlatformVariable {
 }
 
 interface SpecFormatItem {
-  registered?: {
-    type?: string;
-    proper_key?: string;
-    value: boolean;
-  };
+  registered?: { type?: string; proper_key?: string; value: boolean };
   platform_variables?: PlatformVariable[];
   verified?: { value: boolean };
   breach?: { value: boolean };
@@ -57,7 +55,7 @@ interface ListViewProps {
   deletebutton: boolean;
 }
 
-// Format date for display
+// Utility Functions
 const formatDate = (dateString: string): string => {
   if (!dateString) return "";
   try {
@@ -72,6 +70,80 @@ const formatDate = (dateString: string): string => {
   }
 };
 
+const formatTitle = (title: string): string => {
+  return title
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
+
+// Memoized Primary Info Extractor
+const usePrimaryInfoExtractor = () => {
+  return useMemo(() => (specFormat: SpecFormatItem[]) => {
+    const info = {
+      name: "",
+      picture_url: "",
+      platform: "",
+      email: "",
+      username: "",
+      location: "",
+      bio: "",
+      phone_number: "",
+      creation_date: "",
+      website: "",
+      verified: false,
+      breach: false,
+      age: "",
+      gender: "",
+      language: "",
+    };
+
+    specFormat.forEach((spec) => {
+      if (spec.name?.value) info.name = String(spec.name.value);
+      if (spec.picture_url?.value) info.picture_url = String(spec.picture_url.value);
+      if (spec.email?.value) info.email = String(spec.email.value);
+      if (spec.username?.value) info.username = String(spec.username.value);
+      if (spec.location?.value) info.location = String(spec.location.value);
+      if (spec.bio?.value) info.bio = String(spec.bio.value);
+      if (spec.phone_number?.value) info.phone_number = String(spec.phone_number.value);
+      if (spec.creation_date?.value) info.creation_date = String(spec.creation_date.value);
+      if (spec.website?.value) info.website = String(spec.website.value);
+      if (spec.verified?.value) info.verified = Boolean(spec.verified.value);
+      if (spec.breach?.value) info.breach = Boolean(spec.breach.value);
+      if (spec.age?.value) info.age = String(spec.age.value);
+      if (spec.gender?.value) info.gender = String(spec.gender.value);
+      if (spec.language?.value) info.language = String(spec.language.value);
+    });
+
+    return info;
+  }, []);
+};
+
+// Reusable Components
+const CopyButton = React.memo(({ 
+  onClick, 
+  isCopied, 
+  size = 16 
+}: { 
+  onClick: () => void; 
+  isCopied: boolean; 
+  size?: number 
+}) => (
+  <button
+    onClick={onClick}
+    aria-label={isCopied ? "Copied" : "Copy"}
+    className={`p-1.5 rounded-full transition-all duration-200 ${
+      isCopied 
+        ? "bg-white/10 text-white" 
+        : "hover:bg-white/5 text-gray-400 hover:text-white"
+    }`}
+  >
+    {isCopied ? <Check size={size} /> : <Copy size={size} />}
+  </button>
+));
+
+CopyButton.displayName = "CopyButton";
+
 const ListView: React.FC<ListViewProps> = ({
   filteredUsers,
   selectedIndices,
@@ -83,6 +155,8 @@ const ListView: React.FC<ListViewProps> = ({
   const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(null);
   const [leftPanelWidth, setLeftPanelWidth] = useState(40);
   const [isResizing, setIsResizing] = useState(false);
+
+  const getPrimaryInfo = usePrimaryInfoExtractor();
 
   // Preserve selected item when data updates
   useEffect(() => {
@@ -96,7 +170,7 @@ const ListView: React.FC<ListViewProps> = ({
     }
   }, [filteredUsers, selectedItem]);
 
-  // Handle mouse events for resizing
+  // Resize panel logic
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     setIsResizing(true);
     e.preventDefault();
@@ -135,47 +209,21 @@ const ListView: React.FC<ListViewProps> = ({
     setSelectedItemIndex(index);
   }, []);
 
-  // Memoize getPrimaryInfo function
-  const getPrimaryInfo = useMemo(() => (specFormat: SpecFormatItem[]) => {
-    const info = {
-      name: "",
-      picture_url: "",
-      platform: "",
-      email: "",
-      username: "",
-      location: "",
-      bio: "",
-      phone_number: "",
-      creation_date: "",
-      website: "",
-      verified: false,
-      breach: false,
-      age: "",
-      gender: "",
-      language: "",
-    };
+  // Memoize the list of users
+  const memoizedUsers = useMemo(() => filteredUsers, [filteredUsers]);
 
-    specFormat.forEach((spec) => {
-      if (spec.name?.value) info.name = String(spec.name.value);
-      if (spec.picture_url?.value) info.picture_url = String(spec.picture_url.value);
-      if (spec.email?.value) info.email = String(spec.email.value);
-      if (spec.username?.value) info.username = String(spec.username.value);
-      if (spec.location?.value) info.location = String(spec.location.value);
-      if (spec.bio?.value) info.bio = String(spec.bio.value);
-      if (spec.phone_number?.value) info.phone_number = String(spec.phone_number.value);
-      if (spec.creation_date?.value) info.creation_date = String(spec.creation_date.value);
-      if (spec.website?.value) info.website = String(spec.website.value);
-      if (spec.verified?.value) info.verified = Boolean(spec.verified.value);
-      if (spec.breach?.value) info.breach = Boolean(spec.breach.value);
-      if (spec.age?.value) info.age = String(spec.age.value);
-      if (spec.gender?.value) info.gender = String(spec.gender.value);
-      if (spec.language?.value) info.language = String(spec.language.value);
-    });
+  // Render methods
+  const renderEmptyState = () => (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="w-16 h-16 rounded-full bg-gray-800 border border-gray-600 flex items-center justify-center mb-4">
+        <User size={24} className="text-gray-500" />
+      </div>
+      <p className="text-gray-400 text-lg font-medium">No user data available</p>
+      <p className="text-gray-500 text-sm mt-1">Try adjusting your search criteria</p>
+    </div>
+  );
 
-    return info;
-  }, []);
-
-  // Memoize ListViewItem component
+  // ListViewItem Component
   const ListViewItem = React.memo<{
     user: PlatformData;
     isSelected: boolean;
@@ -188,7 +236,7 @@ const ListView: React.FC<ListViewProps> = ({
 
     return (
       <div
-        className={`relative flex items-start p-4 rounded-lg border transition-all duration-200 cursor-pointer hover:border-gray-100 border overflow-x-scroll ${
+        className={`relative flex items-start p-4 rounded-lg transition-all duration-200 cursor-pointer hover:border-gray-100 border-2 overflow-x-scroll ${
           isSelected
             ? enableselect
               ? "border-white bg-gray-100/10 shadow-lg"
@@ -202,6 +250,7 @@ const ListView: React.FC<ListViewProps> = ({
             onSelect();
           }
         }}
+        aria-selected={isSelected}
       >
         {/* Selection checkbox */}
         {showSelection && (
@@ -228,13 +277,15 @@ const ListView: React.FC<ListViewProps> = ({
           </div>
         )}
 
-        {/* Profile Image */}
+        {/* Profile img */}
         <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-800 border border-gray-600 flex items-center justify-center flex-shrink-0">
           {primaryInfo.picture_url ? (
             <img
               src={primaryInfo.picture_url}
               alt={displayName}
-              className="w-full h-full object-cover "
+              width={48}
+              height={48}
+              className="w-full h-full object-cover"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}
@@ -331,10 +382,7 @@ const ListView: React.FC<ListViewProps> = ({
 
   ListViewItem.displayName = "ListViewItem";
 
-  // Memoize the list of users
-  const memoizedUsers = useMemo(() => filteredUsers, [filteredUsers]);
-
-  // Detail Panel Component
+  // Detailed Panel Component
   const DetailPanel: React.FC = () => {
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const [showJson, setShowJson] = useState(false);
@@ -361,26 +409,6 @@ const ListView: React.FC<ListViewProps> = ({
         setTimeout(() => setCopiedField(null), 2000);
       });
     };
-
-    const formatTitle = (title: string): string => {
-      return title
-        .split("_")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(" ");
-    };
-
-    const CopyButton = ({ onClick, isCopied, size = 16 }: { onClick: () => void; isCopied: boolean; size?: number }) => (
-      <button
-        onClick={onClick}
-        className={`p-1.5 rounded-full transition-all duration-200 ${
-          isCopied 
-            ? "bg-white/10 text-white" 
-            : "hover:bg-white/5 text-gray-400 hover:text-white"
-        }`}
-      >
-        {isCopied ? <Check size={size} /> : <Copy size={size} />}
-      </button>
-    );
 
     const renderValue = (value: unknown, key: string) => {
       // Handle null/undefined
@@ -479,15 +507,17 @@ const ListView: React.FC<ListViewProps> = ({
     };
 
     return (
-      <div className="h-full flex flex-col ">
+      <div className="h-full flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 bg-black ">
+        <div className="flex items-center justify-between p-6 bg-black">
           <div className="flex items-center space-x-6">
             <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-900 flex items-center justify-center">
               {primaryInfo.picture_url ? (
                 <img
                   src={primaryInfo.picture_url}
                   alt={primaryInfo.name || "Profile"}
+                  width={64}
+                  height={64}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
@@ -637,15 +667,20 @@ const ListView: React.FC<ListViewProps> = ({
     );
   };
 
+  DetailPanel.displayName = "DetailPanel";
+
   return (
     <div
       id="list-detail-container"
       className="flex h-[1000px] border border-gray-600 rounded-lg overflow-hidden bg-gray-900/20 "
+      role="region"
+      aria-label="User Details List View"
     >
       {/* Left Panel - List View */}
       <div
         className="flex flex-col overflow-hidden border-r border-gray-700"
         style={{ width: `${leftPanelWidth}%` }}
+        role="list"
       >
         {/* List Header */}
         <div className="p-4 border-b border-gray-700 bg-black/40">
@@ -691,6 +726,7 @@ const ListView: React.FC<ListViewProps> = ({
               <div 
                 key={`${user.module}-${user.query}-${index}`}
                 className={`transition-all duration-200 ${selectedItemIndex === index ? 'ring-2 ring-blue-500 rounded-lg' : ''}`}
+                role="listitem"
               >
                 <ListViewItem
                   user={user}
@@ -702,13 +738,7 @@ const ListView: React.FC<ListViewProps> = ({
               </div>
             ))
           ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="w-16 h-16 rounded-full bg-gray-800 border border-gray-600 flex items-center justify-center mb-4">
-                <User size={24} className="text-gray-500" />
-              </div>
-              <p className="text-gray-400 text-lg font-medium">No user data available</p>
-              <p className="text-gray-500 text-sm mt-1">Try adjusting your search criteria</p>
-            </div>
+            renderEmptyState()
           )}
         </div>
       </div>
@@ -717,6 +747,8 @@ const ListView: React.FC<ListViewProps> = ({
       <div
         className="w-1.5 bg-gradient-to-b from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 cursor-col-resize flex items-center justify-center group transition-all duration-200 relative"
         onMouseDown={handleMouseDown}
+        role="separator"
+        aria-label="Resize panel"
       >
         <div className="w-0.5 h-12 bg-gray-400 group-hover:bg-white rounded-full shadow-sm transition-all duration-200"></div>
         <div className="absolute inset-0 bg-transparent group-hover:bg-white/5 rounded-sm transition-all duration-200"></div>
@@ -726,6 +758,8 @@ const ListView: React.FC<ListViewProps> = ({
       <div
         className="flex flex-col bg-gray-900/30"
         style={{ width: `${100 - leftPanelWidth - 0.5}%` }}
+        role="region"
+        aria-label="User Details"
       >
         <DetailPanel />
       </div>

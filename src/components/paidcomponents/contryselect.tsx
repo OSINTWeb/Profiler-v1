@@ -159,19 +159,20 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
   }, [filteredCountries]);
 
   return (
-    <div ref={containerRef} className={`relative w-[180px] ${className}`}>
+    <section ref={containerRef} className={`w-full max-w-[200px] ${className}`}>
       {/* Trigger Button */}
       <button
         type="button"
         onClick={handleToggleDropdown}
         onKeyDown={handleKeyDown}
-        className="w-full h-12 px-4 py-3 bg-black text-white border border-gray-700 rounded-md flex items-center justify-between hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="w-full h-12 px-4 py-3 bg-black text-white border border-gray-700 rounded-md flex items-center justify-between hover:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent "
         aria-haspopup="listbox"
         aria-expanded={isOpen}
+        aria-label="Select country"
       >
-        <div className="flex items-center gap-2 flex-1">
+        <span className="flex items-center gap-2 flex-1">
           {selectedCountry ? (
-            <>
+            <span className="flex items-center gap-2">
               <ReactCountryFlag
                 countryCode={selectedCountry.iso2}
                 svg
@@ -183,11 +184,11 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
                 aria-label={selectedCountry.name}
               />
               <span className="text-sm">{selectedCountry.code}</span>
-            </>
+            </span>
           ) : (
             <span className="text-gray-400 text-sm">Select country</span>
           )}
-        </div>
+        </span>
         <ChevronDown 
           className={`h-4 w-4 text-gray-400 transition-transform ${
             isOpen ? "rotate-180" : ""
@@ -197,13 +198,19 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
 
       {/* Dropdown */}
       {isOpen && (
-        <div
+        <nav
           ref={dropdownRef}
-          className="absolute top-full left-0 right-0 mt-1 bg-black border border-gray-700 rounded-md shadow-lg z-50 max-h-[380px] flex flex-col w-[380px]"
+          className="absolute top-full left-0 right-0 mt-1 bg-black border border-gray-700 rounded-md shadow-lg z-50 max-h-[380px] flex flex-col w-full min-w-[250px]"
+          aria-label="Country selection"
         >
           {/* Search Input */}
-          <div className="p-3 border-b border-gray-700">
-            <div className="relative">
+          <header className="p-3 border-b border-gray-700">
+            <form
+              role="search"
+              className="relative flex items-center"
+              onSubmit={e => e.preventDefault()}
+              aria-label="Search countries"
+            >
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 ref={searchInputRef}
@@ -212,73 +219,77 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Search country or code..."
-                className="w-full pl-10 pr-10 py-2 text-sm bg-gray-900 text-white border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-10 py-2 text-sm bg-gray-900 text-white border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 autoComplete="off"
+                aria-label="Search country or code"
               />
               {searchQuery && (
                 <button
+                  type="button"
                   onClick={clearSearch}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
                   tabIndex={-1}
+                  aria-label="Clear search"
                 >
                   <X className="h-4 w-4" />
                 </button>
               )}
-            </div>
-          </div>
+            </form>
+          </header>
 
           {/* Countries List */}
-          <div className="flex-1 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto">
             {filteredCountries.length > 0 ? (
-              <div role="listbox">
+              <ul role="listbox" aria-label="Country list">
                 {filteredCountries.map((country, index) => (
-                  <button
-                    key={`${country.iso2}-${country.code}`}
-                    type="button"
-                    role="option"
-                    aria-selected={country.code === value}
-                    onClick={() => handleCountrySelect(country)}
-                                         className={`w-full px-4 py-3 text-left hover:bg-gray-800 focus:bg-gray-800 focus:outline-none transition-colors ${
-                       index === highlightedIndex ? "bg-gray-800" : ""
-                     } ${country.code === value ? "bg-gray-700" : ""}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <ReactCountryFlag
-                        countryCode={country.iso2}
-                        svg
-                        style={{
-                          width: "20px",
-                          height: "15px",
-                          borderRadius: "2px",
-                        }}
-                        aria-label={country.name}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-white text-sm font-medium truncate">
-                          {country.name}
-                        </div>
-                        {country.digits && (
-                          <div className="text-xs text-gray-400">
-                            {country.digits} digits
-                          </div>
-                        )}
-                      </div>
-                      <span className="text-gray-400 text-sm font-mono">
-                        {country.code}
+                  <li key={`${country.iso2}-${country.code}`}>
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={country.code === value}
+                      onClick={() => handleCountrySelect(country)}
+                      className={`w-full px-4 py-3 text-left hover:bg-gray-800 focus:bg-gray-800 focus:outline-none transition-colors ${
+                        index === highlightedIndex ? "bg-gray-800" : ""
+                      } ${country.code === value ? "bg-gray-700" : ""}`}
+                    >
+                      <span className="flex items-center gap-3">
+                        <ReactCountryFlag
+                          countryCode={country.iso2}
+                          svg
+                          style={{
+                            width: "20px",
+                            height: "15px",
+                            borderRadius: "2px",
+                          }}
+                          aria-label={country.name}
+                        />
+                        <span className="flex-1 min-w-0 flex flex-col">
+                          <span className="text-white text-sm font-medium truncate">
+                            {country.name}
+                          </span>
+                          {country.digits && (
+                            <span className="text-xs text-gray-400">
+                              {country.digits} digits
+                            </span>
+                          )}
+                        </span>
+                        <span className="text-gray-400 text-sm font-mono">
+                          {country.code}
+                        </span>
                       </span>
-                    </div>
-                  </button>
+                    </button>
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : (
-                             <div className="py-8 text-center text-sm text-gray-400">
-                 No countries found for &quot;{searchQuery}&quot;
-               </div>
+              <section className="py-8 text-center text-sm text-gray-400" aria-live="polite">
+                No countries found for &quot;{searchQuery}&quot;
+              </section>
             )}
-          </div>
-        </div>
+          </main>
+        </nav>
       )}
-    </div>
+    </section>
   );
 };
 

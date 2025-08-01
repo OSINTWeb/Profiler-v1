@@ -16,113 +16,163 @@ import {
 import "@xyflow/react/dist/style.css";
 import { PlatformData } from "./InfocardList";
 
-// Type guards for safe type checking
-const isEmailNodeData = (
-  data: Record<string, unknown>
-): data is { email: string; platforms: number } => {
-  return typeof data.email === "string" && typeof data.platforms === "number";
-};
+// Type Definitions
+interface EmailNodeData {
+  email: string;
+  platforms: number;
+}
 
-const isPlatformNodeData = (
-  data: Record<string, unknown>
-): data is { 
-  platform: PlatformData; 
-  userName?: string; 
+interface PlatformNodeData {
+  platform: PlatformData;
+  userName?: string;
   platformIndex?: number;
   isSelected?: boolean;
   showSelection?: boolean;
   enableselect?: boolean;
-} => {
-  return data.platform !== undefined && typeof data.platform === "object";
-};
+}
 
-const isUserNodeData = (
-  data: Record<string, unknown>
-): data is {
+interface UserNodeData {
   userInfo: Record<string, { value: string | boolean | number } | undefined>;
   platforms: string[];
-} => {
-  return data.userInfo !== undefined && Array.isArray(data.platforms);
-};
+}
 
-// Email Node Component - Enhanced Design
+// Type Guards with improved type safety
+const isEmailNodeData = (data: unknown): data is EmailNodeData =>
+  typeof data === 'object' && data !== null &&
+  typeof (data as EmailNodeData).email === "string" && 
+  typeof (data as EmailNodeData).platforms === "number";
+
+const isPlatformNodeData = (data: unknown): data is PlatformNodeData =>
+  typeof data === 'object' && data !== null &&
+  (data as PlatformNodeData).platform !== undefined && 
+  typeof (data as PlatformNodeData).platform === "object";
+
+const isUserNodeData = (data: unknown): data is UserNodeData =>
+  typeof data === 'object' && data !== null &&
+  (data as UserNodeData).userInfo !== undefined && 
+  Array.isArray((data as UserNodeData).platforms);
+
+// Node Base Component with Enhanced Visual Design
+const NodeBase: React.FC<{
+  children: React.ReactNode;
+  selected?: boolean;
+  handleColor: string;
+  bgColor: string;
+  borderColor: string;
+  additionalClasses?: string;
+}> = ({ 
+  children, 
+  selected, 
+  handleColor, 
+  bgColor, 
+  borderColor, 
+  additionalClasses = '' 
+}) => (
+  <div
+    className={`
+      px-4 py-3 border rounded-xl shadow-lg transition-all duration-300 
+      min-w-40 relative overflow-hidden group
+      ${selected 
+        ? `${borderColor} shadow-xl ring-2 ring-opacity-50` 
+        : 'border-gray-700 hover:border-opacity-400 hover:shadow-xl'}
+      ${bgColor} 
+      ${additionalClasses}
+    `}
+  >
+    {/* Gradient overlay for subtle depth */}
+    <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/10 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+    
+    <Handle
+      type="source"
+      position={Position.Top}
+      className={`
+        w-3 h-3 rounded-full ${handleColor} 
+        border border-gray-700 
+        transform scale-90 group-hover:scale-100 
+        transition-all duration-300
+      `}
+    />
+    <Handle
+      type="target"
+      position={Position.Bottom}
+      className={`
+        w-3 h-3 rounded-full ${handleColor} 
+        border border-gray-700 
+        transform scale-90 group-hover:scale-100 
+        transition-all duration-300
+      `}
+    />
+    {children}
+  </div>
+);
+
+// Enhanced Node Components with More Refined Design
 const EmailNode: React.FC<NodeProps> = ({ data, selected }) => {
   if (!isEmailNodeData(data)) return null;
 
   return (
-    <div
-      className={`px-4 py-3 border rounded-full bg-gray-900 shadow-lg transition-all duration-200 min-w-40 ${
-        selected
-          ? "border-blue-500 shadow-xl ring-2 ring-blue-500/30"
-          : "border-gray-700 hover:border-blue-400 hover:shadow-xl"
-      }`}
+    <NodeBase 
+      selected={selected} 
+      handleColor="bg-blue-500" 
+      bgColor="bg-gray-900/80 backdrop-blur-sm" 
+      borderColor="border-blue-500"
+      additionalClasses="hover:scale-105"
     >
-      <Handle
-        type="source"
-        position={Position.Top}
-        className="w-2.5 h-2.5 bg-blue-500 border border-gray-800"
-      />
-      <Handle
-        type="target"
-        position={Position.Bottom}
-        className="w-2.5 h-2.5 bg-blue-500 border border-gray-800"
-      />
-      <div className="text-center flex gap-4 justify-center items-center">
-        <div className="text-gray-100 font-medium text-sm mb-1 truncate">{data.email}</div>
-        <div className="text-xs bg-gray-800 rounded-full px-2 py-1 inline-flex items-center">
-          <span className="text-gray-400 mr-1">Platforms:</span>
-          <span className="text-blue-400 font-medium">{data.platforms}</span>
+      <div className="text-center flex flex-col gap-2 justify-center items-center">
+        <div className="text-gray-100 font-semibold text-sm mb-1 truncate flex items-center">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-4 w-4 mr-2 text-blue-400" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" 
+            />
+          </svg>
+          {data.email}
+        </div>
+        <div className="text-xs bg-gray-800/50 rounded-full px-3 py-1 inline-flex items-center">
+          <span className="text-gray-400 mr-2">Platforms:</span>
+          <span className="text-blue-300 font-medium">{data.platforms}</span>
         </div>
       </div>
-    </div>
+    </NodeBase>
   );
 };
 
-// Platform Node Component - Enhanced Design with selection support
 const PlatformNode: React.FC<NodeProps> = ({ data, selected }) => {
   if (!isPlatformNodeData(data)) return null;
 
-  const platform = data.platform;
-  const isSelected = data.isSelected;
-  const showSelection = data.showSelection;
+  const { platform, userName, isSelected, showSelection, enableselect } = data;
 
   return (
-    <div
-      className={`px-3 py-2 border rounded-full bg-gray-800 shadow-lg transition-all duration-200 min-w-36 relative ${
-        selected
-          ? "border-green-500 shadow-xl ring-2 ring-green-500/30"
-          : isSelected
-          ? data.enableselect
-            ? "border-white bg-gray-100/10 shadow-lg ring-2 ring-white/30"
-            : "border-gray-400 bg-gray-400/10 shadow-lg ring-2 ring-gray-400/30"
-          : "border-gray-600 hover:border-green-400 hover:shadow-xl"
-      }`}
+    <NodeBase 
+      selected={selected} 
+      handleColor="bg-green-500" 
+      bgColor="bg-gray-800/80 backdrop-blur-sm" 
+      borderColor="border-green-500"
+      additionalClasses="hover:scale-105"
     >
-      <Handle
-        type="source"
-        position={Position.Top}
-        className="w-2.5 h-2.5 bg-green-500 border border-gray-700"
-      />
-      <Handle
-        type="target"
-        position={Position.Bottom}
-        className="w-2.5 h-2.5 bg-green-500 border border-gray-700"
-      />
-
-      {/* Selection checkbox */}
       {showSelection && (
-        <div className="absolute -top-2 -right-2 cursor-pointer">
+        <div className="absolute -top-2 -right-2 cursor-pointer z-10">
           <div
-            className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
-              isSelected
-                ? data.enableselect
-                  ? "bg-white border-white text-black"
+            className={`
+              w-6 h-6 rounded-full border-2 flex items-center justify-center 
+              transition-all duration-300 shadow-md
+              ${isSelected
+                ? enableselect
+                  ? "bg-white border-white text-black scale-110"
                   : "bg-gray-400 border-gray-400 text-black"
-                : "border-gray-500 hover:border-white bg-gray-800"
-            }`}
+                : "border-gray-500 hover:border-white bg-gray-800/50"
+              }`}
           >
             {isSelected && (
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -133,28 +183,34 @@ const PlatformNode: React.FC<NodeProps> = ({ data, selected }) => {
           </div>
         </div>
       )}
-
-      <div className="text-center flex gap-4 justify-center items-center">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <div className="relative">
-            {/* Platform icon removed for cleaner look */}
-          </div>
-        </div>
-        <div className="text-gray-100 font-medium text-sm mb-1 truncate">
+      <div className="text-center flex flex-col gap-2 justify-center items-center">
+        <div className="text-gray-100 font-semibold text-sm mb-1 truncate flex items-center">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-4 w-4 mr-2 text-green-400" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" 
+            />
+          </svg>
           {platform.pretty_name || platform.module}
         </div>
-
-        {data.userName && (
-          <div className="text-xs text-gray-300 bg-gray-900/50 rounded px-2 py-1 truncate">
-            {data.userName}
+        {userName && (
+          <div className="text-xs text-gray-300 bg-gray-900/50 rounded-full px-3 py-1 truncate">
+            {userName}
           </div>
         )}
       </div>
-    </div>
+    </NodeBase>
   );
 };
 
-// User Node Component - Enhanced Design
 const UserNode: React.FC<NodeProps> = ({ data, selected }) => {
   if (!isUserNodeData(data)) return null;
 
@@ -163,31 +219,36 @@ const UserNode: React.FC<NodeProps> = ({ data, selected }) => {
   const location = userInfo.location?.value;
 
   return (
-    <div
-      className={`px-3 py-2 border rounded-full bg-gray-700 shadow-lg transition-all duration-200 min-w-32 ${
-        selected
-          ? "border-purple-500 shadow-xl ring-2 ring-purple-500/30"
-          : "border-gray-500 hover:border-purple-400 hover:shadow-xl"
-      }`}
+    <NodeBase 
+      selected={selected} 
+      handleColor="bg-purple-500" 
+      bgColor="bg-gray-700/80 backdrop-blur-sm" 
+      borderColor="border-purple-500"
+      additionalClasses="hover:scale-105"
     >
-      <Handle
-        type="source"
-        position={Position.Top}
-        className="w-2.5 h-2.5 bg-purple-500 border border-gray-600"
-      />
-      <Handle
-        type="target"
-        position={Position.Bottom}
-        className="w-2.5 h-2.5 bg-purple-500 border border-gray-600"
-      />
-      <div className="text-center text-center flex gap-4 justify-center items-center">
-        <div className="flex items-center justify-center mb-2"></div>
-        <div className="text-gray-100 font-medium text-sm mb-1 truncate">{String(userName)}</div>
+      <div className="text-center flex flex-col gap-2 justify-center items-center">
+        <div className="text-gray-100 font-semibold text-sm mb-1 truncate flex items-center">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-4 w-4 mr-2 text-purple-400" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
+            />
+          </svg>
+          {String(userName)}
+        </div>
         {location && (
-          <div className="text-xs text-gray-400 flex items-center justify-center">
+          <div className="text-xs text-gray-400 flex items-center justify-center bg-gray-900/30 rounded-full px-3 py-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-3 w-3 mr-1"
+              className="h-3 w-3 mr-1 text-gray-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -209,7 +270,7 @@ const UserNode: React.FC<NodeProps> = ({ data, selected }) => {
           </div>
         )}
       </div>
-    </div>
+    </NodeBase>
   );
 };
 
@@ -219,6 +280,7 @@ const nodeTypes = {
   user: UserNode,
 };
 
+// Main GraphView Component
 interface GraphViewProps {
   data: PlatformData[];
   selectedIndices: number[];
@@ -239,163 +301,181 @@ const GraphView: React.FC<GraphViewProps> = ({
   const [activeFilter, setActiveFilter] = useState<"all" | "email" | "platform" | "user">("all");
   const [expandedPlatformId, setExpandedPlatformId] = useState<string | null>(null);
 
-  // Transform PlatformData to React Flow format with improved positioning
+  // Memoized node and edge generation
   const { initialNodes, initialEdges } = useMemo(() => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
     const emailPositions = new Map<string, { x: number; y: number }>();
     const platformCounts = new Map<string, number>();
 
-    // Count platforms per email
-    data.forEach((platform) => {
-      const email = platform.query.includes("@") ? platform.query : null;
-      if (email) {
-        platformCounts.set(email, (platformCounts.get(email) || 0) + 1);
-      }
-    });
-
-    // Create email nodes with better initial positioning
-    const emails = Array.from(platformCounts.keys());
-    const centerX = 5000;
-    const centerY = 3000;
-    const radius = 1800;
-    
-    emails.forEach((email, index) => {
-      // Position email nodes in a circle around the center
-      const angle = (index * (2 * Math.PI)) / emails.length;
-      const x = centerX + radius * Math.cos(angle);
-      const y = centerY + radius * Math.sin(angle);
-      
-      emailPositions.set(email, { x, y });
-
-      nodes.push({
-        id: `email-${email}`,
-        type: "email",
-        position: { x, y },
-        data: {
-          email,
-          platforms: platformCounts.get(email) || 0,
-        },
-        draggable: true,
-      });
-    });
-
-    // Create platform and user nodes with better scattering
-    data.forEach((platform, platformIndex) => {
-      const email = platform.query.includes("@") ? platform.query : null;
-      if (!email) return;
-
-      const emailPos = emailPositions.get(email);
-      if (!emailPos) return;
-
-      // Calculate platform position in a circular pattern around the email
-      const platformsForEmail = data.filter((p) => p.query === email).length;
-      const angle = (platformIndex % platformsForEmail) * (2 * Math.PI / platformsForEmail);
-      const platformRadius = 1000 + (Math.random() * 800);
-      
-      const platformX = emailPos.x + platformRadius * Math.cos(angle);
-      const platformY = emailPos.y + platformRadius * Math.sin(angle);
-
-      // Get user information
-      const userInfo = platform.spec_format[0] || {};
-      const userName =
-        userInfo.name && typeof userInfo.name === "object" && "value" in userInfo.name
-          ? String(userInfo.name.value)
-          : userInfo.username &&
-            typeof userInfo.username === "object" &&
-            "value" in userInfo.username
-          ? String(userInfo.username.value)
-          : userInfo.first_name &&
-            typeof userInfo.first_name === "object" &&
-            "value" in userInfo.first_name &&
-            userInfo.last_name &&
-            typeof userInfo.last_name === "object" &&
-            "value" in userInfo.last_name
-          ? `${userInfo.first_name.value} ${userInfo.last_name.value}`
-          : null;
-
-      // Create platform node
-      const platformNodeId = `platform-${platform.module}-${platformIndex}`;
-      const isSelected = selectedIndices.includes(platformIndex);
-      const showSelection = enableselect || deletebutton;
-      
-      nodes.push({
-        id: platformNodeId,
-        type: "platform",
-        position: { x: platformX, y: platformY },
-        data: {
-          platform,
-          userName,
-          platformIndex,
-          isSelected,
-          showSelection,
-          enableselect,
-        },
-        draggable: true,
+    // Count platforms per email and create email nodes
+    const processEmails = () => {
+      data.forEach((platform) => {
+        const email = platform.query.includes("@") ? platform.query : null;
+        if (email) {
+          platformCounts.set(email, (platformCounts.get(email) || 0) + 1);
+        }
       });
 
-      // Link email to platform
-      edges.push({
-        id: `edge-email-platform-${platformIndex}`,
-        source: `email-${email}`,
-        target: platformNodeId,
-        type: "bezier",
-        style: {
-          stroke: "#4b5563",
-          strokeWidth: 2,
-        },
-        animated: false,
-      });
-
-      // Create user node if detailed user info exists
-      if (userName && Object.keys(userInfo).length > 3) {
-        const userNodeId = `user-${userName}-${platformIndex}`;
+      const emails = Array.from(platformCounts.keys());
+      const centerX = 5000;
+      const centerY = 3000;
+      const radius = 1800;
+      
+      emails.forEach((email, index) => {
+        const angle = (index * (2 * Math.PI)) / emails.length;
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
         
-        // Calculate angle based on the platform's angle plus a slight offset
-        // This ensures user nodes appear on the outer edge relative to the email center
-        const emailCenterAngle = Math.atan2(platformY - emailPos.y, platformX - emailPos.x);
-        const userAngle = emailCenterAngle + (Math.random() * 0.5 - 0.25); // Small random deviation
-        
-        // Position user node further out from the platform node
-        const userRadius = 1000 + (Math.random() * 300); // More consistent radius with less randomness
-        
-        // Calculate position relative to platform node
-        const userX = platformX + userRadius * Math.cos(userAngle);
-        const userY = platformY + userRadius * Math.sin(userAngle);
+        emailPositions.set(email, { x, y });
 
         nodes.push({
-          id: userNodeId,
-          type: "user",
-          position: { x: userX, y: userY },
+          id: `email-${email}`,
+          type: "email",
+          position: { x, y },
           data: {
-            userInfo,
-            platforms: [platform.pretty_name],
-            parentPlatformId: platformNodeId,
+            email,
+            platforms: platformCounts.get(email) || 0,
           },
           draggable: true,
-          hidden: true, // Initially hidden
+        });
+      });
+    };
+
+    // Create platform and user nodes
+    const processPlatforms = () => {
+      data.forEach((platform, platformIndex) => {
+        const email = platform.query.includes("@") ? platform.query : null;
+        if (!email) return;
+
+        const emailPos = emailPositions.get(email);
+        if (!emailPos) return;
+
+        const platformsForEmail = data.filter((p) => p.query === email).length;
+        const angle = (platformIndex % platformsForEmail) * (2 * Math.PI / platformsForEmail);
+        const platformRadius = 1000 + (Math.random() * 800);
+        
+        const platformX = emailPos.x + platformRadius * Math.cos(angle);
+        const platformY = emailPos.y + platformRadius * Math.sin(angle);
+
+        // Extract user information
+        const userInfo = platform.spec_format[0] || {};
+        const userName = extractUserName(userInfo);
+        
+        // Create platform node
+        const platformNodeId = `platform-${platform.module}-${platformIndex}`;
+        const isSelected = selectedIndices.includes(platformIndex);
+        const showSelection = enableselect || deletebutton;
+        
+        nodes.push({
+          id: platformNodeId,
+          type: "platform",
+          position: { x: platformX, y: platformY },
+          data: {
+            platform,
+            userName,
+            platformIndex,
+            isSelected,
+            showSelection,
+            enableselect,
+          },
+          draggable: true,
         });
 
-        // Link platform to user with a curved edge
+        // Link email to platform
         edges.push({
-          id: `edge-platform-user-${platformIndex}`,
-          source: platformNodeId,
-          target: userNodeId,
-          type: "bezier", // Changed from bezier for better curved appearance
+          id: `edge-email-platform-${platformIndex}`,
+          source: `email-${email}`,
+          target: platformNodeId,
+          type: "bezier",
           style: {
-            stroke: "#6b46c1",
-            strokeWidth: 1.5,
+            stroke: "#4b5563",
+            strokeWidth: 2,
           },
-          hidden: true, // Initially hidden
+          animated: false,
         });
-      }
-    });
+
+        // Create user node if detailed user info exists
+        if (userName && Object.keys(userInfo).length > 3) {
+          const userNodeId = `user-${userName}-${platformIndex}`;
+          
+          const emailCenterAngle = Math.atan2(platformY - emailPos.y, platformX - emailPos.x);
+          const userAngle = emailCenterAngle + (Math.random() * 0.5 - 0.25);
+          
+          const userRadius = 1000 + (Math.random() * 300);
+          
+          const userX = platformX + userRadius * Math.cos(userAngle);
+          const userY = platformY + userRadius * Math.sin(userAngle);
+
+          nodes.push({
+            id: userNodeId,
+            type: "user",
+            position: { x: userX, y: userY },
+            data: {
+              userInfo,
+              platforms: [platform.pretty_name],
+              parentPlatformId: platformNodeId,
+            },
+            draggable: true,
+            hidden: true,
+          });
+
+          // Link platform to user
+          edges.push({
+            id: `edge-platform-user-${platformIndex}`,
+            source: platformNodeId,
+            target: userNodeId,
+            type: "bezier",
+            style: {
+              stroke: "#6b46c1",
+              strokeWidth: 1.5,
+            },
+            hidden: true,
+          });
+        }
+      });
+    };
+
+    // Helper function to extract user name with improved type safety
+    const extractUserName = (userInfo: Record<string, unknown>): string | null => {
+      const getName = (nameObj: unknown): string | null => {
+        if (typeof nameObj === 'object' && nameObj !== null && 'value' in nameObj) {
+          const value = (nameObj as { value: string }).value;
+          return typeof value === 'string' ? value : null;
+        }
+        return null;
+      };
+
+      return (
+        getName(userInfo.name) ||
+        getName(userInfo.username) ||
+        (getName(userInfo.first_name) && getName(userInfo.last_name)
+          ? `${getName(userInfo.first_name)} ${getName(userInfo.last_name)}`
+          : null
+      ))
+    };
+
+    processEmails();
+    processPlatforms();
 
     return { initialNodes: nodes, initialEdges: edges };
   }, [data, selectedIndices, enableselect, deletebutton]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // New function to reset the graph view
+  const resetGraphView = useCallback(() => {
+    // Reset nodes to initial state
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+    
+    // Reset other state variables
+    setSearchTerm("");
+    setActiveFilter("all");
+    setExpandedPlatformId(null);
+    setSelectedNodeData(null);
+  }, [initialNodes, initialEdges]);
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -457,7 +537,7 @@ const GraphView: React.FC<GraphViewProps> = ({
       setSelectedNodeData(node.data);
     }
     // User nodes are no longer clickable - removed the user node case
-  }, [expandedPlatformId, setNodes, setEdges, enableselect, deletebutton, handleCardSelect]);
+  }, [expandedPlatformId, setNodes, setEdges, enableselect, deletebutton, handleCardSelect, setSelectedNodeData]);
 
   // Update nodes when selection state changes
   React.useEffect(() => {
@@ -501,7 +581,7 @@ const GraphView: React.FC<GraphViewProps> = ({
   }, [edges]);
 
   return (
-    <div className="w-full h-[800px] bg-gray-950 relative overflow-hidden rounded-xl border border-gray-800">
+    <div className="h-[800px] bg-gray-950 relative overflow-hidden rounded-xl border border-gray-800">
       <ReactFlow
         nodes={filteredNodes}
         edges={filteredEdges}
@@ -517,18 +597,18 @@ const GraphView: React.FC<GraphViewProps> = ({
         minZoom={0.05}
         maxZoom={1.5}
       >
-     
         <Background gap={24} color="#374151" />
 
-        {/* Top Control Panel */}
-        <Panel position="top-center" className="flex justify-center mt-4">
-          <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-800 rounded-xl shadow-xl p-2 flex items-center">
-            <div className="relative mr-4">
+        {/* Improved Top Control Panel with better accessibility and design */}
+        <Panel position="top-center" className="flex justify-center w-full mt-4">
+          <div className="bg-gray-900/90 border border-gray-700 backdrop-blur-sm rounded-xl shadow-xl p-2 flex items-center space-x-4">
+            {/* Search Input */}
+            <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg
-                  className="h-4 w-4 text-gray-500"
-                  fill="none"
-                  stroke="currentColor"
+                <svg 
+                  className="h-4 w-4 text-gray-500" 
+                  fill="none" 
+                  stroke="currentColor" 
                   viewBox="0 0 24 24"
                 >
                   <path
@@ -542,69 +622,69 @@ const GraphView: React.FC<GraphViewProps> = ({
               <input
                 type="text"
                 placeholder="Search nodes..."
+                aria-label="Search nodes"
                 className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-full text-sm text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 w-64"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
+            {/* Filter Buttons with improved contrast and accessibility */}
             <div className="flex space-x-1">
+              {["all", "email", "platform", "user"].map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setActiveFilter(filter as typeof activeFilter)}
+                  className={`px-3 py-1 text-xs rounded-full capitalize transition-colors ${
+                    activeFilter === filter
+                      ? `${
+                          filter === "all" ? "bg-blue-600" : 
+                          filter === "email" ? "bg-blue-600" : 
+                          filter === "platform" ? "bg-green-600" : 
+                          "bg-purple-600"
+                        } text-white`
+                      : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                  }`}
+                  aria-pressed={activeFilter === filter}
+                >
+                  {filter}
+                </button>
+              ))}
+              
+              {/* Refresh Button with improved icon */}
               <button
-                onClick={() => setActiveFilter("all")}
-                className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                  activeFilter === "all"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                }`}
+                onClick={resetGraphView}
+                className="px-3 py-1 text-xs rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700 flex items-center"
+                title="Reset Graph View"
+                aria-label="Reset Graph View"
               >
-                All
-              </button>
-              <button
-                onClick={() => setActiveFilter("email")}
-                className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                  activeFilter === "email"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                }`}
-              >
-                Emails
-              </button>
-              <button
-                onClick={() => setActiveFilter("platform")}
-                className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                  activeFilter === "platform"
-                    ? "bg-green-600 text-white"
-                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                }`}
-              >
-                Platforms
-              </button>
-              <button
-                onClick={() => setActiveFilter("user")}
-                className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                  activeFilter === "user"
-                    ? "bg-purple-600 text-white"
-                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                }`}
-              >
-                Users
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="h-4 w-4 mr-1" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+                  />
+                </svg>
+                Refresh
               </button>
             </div>
           </div>
         </Panel>
       </ReactFlow>
 
-      {/* Enhanced Node Details Panel - Only show for email and user nodes */}
+      {/* Node Details Panel - Simplified and more consistent */}
       {selectedNodeData && (isEmailNodeData(selectedNodeData) || isUserNodeData(selectedNodeData)) && (
         <div className="absolute top-6 right-6 w-80 bg-gray-900/95 backdrop-blur-sm border border-gray-700 rounded-xl shadow-xl overflow-hidden">
           <div className="flex items-center justify-between p-4 border-b border-gray-700">
             <h3 className="text-gray-100 font-semibold text-base flex items-center">
-              {isEmailNodeData(selectedNodeData) && (
-                <>
-                  Email Details
-                </>
-              )}
-              {isUserNodeData(selectedNodeData) && (
+              {isEmailNodeData(selectedNodeData) ? "Email Details" : (
                 <>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -627,6 +707,7 @@ const GraphView: React.FC<GraphViewProps> = ({
             <button
               onClick={() => setSelectedNodeData(null)}
               className="text-gray-400 hover:text-gray-200 transition-colors p-1 rounded-md hover:bg-gray-800"
+              aria-label="Close details"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -640,48 +721,42 @@ const GraphView: React.FC<GraphViewProps> = ({
           </div>
 
           <div className="p-4 space-y-4 max-h-[500px] overflow-y-auto">
-            {isEmailNodeData(selectedNodeData) && (
-              <>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-xs text-gray-400 block mb-1">Email Address</label>
-                    <div className="text-gray-100 text-sm font-medium bg-gray-800 rounded px-3 py-2">
-                      {selectedNodeData.email}
-                    </div>
+            {isEmailNodeData(selectedNodeData) ? (
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">Email Address</label>
+                  <div className="text-gray-100 text-sm font-medium bg-gray-800 rounded px-3 py-2">
+                    {selectedNodeData.email}
                   </div>
-                  <div>
-                    <label className="text-xs text-gray-400 block mb-1">Connected Platforms</label>
-                    <div className="flex items-center">
-                      <div className="text-gray-100 text-sm font-medium bg-gray-800 rounded-full px-3 py-1">
-                        {selectedNodeData.platforms}
-                      </div>
-                      <div className="ml-2 text-xs text-gray-400">
-                        {selectedNodeData.platforms === 1 ? "platform" : "platforms"} found
-                      </div>
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">Connected Platforms</label>
+                  <div className="flex items-center">
+                    <div className="text-gray-100 text-sm font-medium bg-gray-800 rounded-full px-3 py-1">
+                      {selectedNodeData.platforms}
+                    </div>
+                    <div className="ml-2 text-xs text-gray-400">
+                      {selectedNodeData.platforms === 1 ? "platform" : "platforms"} found
                     </div>
                   </div>
                 </div>
-              </>
-            )}
-
-            {isUserNodeData(selectedNodeData) && (
-              <>
-                <div className="space-y-3">
-                  {Object.entries(selectedNodeData.userInfo).map(([key, value]) => {
-                    if (key === "platform_variables" || !value?.value) return null;
-                    return (
-                      <div key={key}>
-                        <label className="text-xs text-gray-400 block mb-1 capitalize">
-                          {key.replace(/_/g, " ")}
-                        </label>
-                        <div className="text-gray-100 text-sm bg-gray-800 rounded px-3 py-2 truncate">
-                          {String(value.value)}
-                        </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {Object.entries(selectedNodeData.userInfo).map(([key, value]) => {
+                  if (key === "platform_variables" || !value?.value) return null;
+                  return (
+                    <div key={key}>
+                      <label className="text-xs text-gray-400 block mb-1 capitalize">
+                        {key.replace(/_/g, " ")}
+                      </label>
+                      <div className="text-gray-100 text-sm bg-gray-800 rounded px-3 py-2 truncate">
+                        {String(value.value)}
                       </div>
-                    );
-                  })}
-                </div>
-              </>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
         </div>

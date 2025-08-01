@@ -3,10 +3,11 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { SearchTypeSelector } from "@/components/paidcomponents/SearchTypeselect";
 import { SearchOptions } from "@/components/paidcomponents/Options";
-import { X, Search } from "lucide-react";
+import { X, Search, SearchIcon } from "lucide-react";
 import "@/app/globals.css";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useUser } from "@auth0/nextjs-auth0";
+import { useUserData } from "@/hooks/user-data";
 
 import CountrySelect from "@/components/paidcomponents/contryselect";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,9 @@ declare global {
 }
 
 export default function Profile() {
-  const { user, isLoading } = useUser();
+  const { user, isLoading: isAuthLoading } = useUser();
+  const { userData, loading: isUserDataLoading, error: userDataError } = useUserData(user ?? null);
+  
   const [input, setInput] = useState({ datatype: "Email", value: "" });
   const [selected, setSelected] = useState<string>("Paid");
   const [PaidSearch, setPaidSearch] = useState("Email");
@@ -29,75 +32,17 @@ export default function Profile() {
   const [query, setQuery] = useState("");
   const [phoneError, setPhoneError] = useState<string>(""); // State for phone validation
   const [typeofsearch, settypeofsearch] = useState<string>("Advance");
-  const [userData, setUserData] = useState({
-    _id: "",
-    email: "",
-    name: "",
-    phone: "",
-    credits: 0,
-  });
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        // Step 1: Get the ID token (JWT) from Auth0 session
-
-        // Get ID token (JWT) from custom API endpoint
-        const idTokenResponse = await fetch("/api/auth/id-token");
-        const idTokenData = await idTokenResponse.json();
-        const idToken = idTokenData.idToken;
-        // Choose which token to use: ID token (JWT) preferred
-        // console.log("ID token (JWT) retrieved:", idToken);
-        const authToken = idToken;
-
-        if (!authToken) {
-          console.error("No authentication token available");
-          return;
-        }
-
-        // Step 2: Make the signup POST request with the bearer token
-        const response = await fetch("https://profiler-api-production.up.railway.app/api/login", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Signup request failed: ${response.status} ${response.statusText}`);
-        }
-        else{
-          if (window.Refgrow) {
-            window.Refgrow(0, 'signup', user?.email || "");
-          }
-        }
-        const signupData = await response.json();
-        // console.log("Signup successful:", signupData);
-        // console.log("Signup successful:", signupData.user);
-
-        // Update user data with the response
-        if (signupData.user) {
-          setUserData({
-            _id: signupData.user._id || "",
-            email: signupData.user.email || "",
-            name: signupData.user.name || "Customer",
-            phone: signupData.user.phone || "",
-            credits: signupData.user.credits || 0,
-          });
-        }
-      } catch (error) {
-        console.error("Error in fetchUserData:", error);
-      }
-    };
-
-    if (user) {
-      fetchUserData();
-    }
-  }, [user]);
-
   const [miniCredits, setMiniCredits] = useState(0);
   const [creditsError, setCreditsError] = useState("");
 
+  // Log any user data error
+  useEffect(() => {
+    if (userDataError) {
+      console.error("User data fetch error:", userDataError);
+    }
+  }, [userDataError]);
+
+  // Credits and search type effect
   useEffect(() => {
     const requiredCredits = typeofsearch === "Basic" ? 0.05 : 0.5;
     setMiniCredits(requiredCredits);
@@ -110,6 +55,8 @@ export default function Profile() {
       setCreditsError("");
     }
   }, [userData, typeofsearch]);
+
+  // Restore input from localStorage
   useEffect(() => {
     const storedInputValue = localStorage.getItem("inputValue");
     if (storedInputValue) {
@@ -270,6 +217,7 @@ export default function Profile() {
                 settypeofsearch={settypeofsearch}
                 selected={selected}
                 typeofsearch={typeofsearch}
+                Credits={userData.credits}
               />
             </div>
           )}
@@ -280,22 +228,20 @@ export default function Profile() {
               {/* Premium Search Bar Section */}
               <div className="flex flex-col items-center space-y-8">
                 {/* Main Search Container */}
-                <div className="w-full max-w-4xl">
-                  <div className="">
+                <div className="w-full max-w-4xl relative z-10">
+                  <div>
                     {/* Search bar container */}
-                    <div className="relative bg-black border-2 border-white/20 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-sm">
+                    <div className="flex flex-col bg-black border-2 border-white/20 rounded-2xl shadow-2xl backdrop-blur-sm">
                       {/* Inner border glow */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5 rounded-2xl"></div>
-
-                      <div className="relative flex items-center">
-                        {/* Search icon */}
-                        <div className="flex-shrink-0 px-6 py-2 text-white/70">
-                          <Search size={28} strokeWidth={2} />
+                      <div className="flex bg-gradient-to-r from-white/5 via-white/10 to-white/5 rounded-2xl w-full h-full absolute pointer-events-none" style={{zIndex: 0}}></div>
+                      <div className="flex items-center w-full relative z-50">
+                        <div className="flex-shrink-0 px-6 py-2 text-white/70 flex items-center">
+                          <SearchIcon size={28} strokeWidth={2} />
                         </div>
 
                         {/* Country selector for phone */}
                         {PaidSearch === "Phone" && (
-                          <div className="flex-shrink-0 border-r border-white/10 pr-4">
+                          <div className="flex-shrink-0  relative z-100 border-r border-white/10 pr-4 flex items-center">
                             <CountrySelect
                               value={countryCode}
                               onChange={setCountryCode}
@@ -308,7 +254,7 @@ export default function Profile() {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <div className="flex-1 relative">
+                              <div className="flex-1 flex items-center text-stone-500">
                                 <Input
                                   type="text"
                                   placeholder={`Enter your ${input.datatype} to start searching...`}
@@ -352,16 +298,16 @@ export default function Profile() {
                         {input.value && (
                           <button
                             onClick={() => setInput((prev) => ({ ...prev, value: "" }))}
-                            className="flex-shrink-0 p-6 text-white/50 hover:text-white transition-all duration-200 hover:bg-white/5 rounded-lg mr-2"
+                            className="flex-shrink-0 p-6 text-white/50 hover:text-white transition-all duration-200 hover:bg-white/5 rounded-lg mr-2 flex items-center"
                           >
                             <X size={24} strokeWidth={2} />
                           </button>
                         )}
 
                         {/* Search button integrated */}
-                        <div className="flex-shrink-0 p-2">
+                        <div className="flex-shrink-0 p-2 flex items-center">
                           <Button
-                            className="relative overflow-hidden bg-white hover:bg-zinc-100 text-black font-bold px-8 py-6 text-lg rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg group border-0"
+                            className="flex items-center relative overflow-hidden bg-white hover:bg-zinc-100 text-black font-bold px-8 py-6 text-lg rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg group border-0"
                             onClick={() => {
                               const params = new URLSearchParams({
                                 PaidSearch: PaidSearch,
@@ -385,7 +331,8 @@ export default function Profile() {
                             }}
                             disabled={
                               !input.value ||
-                              isLoading ||
+                              isAuthLoading ||
+                              isUserDataLoading ||
                               !!emailError ||
                               !!phoneError ||
                               typeofsearch === "" ||
@@ -394,8 +341,7 @@ export default function Profile() {
                             }
                           >
                             {/* Button shine effect */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"></div>
                             <span className="relative flex items-center gap-2">
                               <Search size={20} strokeWidth={2.5} />
                               Search
@@ -407,7 +353,7 @@ export default function Profile() {
                   </div>
 
                   {/* Search type indicator */}
-                  <div className="text-center mt-4">
+                  <div className="flex justify-center mt-4">
                     <span className="text-white/60 text-sm font-medium">
                       {typeofsearch} Search • {PaidSearch} Lookup
                     </span>
@@ -416,17 +362,17 @@ export default function Profile() {
 
                 {/* Error Messages */}
                 {PaidSearch === "Email" && input.value && emailError && (
-                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm">
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm flex justify-center">
                     <p className="text-red-400 text-sm text-center">{emailError}</p>
                   </div>
                 )}
                 {PaidSearch === "Phone" && input.value && phoneError && (
-                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm">
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm flex justify-center">
                     <p className="text-red-400 text-sm text-center">{phoneError}</p>
                   </div>
                 )}
                 {userData.credits < miniCredits && (
-                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm">
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm flex justify-center">
                     <p className="text-red-400 text-sm text-center">{creditsError}</p>
                   </div>
                 )}
@@ -446,7 +392,7 @@ export default function Profile() {
               {/* Demo Buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
                 <button
-                  className="group relative bg-zinc-900/80 backdrop-blur-sm hover:bg-zinc-800/80 text-white font-medium px-8 py-4 rounded-xl transition-all duration-300 border border-zinc-700/50 hover:border-zinc-600/50 hover:scale-105 w-full sm:w-auto shadow-lg"
+                  className="group flex items-center relative bg-zinc-900/80 backdrop-blur-sm hover:bg-zinc-800/80 text-white font-medium px-8 py-4 rounded-xl transition-all duration-300 border border-zinc-700/50 hover:border-zinc-600/50 hover:scale-105 w-full sm:w-auto shadow-lg"
                   onClick={() => {
                     if (!PaidSearch) {
                       alert("Please select a search type first");
@@ -477,7 +423,7 @@ export default function Profile() {
                 </button>
 
                 <button
-                  className="group relative bg-zinc-900/80 backdrop-blur-sm hover:bg-zinc-800/80 text-white font-medium px-8 py-4 rounded-xl transition-all duration-300 border border-zinc-700/50 hover:border-zinc-600/50 hover:scale-105 w-full sm:w-auto shadow-lg"
+                  className="group flex items-center relative bg-zinc-900/80 backdrop-blur-sm hover:bg-zinc-800/80 text-white font-medium px-8 py-4 rounded-xl transition-all duration-300 border border-zinc-700/50 hover:border-zinc-600/50 hover:scale-105 w-full sm:w-auto shadow-lg"
                   onClick={() => {
                     if (!PaidSearch) {
                       alert("Please select a search type first");
