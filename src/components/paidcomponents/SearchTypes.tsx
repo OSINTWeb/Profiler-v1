@@ -1,24 +1,12 @@
-import React, { useState } from "react";
-import { SearchTypesProps, Tool, SearchOption } from "src/types/types";
+import React from "react";
+import { SearchTypesProps, Tool } from "src/types/types";
 import SearchBarFreeTools from "./SearchBarFreeTools";
 import SearchBarFreeMiumTools from "./SearchBarFreeMiumTools";
 
 export function SearchTypes({
-  settypeofsearch,
   selected,
-  typeofsearch,
   Credits,
 }: SearchTypesProps) {
-  const [openDrawer, setOpenDrawer] = useState<SearchOption | null>(null);
-
-  const toggleDrawer = (type: SearchOption) => {
-    settypeofsearch(type);
-    if (selected === "Free") {
-      setOpenDrawer(openDrawer === type ? null : type);
-    }
-  };
-
-  const options = ["Basic", "Advance"];
 
   const FreeTools: Tool[] = [
     {
@@ -79,25 +67,25 @@ export function SearchTypes({
   ];
 
   return (
-    <div className="w-full flex flex-col items-center justify-center">
+    <section className="w-full flex flex-col items-center justify-center" aria-label="Search Tools">
       {/* Free Tools Grid */}
       {selected === "Free" && (
-        <div className="w-full max-w-7xl mx-auto px-4 flex flex-col items-center justify-center gap-4">
+        <section className="w-full max-w-7xl mx-auto px-4 flex flex-col items-center justify-center gap-4" aria-label="Free Tools">
           {Credits < 8 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list">
               {FreeTools.map((tool, index) => {
                 const isUserFindr = tool.title.toLowerCase() === "userfindr";
                 const isCallSpy = tool.title.toLowerCase() === "callspy";
                 return (
-                  <div
+                  <li
                     key={index}
                     className={`
-                    relative bg-zinc-900 rounded-xl p-6 border border-zinc-700 
-                    hover:border-zinc-500 transition-all duration-300 ease-out
-                    hover:scale-105 hover:shadow-xl hover:shadow-black/50
-                    ${isUserFindr ? "border-zinc-500 shadow-lg shadow-zinc-500/20" : ""}
-                    ${isCallSpy ? "border-zinc-400 shadow-lg shadow-zinc-400/20" : ""}
-                  `}
+                      relative bg-zinc-900 rounded-xl p-6 border border-zinc-700 
+                      hover:border-zinc-500 transition-all duration-300 ease-out
+                      hover:scale-105 hover:shadow-xl hover:shadow-black/50
+                      ${isUserFindr ? "border-zinc-500 shadow-lg shadow-zinc-500/20" : ""}
+                      ${isCallSpy ? "border-zinc-400 shadow-lg shadow-zinc-400/20" : ""}
+                    `}
                   >
                     {isUserFindr && (
                       <span className="absolute -top-2 -right-2 bg-white text-black text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
@@ -110,83 +98,91 @@ export function SearchTypes({
                       </span>
                     )}
 
-                    <h3 className="font-bold text-xl text-white mb-4">{tool.title}</h3>
+                    <header>
+                      <h3 className="font-bold text-xl text-white mb-4">{tool.title}</h3>
+                    </header>
 
                     <p className="text-zinc-400 text-sm leading-relaxed mb-6 min-h-[3.5rem]">
                       {tool.description}
                     </p>
 
-                    <button
-                      onClick={() => {
-                        window.open(tool.link, "_blank");
-                      }}
-                      className="
-                      w-full bg-white hover:bg-zinc-200 
-                      text-black font-semibold py-3 rounded-lg 
-                      transition-all duration-300 ease-out
-                      hover:scale-105 hover:shadow-lg
-                      active:scale-95
-                    "
-                    >
-                      Search Now
-                    </button>
-                  </div>
+                    <footer>
+                      <button
+                        onClick={() => {
+                          window.open(tool.link, "_blank");
+                        }}
+                        className="
+                          w-full bg-white hover:bg-zinc-200 
+                          text-black font-semibold py-3 rounded-lg 
+                          transition-all duration-300 ease-out
+                          hover:scale-105 hover:shadow-lg
+                          active:scale-95
+                        "
+                        aria-label={`Open ${tool.title} tool`}
+                      >
+                        Search Now
+                      </button>
+                    </footer>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           ) : (
             <SearchBarFreeTools />
           )}
-        </div>
+        </section>
       )}
 
       {/* Premium Tools Grid */}
       {selected === "Freemium" && (
-        <div className="w-full max-w-7xl mx-auto px-4">
-          {Credits < 8  ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+        <section className="w-full max-w-7xl mx-auto px-4" aria-label="Freemium Tools">
+          {Credits < 8 ? (
+            <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6" role="list">
               {FreemiumTools.map((tool, index) => (
-                <div
+                <li
                   key={index}
                   className="
-                  relative bg-zinc-900 rounded-xl p-6 border border-zinc-700 
-                  hover:border-zinc-500 transition-all duration-300 ease-out
-                  hover:scale-105 hover:shadow-xl hover:shadow-black/50
-                "
+                    relative bg-zinc-900 rounded-xl p-6 border border-zinc-700 
+                    hover:border-zinc-500 transition-all duration-300 ease-out
+                    hover:scale-105 hover:shadow-xl hover:shadow-black/50
+                  "
                 >
-                  <div className="flex items-center justify-between mb-4">
+                  <header className="flex items-center justify-between mb-4">
                     <h3 className="font-bold text-xl text-white">{tool.title}</h3>
                     <span className="bg-white text-black text-xs font-bold px-3 py-1 rounded-full">
                       PREMIUM
                     </span>
-                  </div>
+                  </header>
 
                   <p className="text-zinc-400 text-sm leading-relaxed mb-6 min-h-[3.5rem]">
                     {tool.description}
                   </p>
 
-                  <button
-                    onClick={() => {
-                      window.open(tool.link, "_blank");
-                    }}
-                    className="
-                    w-full bg-white hover:bg-zinc-200 
-                    text-black font-semibold py-3 rounded-lg 
-                    transition-all duration-300 ease-out
-                    hover:scale-105 hover:shadow-lg
-                    active:scale-95
-                  "
-                  >
-                    Search Now
-                  </button>
-                </div>
+                  <footer>
+                    <button
+                      onClick={() => {
+                        window.open(tool.link, "_blank");
+                      }}
+                      className="
+                        w-full bg-white hover:bg-zinc-200 
+                        text-black font-semibold py-3 rounded-lg 
+                        transition-all duration-300 ease-out
+                        hover:scale-105 hover:shadow-lg
+                        active:scale-95
+                      "
+                      aria-label={`Open ${tool.title} tool`}
+                    >
+                      Search Now
+                    </button>
+                  </footer>
+                </li>
               ))}
-            </div>
+            </ul>
           ) : (
             <SearchBarFreeMiumTools />
           )}
-        </div>
+        </section>
       )}
-    </div>
+    </section>
   );
 }

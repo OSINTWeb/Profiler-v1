@@ -14,9 +14,7 @@ export interface SearchFreeTools {
 
 // Props for the SearchTypes component
 export interface SearchTypesProps {
-  settypeofsearch: (type: string) => void;
   selected: string;
-  typeofsearch: string;
   Credits: number;
 }
 

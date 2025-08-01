@@ -76,14 +76,19 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-start overflow-y-auto">
-      <div className="w-full flex justify-between  ">
-        <div className=" flex  mx-auto ">
+    <main 
+      className="min-h-screen bg-black flex flex-col items-center justify-start overflow-y-auto"
+      aria-label="Profile and Search Page"
+    >
+      <header 
+        className="w-full flex justify-between py-4 px-6"
+        aria-label="Page Navigation"
+      >
+        <nav className="flex space-x-4">
           <button
-            onClick={() => {
-              window.open("/TransactionHistory", "_blank");
-            }}
+            onClick={() => window.open("/TransactionHistory", "_blank")}
             className="group flex items-center gap-2 bg-zinc-900/80 backdrop-blur-sm border border-white/10 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:bg-zinc-800/80 shadow-lg"
+            aria-label="Open Transaction History"
           >
             <svg
               className="w-5 h-5 text-white/80 group-hover:text-white transition"
@@ -91,6 +96,7 @@ export default function Profile() {
               stroke="currentColor"
               strokeWidth={2}
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -100,13 +106,11 @@ export default function Profile() {
             </svg>
             <span>Transaction History</span>
           </button>
-        </div>
-        <div className=" flex  mx-auto ">
+
           <button
-            onClick={() => {
-              window.open("/history", "_blank");
-            }}
+            onClick={() => window.open("/history", "_blank")}
             className="group flex items-center gap-2 bg-zinc-900/80 backdrop-blur-sm border border-white/10 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:bg-zinc-800/80 shadow-lg"
+            aria-label="Open Search History"
           >
             <svg
               className="w-5 h-5 text-white/80 group-hover:text-white transition"
@@ -114,6 +118,7 @@ export default function Profile() {
               stroke="currentColor"
               strokeWidth={2}
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -123,20 +128,31 @@ export default function Profile() {
             </svg>
             <span>Search History</span>
           </button>
-        </div>
-      </div>
-      <div className="w-full max-w-6xl mx-auto px-4 py-8">
+        </nav>
+      </header>
+
+      <section 
+        className="w-full max-w-6xl mx-auto px-4 py-8"
+        aria-label="Search Configuration"
+      >
         <div className="flex flex-col items-center space-y-8">
           {/* Search Type Selector */}
           <div className="w-full flex justify-center">
-            <SearchTypeSelector selected={selected} setSelected={setSelected} />
+            <SearchTypeSelector 
+              selected={selected} 
+              setSelected={setSelected} 
+              aria-label="Select Search Type"
+            />
           </div>
 
-          {/* Basic/Advance Selection - Enhanced UI */}
+          {/* Basic/Advance Selection */}
           {selected === "Paid" && (
-            <div className="w-full flex justify-center mb-6">
+            <div 
+              className="w-full flex justify-center mb-6"
+              role="radiogroup" 
+              aria-label="Search Depth Selection"
+            >
               <div className="relative bg-zinc-900/50 backdrop-blur-sm border border-zinc-700/50 rounded-2xl p-2 shadow-2xl">
-                {/* Animated background indicator */}
                 <div
                   className="absolute top-2 bottom-2 bg-gradient-to-r from-white to-zinc-100 rounded-xl shadow-lg transition-all duration-300 ease-out"
                   style={{
@@ -150,6 +166,8 @@ export default function Profile() {
                     <button
                       key={type}
                       onClick={() => settypeofsearch(type)}
+                      role="radio"
+                      aria-checked={typeofsearch === type}
                       className={`
                         relative flex-1 py-4 px-8 mx-1 rounded-xl text-lg font-semibold
                         transition-all duration-300 ease-out
@@ -168,6 +186,7 @@ export default function Profile() {
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
+                            aria-hidden="true"
                           >
                             <path
                               strokeLinecap="round"
@@ -183,6 +202,7 @@ export default function Profile() {
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
+                            aria-hidden="true"
                           >
                             <path
                               strokeLinecap="round"
@@ -195,7 +215,6 @@ export default function Profile() {
                         {type}
                       </span>
 
-                      {/* Description text */}
                       <div
                         className={`text-xs mt-1 ${
                           typeofsearch === type ? "text-zinc-600" : "text-zinc-400"
@@ -214,9 +233,7 @@ export default function Profile() {
           {selected !== "Paid" && (
             <div className="w-full flex justify-center">
               <SearchTypes
-                settypeofsearch={settypeofsearch}
                 selected={selected}
-                typeofsearch={typeofsearch}
                 Credits={userData.credits}
               />
             </div>
@@ -224,28 +241,40 @@ export default function Profile() {
 
           {/* Paid Search Section */}
           {selected === "Paid" && (
-            <div className="w-full max-w-4xl mx-auto space-y-8">
+            <div 
+              className="w-full max-w-4xl mx-auto space-y-8"
+              aria-label="Paid Search Configuration"
+            >
               {/* Premium Search Bar Section */}
               <div className="flex flex-col items-center space-y-8">
                 {/* Main Search Container */}
                 <div className="w-full max-w-4xl relative z-10">
                   <div>
                     {/* Search bar container */}
-                    <div className="flex flex-col bg-black border-2 border-white/20 rounded-2xl shadow-2xl backdrop-blur-sm">
+                    <div 
+                      className="flex flex-col bg-black border-2 border-white/20 rounded-2xl shadow-2xl backdrop-blur-sm"
+                      role="search"
+                      aria-label="Search Input"
+                    >
                       {/* Inner border glow */}
                       <div className="flex bg-gradient-to-r from-white/5 via-white/10 to-white/5 rounded-2xl w-full h-full absolute pointer-events-none" style={{zIndex: 0}}></div>
                       <div className="flex items-center w-full relative z-50">
                         <div className="flex-shrink-0 px-6 py-2 text-white/70 flex items-center">
-                          <SearchIcon size={28} strokeWidth={2} />
+                          <SearchIcon size={28} strokeWidth={2} aria-hidden="true" />
                         </div>
 
                         {/* Country selector for phone */}
                         {PaidSearch === "Phone" && (
-                          <div className="flex-shrink-0  relative z-100 border-r border-white/10 pr-4 flex items-center">
+                          <div 
+                            className="flex-shrink-0 relative z-100 border-r border-white/10 pr-4 flex items-center"
+                            role="region"
+                            aria-label="Country Code Selection"
+                          >
                             <CountrySelect
                               value={countryCode}
                               onChange={setCountryCode}
                               onDigitsChange={setCountryCodeDigits}
+                              aria-label="Select Country Code"
                             />
                           </div>
                         )}
@@ -285,6 +314,9 @@ export default function Profile() {
                                   value={input.value}
                                   className="bg-transparent border-none text-white text-2xl font-light placeholder:text-white/40 focus-visible:ring-0 px-6 py-8 w-full"
                                   disabled={userData.credits < miniCredits}
+                                  aria-label={`Enter ${input.datatype} for search`}
+                                  aria-invalid={!!(emailError || phoneError)}
+                                  aria-describedby={emailError ? "email-error" : phoneError ? "phone-error" : undefined}
                                 />
                               </div>
                             </TooltipTrigger>
@@ -299,8 +331,9 @@ export default function Profile() {
                           <button
                             onClick={() => setInput((prev) => ({ ...prev, value: "" }))}
                             className="flex-shrink-0 p-6 text-white/50 hover:text-white transition-all duration-200 hover:bg-white/5 rounded-lg mr-2 flex items-center"
+                            aria-label="Clear search input"
                           >
-                            <X size={24} strokeWidth={2} />
+                            <X size={24} strokeWidth={2} aria-hidden="true" />
                           </button>
                         )}
 
@@ -339,11 +372,12 @@ export default function Profile() {
                               (PaidSearch === "Phone" && typeofsearch === "Basic") ||
                               userData.credits < miniCredits
                             }
+                            aria-label="Perform Search"
                           >
                             {/* Button shine effect */}
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"></div>
                             <span className="relative flex items-center gap-2">
-                              <Search size={20} strokeWidth={2.5} />
+                              <Search size={20} strokeWidth={2.5} aria-hidden="true" />
                               Search
                             </span>
                           </Button>
@@ -354,7 +388,10 @@ export default function Profile() {
 
                   {/* Search type indicator */}
                   <div className="flex justify-center mt-4">
-                    <span className="text-white/60 text-sm font-medium">
+                    <span 
+                      className="text-white/60 text-sm font-medium"
+                      aria-live="polite"
+                    >
                       {typeofsearch} Search • {PaidSearch} Lookup
                     </span>
                   </div>
@@ -362,17 +399,28 @@ export default function Profile() {
 
                 {/* Error Messages */}
                 {PaidSearch === "Email" && input.value && emailError && (
-                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm flex justify-center">
+                  <div 
+                    className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm flex justify-center"
+                    role="alert"
+                    id="email-error"
+                  >
                     <p className="text-red-400 text-sm text-center">{emailError}</p>
                   </div>
                 )}
                 {PaidSearch === "Phone" && input.value && phoneError && (
-                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm flex justify-center">
+                  <div 
+                    className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm flex justify-center"
+                    role="alert"
+                    id="phone-error"
+                  >
                     <p className="text-red-400 text-sm text-center">{phoneError}</p>
                   </div>
                 )}
                 {userData.credits < miniCredits && (
-                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm flex justify-center">
+                  <div 
+                    className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 backdrop-blur-sm flex justify-center"
+                    role="alert"
+                  >
                     <p className="text-red-400 text-sm text-center">{creditsError}</p>
                   </div>
                 )}
@@ -386,11 +434,16 @@ export default function Profile() {
                   input={input}
                   PaidSearch={PaidSearch}
                   typeofsearch={typeofsearch}
+                  aria-label="Search Type Options"
                 />
               </div>
 
               {/* Demo Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
+              <div 
+                className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8"
+                role="group"
+                aria-label="Demo Search Options"
+              >
                 <button
                   className="group flex items-center relative bg-zinc-900/80 backdrop-blur-sm hover:bg-zinc-800/80 text-white font-medium px-8 py-4 rounded-xl transition-all duration-300 border border-zinc-700/50 hover:border-zinc-600/50 hover:scale-105 w-full sm:w-auto shadow-lg"
                   onClick={() => {
@@ -408,9 +461,16 @@ export default function Profile() {
                     localStorage.setItem("searchData", JSON.stringify(data));
                     window.open("/result/Advance", "_blank");
                   }}
+                  aria-label="Demo Advanced Search"
                 >
                   <span className="flex items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg 
+                      className="w-5 h-5" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -439,9 +499,16 @@ export default function Profile() {
                     localStorage.setItem("searchData", JSON.stringify(data));
                     window.open("/result/Basic", "_blank");
                   }}
+                  aria-label="Demo Basic Search"
                 >
                   <span className="flex items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg 
+                      className="w-5 h-5" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -456,7 +523,7 @@ export default function Profile() {
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
