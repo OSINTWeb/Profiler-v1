@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Linkedin, MessageCircle, X, Youtube, Mail, MapPin } from "lucide-react";
 import { useUser } from "@auth0/nextjs-auth0";
 
@@ -28,7 +28,7 @@ export const Footer = () => {
       return (
       <footer className="w-full flex justify-center items-center min-h-screen py-8">
         {/* Centered Footer Container */}
-        <div className="max-w-6xl mx-auto p-8 lg:p-16 bg-gradient-to-b from-black to-zinc-900 border border-white/20 rounded-2xl shadow-2xl text-white">
+        <div className="max-w-6xl mx-auto p-8 lg:p-16 bg-gradient-to-b from-background to-card border border-border rounded-2xl shadow-2xl text-foreground">
           {/* Main Footer Content */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Logo and Contact Section */}
@@ -49,7 +49,7 @@ export const Footer = () => {
               </a>
             </div>
 
-            <p className="text-gray-300 mb-6">
+            <p className="text-muted-foreground mb-6">
               We provide advanced digital intelligence tools for investigators, researchers, and
               security professionals.
             </p>
@@ -57,7 +57,7 @@ export const Footer = () => {
             <div className="space-y-4">
               <a
                 href="mailto:hi@profiler.me"
-                className="flex items-center text-gray-300 hover:text-white transition-all group"
+                className="flex items-center text-muted-foreground hover:text-foreground transition-all group"
                 target="_blank"
               >
                 <Mail className="mr-3 h-5 w-5 group-hover:text-blue-400" />
@@ -68,7 +68,7 @@ export const Footer = () => {
 
               <a
                 href="https://api.whatsapp.com/send/?phone=919991256829&text&type=phone_number&app_absent=0"
-                className="flex items-center text-gray-300 hover:text-white transition-all group"
+                className="flex items-center text-muted-foreground hover:text-foreground transition-all group"
                 target="_blank"
               >
                 <MessageCircle className="mr-3 h-5 w-5 group-hover:text-blue-400" />
@@ -77,8 +77,8 @@ export const Footer = () => {
                 </span>
               </a>
 
-              <div className="flex items-center text-gray-300">
-                <MapPin className="mr-3 h-5 w-5 text-gray-400" />
+              <div className="flex items-center text-muted-foreground">
+                <MapPin className="mr-3 h-5 w-5 text-muted-foreground" />
                 <span>New Delhi, India</span>
               </div>
             </div>
@@ -86,7 +86,7 @@ export const Footer = () => {
 
           {/* Quick Navigation */}
           <div className="flex flex-col">
-            <h3 className="text-xl font-bold mb-6 text-white relative">
+            <h3 className="text-xl font-bold mb-6 text-foreground relative">
               <span className="h-1 w-10 absolute -bottom-2 left-0"></span>
               Explore
             </h3>
@@ -94,7 +94,7 @@ export const Footer = () => {
               <li>
                 <a
                   href="https://profiler.me/demo"
-                  className="text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -104,7 +104,7 @@ export const Footer = () => {
               <li>
                 <a
                   href="https://profiler.me/blog"
-                  className="text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -114,7 +114,7 @@ export const Footer = () => {
               <li>
                 <a
                   href="https://profiler.me/features"
-                  className="text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -124,7 +124,7 @@ export const Footer = () => {
               <li>
                 <a
                   href="https://profiler.me/pricing"
-                  className="text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -135,7 +135,7 @@ export const Footer = () => {
           </div>
 
           <div className="flex flex-col">
-            <h3 className="text-xl font-bold mb-6 text-white relative">
+            <h3 className="text-xl font-bold mb-6 text-foreground relative">
               <span className="h-1 w-10 absolute -bottom-2 left-0"></span>
               Try Now
             </h3>
@@ -143,7 +143,7 @@ export const Footer = () => {
               <li>
                 <a
                   href="https://profiler.me/free"
-                  className="text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -153,7 +153,7 @@ export const Footer = () => {
               <li>
                 <a
                   href="https://profiler.me/freemium"
-                  className="text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -163,7 +163,7 @@ export const Footer = () => {
               <li>
                 <a
                   href="https://profiler.me/paid"
-                  className="text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -173,7 +173,7 @@ export const Footer = () => {
               <li>
                 <a
                   href="https://profiler.me/emailtool"
-                  className="text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -183,7 +183,7 @@ export const Footer = () => {
               <li>
                 <a
                   href="https://profiler.me/phonetool"
-                  className="text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -193,7 +193,7 @@ export const Footer = () => {
               <li>
                 <a
                   href="https://profiler.me/usernametool"
-                  className="text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -203,7 +203,7 @@ export const Footer = () => {
               <li>
                 <a
                   href="mailto:support@profiler.me"
-                  className="text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -215,7 +215,7 @@ export const Footer = () => {
 
           {/* Company & Social + Authentication */}
           <div className="flex flex-col">
-            <h3 className="text-xl font-bold mb-6 text-white relative">
+            <h3 className="text-xl font-bold mb-6 text-foreground relative">
               <span className="h-1 w-10 absolute -bottom-2 left-0"></span>
               Company
             </h3>
@@ -223,7 +223,7 @@ export const Footer = () => {
               <li>
                 <a
                   href="https://profiler.me/about"
-                  className="text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -234,7 +234,7 @@ export const Footer = () => {
               <li>
                 <a
                   href="https://profiler.me/contact"
-                  className="text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -244,7 +244,7 @@ export const Footer = () => {
               <li>
                 <a
                   href="mailto:hi@profiler.me"
-                  className="text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                  className="text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -256,27 +256,27 @@ export const Footer = () => {
             {/* Authentication Section */}
             {!isLoading && (
               <div className="mb-8">
-                <h3 className="text-xl font-bold mb-4 text-white">Account</h3>
+                <h3 className="text-xl font-bold mb-4 text-foreground">Account</h3>
                 <div className="space-y-3">
                   {isAuthenticated && user ? (
                     <>
-                      <div className="text-gray-300 text-sm mb-3">
+                      <div className="text-muted-foreground text-sm mb-3">
                         Welcome, {user.name || user.nickname || user.given_name || "User"}!
                       </div>
                       <div className="flex flex-col gap-2">
                         <button
                           onClick={toDashboard}
-                          className="text-left text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                          className="text-left text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                         >
                           Dashboard
                         </button>
                         <button
                           onClick={toProfile}
-                          className="text-left text-gray-300 hover:text-white transition-all hover:translate-x-1 inline-block"
+                          className="text-left text-muted-foreground hover:text-foreground transition-all hover:translate-x-1 inline-block"
                         >
                           Profile
                         </button>
-                        <div className="text-gray-400 text-sm">
+                        <div className="text-muted-foreground text-sm">
                           Credits: ${user?.credits?.toFixed(2)}
                         </div>
                         <button
@@ -299,40 +299,40 @@ export const Footer = () => {
               </div>
             )}
 
-            <h3 className="text-xl font-bold mb-4 text-white">Connect With Us</h3>
+            <h3 className="text-xl font-bold mb-4 text-foreground">Connect With Us</h3>
             <div className="flex flex-wrap gap-3">
               <a
                 href="https://www.linkedin.com/company/osintambition/?originalSubdomain=in"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-gradient-to-br from-zinc-800 to-zinc-900 p-2.5 rounded-lg hover:scale-110 transition-all border border-zinc-700/30 hover:border-zinc-600/50 shadow-lg"
+                className="bg-gradient-to-br from-muted to-card p-2.5 rounded-lg hover:scale-110 transition-all border border-border hover:border-border shadow-lg"
               >
-                <Linkedin size={25} className="text-white font-bold " />
+                <Linkedin size={25} className="text-foreground font-bold " />
               </a>
               <a
                 href="https://x.com/osintambition"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-gradient-to-br from-zinc-800 to-zinc-900 p-2.5 rounded-lg hover:scale-110 transition-all border border-zinc-700/30 hover:border-zinc-600/50 shadow-lg"
+                className="bg-gradient-to-br from-muted to-card p-2.5 rounded-lg hover:scale-110 transition-all border border-border hover:border-border shadow-lg"
               >
-                <X size={25} className="text-white font-bold " />
+                <X size={25} className="text-foreground font-bold " />
               </a>
               <a
                 href="https://www.youtube.com/channel/UCxi_L9SyoUdtbKd8OrG0V7w"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-gradient-to-br from-zinc-800 to-zinc-900 p-2.5 rounded-lg hover:scale-110 transition-all border border-zinc-700/30 hover:border-zinc-600/50 shadow-lg"
+                className="bg-gradient-to-br from-muted to-card p-2.5 rounded-lg hover:scale-110 transition-all border border-border hover:border-border shadow-lg"
               >
-                <Youtube size={25} className="text-white font-bold " />
+                <Youtube size={25} className="text-foreground font-bold " />
               </a>
             </div>
           </div>
         </div>
 
         {/* Bottom Footer */}
-        <div className="border-t border-zinc-800 mt-12 pt-8">
+        <div className="border-t border-border mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-gray-400 text-sm text-center md:text-left">
+            <div className="text-muted-foreground text-sm text-center md:text-left">
               © {currentYear} Made with 🤍 by OSINTAmbition.
             </div>
             {/* Quick Auth Actions in Bottom Footer */}
@@ -340,7 +340,7 @@ export const Footer = () => {
               <div className="flex items-center gap-4">
                 {isAuthenticated && user ? (
                   <div className="flex items-center gap-4 text-sm">
-                    <span className="text-gray-400">{user.name || user.nickname || "User"}</span>
+                    <span className="text-muted-foreground">{user.name || user.nickname || "User"}</span>
                     <button
                       onClick={handleLogout}
                       className="text-red-400 hover:text-red-300 transition-colors"

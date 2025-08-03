@@ -146,7 +146,7 @@ interface InfoStealerData {
 interface ApiResult {
   tool: string;
   query: string;
-  data: string | TikTokData | GravatarData | LinkookData | InfoStealerData | BreachGuardData | null;
+  data: string | TikTokData | GravatarData | LinkookData | InfoStealerData | BreachGuardData ;
   error?: string;
   loading: boolean;
   timestamp: number;

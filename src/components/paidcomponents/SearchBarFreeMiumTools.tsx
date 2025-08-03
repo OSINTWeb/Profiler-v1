@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Search, ChevronDown, X } from "lucide-react";
+import { Search, ChevronDown, X, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchFreeTools } from "@/types/types";
 import FreemiumTools from "@/components/Results/FreemiumTools";
 import emailIntelDemo from "public/Data/Emailintel.json";
 import mail2LinkedinDemo from "public/Data/Mail2Linkedin.json";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 // Define ApiResult interface locally
 interface ApiResult {
   tool: string;
@@ -182,42 +184,58 @@ export default function SearchBarFreeMiumTools() {
   return (
     <div className={`w-full max-w-7xl mx-auto px-4 `}>
       {/* Tool Selection and Search Controls */}
-      <div className="mb-4 text-center">
-        <h3 className="text-xl font-semibold text-teal-400">Each search costs $0.05</h3>
-      </div>
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         {/* Tool Selection Dropdown */}
-        <div className="relative">
+        <div className="relative w-full sm:w-auto">
           <Button
             variant="outline"
             onClick={() => setIsOpen(!isOpen)}
-            className="min-w-[200px] justify-between bg-zinc-900 border-zinc-700 text-white hover:bg-zinc-800 hover:border-zinc-600 transition-all duration-300"
+            className={`w-full min-w-[220px] justify-between bg-zinc-900 border-zinc-700 text-white 
+              hover:bg-gradient-to-r hover:from-teal-900/80 hover:to-zinc-800/90 
+              hover:border-teal-500 focus:ring-2 focus:ring-teal-400/40
+              transition-all duration-200 shadow-md group h-14 rounded-xl text-base`}
+            aria-haspopup="listbox"
+            aria-expanded={isOpen}
+            tabIndex={0}
           >
             <div className="flex items-center gap-2">
-              <span className="text-lg">🔍</span>
-              <span>{selectedTool || "Select a Tool"}</span>
+              <span className="text-xl group-hover:scale-110 transition-transform duration-200">🔍</span>
+              <span className={`transition-colors duration-200 ${selectedTool ? "" : "text-zinc-400 group-hover:text-white"}`}>
+                {selectedTool || "Select a Tool"}
+              </span>
             </div>
             <ChevronDown
-              className={`h-4 w-4 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+              className={`h-5 w-5 transition-transform duration-300 ${isOpen ? "rotate-180" : ""} group-hover:text-teal-400`}
             />
           </Button>
 
           {isOpen && (
-            <div className="absolute top-full left-0 mt-2 w-full bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl z-50 overflow-hidden max-h-60 overflow-y-auto">
+            <div 
+              className="absolute top-full left-0 mt-2 w-full bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl z-50 overflow-hidden max-h-80 overflow-y-auto animate-fadeIn"
+              role="listbox"
+            >
               {FreeTools.map((tool) => (
                 <button
                   key={tool.title}
                   onClick={() => handleToolSelect(tool.title)}
-                  className={`w-full px-4 py-3 text-left text-sm hover:bg-zinc-800 transition-all duration-200 flex items-center gap-3 ${
-                    selectedTool === tool.title
-                      ? "bg-zinc-700 text-white border-l-4 border-blue-500"
-                      : "text-zinc-300"
-                  }`}
+                  role="option"
+                  aria-selected={selectedTool === tool.title}
+                  className={`
+                    w-full px-5 py-4 text-left text-base flex items-center gap-4
+                    transition-all duration-150
+                    ${
+                      selectedTool === tool.title
+                        ? "bg-gradient-to-r from-teal-900/80 to-zinc-800/90 text-white border-l-4 border-teal-500 shadow-inner"
+                        : "text-zinc-300 hover:bg-zinc-800/80 hover:text-white hover:pl-8"
+                    }
+                    focus:outline-none focus:bg-teal-900/60
+                  `}
+                  tabIndex={0}
                 >
-                  <span className="text-lg">🔧</span>
+                  <span className={`text-xl transition-transform duration-150 ${selectedTool === tool.title ? "scale-110" : "group-hover:scale-105"}`}>🔧</span>
                   <div className="flex flex-col">
-                    <span className="font-medium">{tool.title}</span>
-                    <span className="text-xs text-zinc-400">{tool.description}</span>
+                    <span className="font-semibold">{tool.title}</span>
+                    <span className="text-sm text-zinc-400">{tool.description}</span>
                   </div>
                 </button>
               ))}
@@ -227,24 +245,34 @@ export default function SearchBarFreeMiumTools() {
 
         {/* Search Bar */}
         <div className="relative flex-1 flex gap-2">
-          <Input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-            }}
-            placeholder={
-              selectedTool ? getInputPlaceholder(selectedTool) : "Select a tool first..."
-            }
-            disabled={!selectedTool}
-            className={`pl-12 bg-zinc-900 text-white placeholder:text-zinc-400 h-12 text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
-              showValidation
-                ? inputIsValid
-                  ? "border-green-500 focus:border-green-500 focus:ring-green-500/20"
-                  : "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                : "border-zinc-700 focus:border-blue-500 focus:ring-blue-500/20"
-            }`}
-          />
+          <div className="relative flex-1">
+            <Input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && selectedTool && searchQuery.trim() && inputIsValid) {
+                  fetchData(searchQuery, selectedTool);
+                }
+              }}
+              placeholder={
+                selectedTool ? getInputPlaceholder(selectedTool) : "Select a tool first..."
+              }
+              disabled={!selectedTool}
+              className={`pl-12 bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-400 h-12 text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
+                showValidation
+                  ? inputIsValid
+                    ? "border-green-500 focus:border-green-500 focus:ring-green-500/20"
+                    : "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                  : "border-zinc-700 focus:border-teal-500 focus:ring-teal-500/20"
+              }`}
+              aria-label="Search query"
+              aria-required={!!selectedTool}
+            />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5" />
+          </div>
 
           {/* Input validation feedback */}
           {showValidation && !inputIsValid && (
@@ -255,21 +283,41 @@ export default function SearchBarFreeMiumTools() {
             </div>
           )}
 
-          <Button
-            onClick={() => {
-              if (selectedTool && searchQuery.trim() && inputIsValid) {
-                fetchData(searchQuery, selectedTool);
-              }
-            }}
-            disabled={!selectedTool || !searchQuery.trim() || !inputIsValid || isLoading}
-            className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-8 h-12 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
-          >
-            <Search className="w-5 h-5" />
-            <span>Search</span>
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={() => {
+                    if (selectedTool && searchQuery.trim() && inputIsValid) {
+                      fetchData(searchQuery, selectedTool);
+                    }
+                  }}
+                  disabled={!selectedTool || !searchQuery.trim() || !inputIsValid || isLoading}
+                  className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-8 h-12 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                  aria-label="Perform search"
+                >
+                  <Search className="w-5 h-5" />
+                  <span>Search</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {!selectedTool 
+                  ? "Select a tool first" 
+                  : !searchQuery.trim() 
+                    ? "Enter a search query" 
+                    : !inputIsValid
+                      ? "Invalid input"
+                      : "Search"}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           {/* Demo Result Button */}
           <Button
             type="button"
+            variant="outline"
+            className="h-12 px-4 bg-zinc-800 border-zinc-600 text-zinc-300 hover:bg-zinc-700 ml-2"
+            disabled={!(selectedTool === "EmailIntel" || selectedTool === "Mail2Linkedin") || isLoading}
             onClick={() => {
               let demoData = null;
               const tool = selectedTool;
@@ -296,22 +344,19 @@ export default function SearchBarFreeMiumTools() {
                 setError(null);
               }
             }}
-            disabled={
-              !(selectedTool === "EmailIntel" || selectedTool === "Mail2Linkedin") || isLoading
-            }
-            className="bg-[#18181B] hover:bg-[#202023] text-white px-4 h-12 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-semibold shadow-lg hover:shadow-xl"
           >
             Demo Result
           </Button>
         </div>
       </div>
 
-      {/* Selected Tool Info */}
-
       {/* Instructions */}
       {!selectedTool && results.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-zinc-400 text-lg mb-2">Select a tool to get started</div>
+        <div className="text-center py-12 bg-zinc-900/50 rounded-xl">
+          <div className="text-zinc-400 text-lg mb-2 flex justify-center items-center gap-2">
+            <Info className="w-6 h-6 text-teal-500" />
+            Select a tool to get started
+          </div>
           <div className="text-zinc-500 text-sm">
             Choose a tool from the dropdown above to begin searching
           </div>
@@ -328,6 +373,7 @@ export default function SearchBarFreeMiumTools() {
               variant="outline"
               size="sm"
               className="bg-zinc-800 border-zinc-600 text-zinc-300 hover:bg-zinc-700"
+              aria-label="Clear search results"
             >
               <X className="w-4 h-4 mr-2" />
               Clear
@@ -342,7 +388,7 @@ export default function SearchBarFreeMiumTools() {
                 <p className="text-red-300 text-sm mb-3">{error}</p>
                 <Button
                   onClick={() => {
-                    if (selectedTool && searchQuery.trim()) {
+                    if (selectedTool && searchQuery.trim() && inputIsValid) {
                       fetchData(searchQuery, selectedTool);
                     }
                   }}
@@ -361,13 +407,17 @@ export default function SearchBarFreeMiumTools() {
       {(results.length > 0 || isLoading) && !error && (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-white">Search Results</h2>
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              Search Results
+              <span className="text-teal-400">{selectedTool}</span>
+            </h2>
             <Button
               onClick={clearResults}
               variant="outline"
               size="sm"
               className="bg-zinc-800 border-zinc-600 text-zinc-300 hover:bg-zinc-700"
               disabled={isLoading}
+              aria-label="Clear search results"
             >
               <X className="w-4 h-4 mr-2" />
               Clear All

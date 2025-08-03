@@ -11,12 +11,12 @@ export default function TransactionHistoryLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-black">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="container mx-auto px-4 py-8 flex-1 flex flex-col">
+        <div className="max-w-6xl w-full mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Transaction History</h1>
-            <p className="text-gray-400">View and manage your payment transactions</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Transaction History</h1>
+            <p className="text-muted-foreground">View and manage your payment transactions</p>
           </div>
           {children}
         </div>

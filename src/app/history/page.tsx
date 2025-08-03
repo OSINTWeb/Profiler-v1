@@ -107,13 +107,13 @@ export default function SearchHistoryPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "text-white bg-white/20";
+        return "text-foreground bg-accent";
       case "failed":
         return "text-red-400 bg-red-500/20";
       case "processing":
         return "text-yellow-400 bg-yellow-500/20";
       default:
-        return "text-white/60 bg-white/10";
+        return "text-muted-foreground bg-muted";
     }
   };
 
@@ -131,21 +131,21 @@ export default function SearchHistoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background">
       <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 p-2">
-        <div className="bg-zinc-900/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center">
-          <h3 className="text-white/60 text-sm font-medium mb-2">Total Searches</h3>
-          <p className="text-3xl font-bold text-white">{searchHistory.length}</p>
+        <div className="bg-card backdrop-blur-sm border border-border rounded-2xl p-6 text-center">
+          <h3 className="text-muted-foreground text-sm font-medium mb-2">Total Searches</h3>
+          <p className="text-3xl font-bold text-foreground">{searchHistory.length}</p>
         </div>
-        <div className="bg-zinc-900/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center">
-          <h3 className="text-white/60 text-sm font-medium mb-2">Successful</h3>
-          <p className="text-3xl font-bold text-white">
+        <div className="bg-card backdrop-blur-sm border border-border rounded-2xl p-6 text-center">
+          <h3 className="text-muted-foreground text-sm font-medium mb-2">Successful</h3>
+          <p className="text-3xl font-bold text-foreground">
             {searchHistory.filter((item) => item.status === "completed").length}
           </p>
         </div>
-        <div className="bg-zinc-900/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center">
-          <h3 className="text-white/60 text-sm font-medium mb-2">Total Results</h3>
-          <p className="text-3xl font-bold text-white">
+        <div className="bg-card backdrop-blur-sm border border-border rounded-2xl p-6 text-center">
+          <h3 className="text-muted-foreground text-sm font-medium mb-2">Total Results</h3>
+          <p className="text-3xl font-bold text-foreground">
             {searchHistory.reduce((total, item) => total + item.resultsFound, 0)}
           </p>
         </div>
@@ -153,18 +153,18 @@ export default function SearchHistoryPage() {
       <div className="max-w-6xl mx-auto p-4 py-8">
         {/* Summary Stats */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-2 flex items-center justify-center gap-3">
+          <h1 className="text-4xl font-bold text-foreground mb-2 flex items-center justify-center gap-3">
             <Clock size={40} />
             Search History
           </h1>
-          <p className="text-white/60 text-lg">Review and manage your previous searches</p>
+          <p className="text-muted-foreground text-lg">Review and manage your previous searches</p>
         </div>
 
         {/* Filters and Controls */}
         <div className="mb-8">
           <div className="relative mb-6">
-            <div className="absolute -inset-1 bg-gradient-to-r from-white/20 to-zinc-300/20 rounded-2xl blur-lg opacity-30"></div>
-            <div className="relative bg-zinc-900/80 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+            <div className="absolute -inset-1 bg-gradient-to-r from-accent/20 to-muted/20 rounded-2xl blur-lg opacity-30"></div>
+            <div className="relative bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-6">
               <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                 {/* Filter Buttons */}
                 <div className="flex gap-2">
@@ -174,8 +174,8 @@ export default function SearchHistoryPage() {
                       onClick={() => setFilter(filterType)}
                       className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
                         filter === filterType
-                          ? "bg-white text-black"
-                          : "bg-white/10 text-white hover:bg-white/20"
+                          ? "bg-foreground text-background"
+                          : "bg-muted text-foreground hover:bg-accent"
                       }`}
                     >
                       {filterType === "all" ? "All Searches" : `${filterType} Search`}
@@ -184,7 +184,7 @@ export default function SearchHistoryPage() {
                 </div>
 
                 {/* Search Stats */}
-                <div className="flex items-center gap-6 text-white/60">
+                <div className="flex items-center gap-6 text-muted-foreground">
                   <span className="flex items-center gap-2">
                     <Search size={16} />
                     {filteredHistory.length} searches
@@ -203,14 +203,14 @@ export default function SearchHistoryPage() {
         <div className="space-y-4">
           {filteredHistory.length === 0 ? (
             <div className="text-center py-16">
-              <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search size={32} className="text-white/50" />
+              <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
+                <Search size={32} className="text-muted-foreground" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2">No searches found</h3>
-              <p className="text-white/60 mb-6">Try adjusting your filters or start a new search</p>
+              <h3 className="text-2xl font-bold text-foreground mb-2">No searches found</h3>
+              <p className="text-muted-foreground mb-6">Try adjusting your filters or start a new search</p>
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 bg-white text-black font-semibold px-6 py-3 rounded-xl hover:bg-zinc-200 transition-all duration-200"
+                className="inline-flex items-center gap-2 bg-foreground text-background font-semibold px-6 py-3 rounded-xl hover:bg-muted-foreground transition-all duration-200"
               >
                 <Search size={20} />
                 Start New Search
@@ -220,10 +220,10 @@ export default function SearchHistoryPage() {
             filteredHistory.map((item) => (
               <div key={item.id} className="group relative">
                 {/* Glow effect on hover */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-white/10 to-zinc-300/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-accent/10 to-muted/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
 
                 <div
-                  className="relative bg-zinc-900/80 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all duration-300 cursor-pointer"
+                  className="relative bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-6 hover:border-border transition-all duration-300 cursor-pointer"
                   onClick={() => {
                     // Store search data for preview
                     const previewData = {
@@ -242,12 +242,12 @@ export default function SearchHistoryPage() {
                       <div className="flex items-center gap-4 mb-3">
                         {/* Search Query */}
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
-                            <Search size={20} className="text-white/70" />
+                          <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
+                            <Search size={20} className="text-muted-foreground" />
                           </div>
                           <div>
-                            <h3 className="text-white font-semibold text-lg">{item.query}</h3>
-                            <p className="text-white/60 text-sm">
+                            <h3 className="text-foreground font-semibold text-lg">{item.query}</h3>
+                            <p className="text-muted-foreground text-sm">
                               {item.type} • {item.searchType} Search
                             </p>
                           </div>
@@ -257,8 +257,8 @@ export default function SearchHistoryPage() {
                         <div
                           className={`px-3 py-1 rounded-full text-sm font-medium ${
                             item.type === "Advance"
-                              ? "bg-white/20 text-white"
-                              : "bg-zinc-700/50 text-zinc-300"
+                              ? "bg-accent text-foreground"
+                              : "bg-muted text-muted-foreground"
                           }`}
                         >
                           {item.type}
@@ -266,7 +266,7 @@ export default function SearchHistoryPage() {
                       </div>
 
                       {/* Search Meta Info */}
-                      <div className="flex items-center gap-6 text-white/50 text-sm">
+                      <div className="flex items-center gap-6 text-muted-foreground text-sm">
                         <span className="flex items-center gap-2">
                           <Clock size={14} />
                           {item.date} at {item.time}
@@ -290,7 +290,7 @@ export default function SearchHistoryPage() {
                     <div className="flex items-center gap-2 ml-4">
                       {item.status === "completed" && (
                         <button
-                          className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+                          className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all duration-200"
                           title="View Results"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -308,7 +308,7 @@ export default function SearchHistoryPage() {
                         </button>
                       )}
                       <button
-                        className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+                        className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all duration-200"
                         title="Re-run Search"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -324,7 +324,7 @@ export default function SearchHistoryPage() {
                         <RefreshCw size={18} />
                       </button>
                       <button
-                        className="p-2 text-white/60 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200"
+                        className="p-2 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200"
                         title="Delete"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -337,7 +337,7 @@ export default function SearchHistoryPage() {
                         <Trash2 size={18} />
                       </button>
                       <button
-                        className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+                        className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-all duration-200"
                         title="View Preview"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -365,7 +365,7 @@ export default function SearchHistoryPage() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
           <Link
             href="/"
-            className="group relative bg-white text-black font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:scale-105 text-center"
+            className="group relative bg-foreground text-background font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:scale-105 text-center"
           >
             <span className="flex items-center justify-center gap-2">
               <Search size={20} />
@@ -373,7 +373,7 @@ export default function SearchHistoryPage() {
             </span>
           </Link>
           <button
-            className="group relative bg-zinc-900/80 backdrop-blur-sm border border-white/20 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:scale-105 hover:bg-zinc-800/80 text-center"
+            className="group relative bg-card/80 backdrop-blur-sm border border-border text-foreground font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:scale-105 hover:bg-accent text-center"
             onClick={() => {
               // This would typically clear the history
               alert("Clear history functionality would be implemented here");

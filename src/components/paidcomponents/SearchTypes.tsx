@@ -71,7 +71,7 @@ export function SearchTypes({
       {/* Free Tools Grid */}
       {selected === "Free" && (
         <section className="w-full max-w-7xl mx-auto px-4 flex flex-col items-center justify-center gap-4" aria-label="Free Tools">
-          {Credits < 8 ? (
+          {Credits > 8 ? (
             <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list">
               {FreeTools.map((tool, index) => {
                 const isUserFindr = tool.title.toLowerCase() === "userfindr";
@@ -136,7 +136,7 @@ export function SearchTypes({
       {/* Premium Tools Grid */}
       {selected === "Freemium" && (
         <section className="w-full max-w-7xl mx-auto px-4" aria-label="Freemium Tools">
-          {Credits < 8 ? (
+          {Credits > 8 ? (
             <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6" role="list">
               {FreemiumTools.map((tool, index) => (
                 <li

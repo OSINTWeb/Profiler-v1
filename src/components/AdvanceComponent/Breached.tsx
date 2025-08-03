@@ -69,7 +69,7 @@ const ImageWithFallback = ({
         <div
           className={cn(
             className,
-            "flex items-center justify-center bg-surface-light text-white font-medium"
+            "flex items-center justify-center bg-muted text-foreground font-medium"
           )}
         >
           {fallbackInitials}
@@ -118,7 +118,7 @@ const PlatformCard = ({ spec, module }: { spec: SpecFormat; module: string }) =>
         className={cn(
           "relative overflow-hidden cursor-pointer ",
           "backdrop-blur-md backdrop-saturate-150",
-          "bg-gradient-to-br from-[#0f0f12] to-[#131315] border border-white/20",
+          "bg-gradient-to-br from-background to-card border border-border",
           "rounded-2xl transition-all duration-300"
         )}
         onMouseEnter={() => setIsHovered(true)}
@@ -137,7 +137,7 @@ const PlatformCard = ({ spec, module }: { spec: SpecFormat; module: string }) =>
 
         {/* Content */}
         <div className="relative p-6 flex flex-col items-center">
-          <div className="w-20 h-20 overflow-hidden mb-4 ring-2 ring-white/20 ring-offset-2 ring-offset-black/50">
+          <div className="w-20 h-20 overflow-hidden mb-4 ring-2 ring-border ring-offset-2 ring-offset-background/50">
             <ImageWithFallback
               src={getPictureUrl(spec)}
               alt={getName(spec)}
@@ -145,11 +145,11 @@ const PlatformCard = ({ spec, module }: { spec: SpecFormat; module: string }) =>
             />
           </div>
 
-          <h3 className="text-base font-medium text-white mb-2">{getName(spec)}</h3>
+          <h3 className="text-base font-medium text-foreground mb-2">{getName(spec)}</h3>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/20 backdrop-blur-md border border-white/10">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/20 backdrop-blur-md border border-border">
             <Globe size={12} className="text-blue-400" />
-            <span className="text-xs text-gray-300">{module}</span>
+            <span className="text-xs text-muted-foreground">{module}</span>
           </div>
         </div>
       </motion.div>
@@ -203,20 +203,20 @@ const ViewMoreModal = ({
           onClick={(e) => e.stopPropagation()}
         >
           {/* Glassmorphism background */}
-          <div className="absolute inset-0 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/20" />
+          <div className="absolute inset-0 bg-background/10 backdrop-blur-2xl backdrop-saturate-150 border border-border" />
 
           {/* Content */}
           <div className="relative">
-            <div className="flex items-center justify-between p-6 border-b border-white/10">
+            <div className="flex items-center justify-between p-6 border-b border-border">
               <div className="flex items-center gap-4">
                 <div className="h-8 w-1 bg-gradient-to-b from-blue-400 to-purple-400 rounded-full" />
-                <h2 className="text-2xl font-medium text-white">All Breached Accounts</h2>
+                <h2 className="text-2xl font-medium text-foreground">All Breached Accounts</h2>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl hover:bg-white/10 transition-colors"
+                className="p-2 rounded-xl hover:bg-accent transition-colors"
               >
-                <X className="w-6 h-6 text-white/70" />
+                <X className="w-6 h-6 text-muted-foreground" />
               </button>
             </div>
 
@@ -272,7 +272,7 @@ const BreachedAccount = ({ userData }: BreachedAccountProps) => {
 
   return (
     <div className="w-full h-full animate-scale-in p-4">
-      <div className="relative rounded-2xl border border-white/50 overflow-hidden">
+      <div className="relative rounded-2xl border border-border overflow-hidden">
         {/* Glassmorphism background */}
         <div className="absolute inset-0 backdrop-blur-2xl backdrop-saturate-150 " />
        
@@ -280,13 +280,13 @@ const BreachedAccount = ({ userData }: BreachedAccountProps) => {
         <div className="relative p-8">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
-              <div className="h-8 w-1 bg-gradient-to-b from-slate-400 to-slate-900 rounded-full" />
-              <h2 className="text-2xl font-medium text-white">Breached Accounts</h2>
+              <div className="h-8 w-1 bg-gradient-to-b from-muted-foreground to-muted rounded-full" />
+              <h2 className="text-2xl font-medium text-foreground">Breached Accounts</h2>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent backdrop-blur-sm border border-border">
                 <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
-                <p className="text-sm font-medium text-white/90">
+                <p className="text-sm font-medium text-foreground/90">
                   {allBreachedItems.length} found
                 </p>
               </div>
@@ -295,10 +295,10 @@ const BreachedAccount = ({ userData }: BreachedAccountProps) => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setIsViewMoreOpen(true)}
-                className="px-6 py-2.5 rounded-xl text-white/90 text-sm font-medium
+                className="px-6 py-2.5 rounded-xl text-foreground/90 text-sm font-medium
                           backdrop-blur-lg backdrop-saturate-150
-                         border border-white/20  
-                         transition-all duration-300 hover:bg-white/20 cursor-pointer"
+                         border border-border  
+                         transition-all duration-300 hover:bg-accent cursor-pointer"
               >
                 View All
               </motion.button>

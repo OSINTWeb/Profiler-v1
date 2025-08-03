@@ -77,21 +77,21 @@ export default function Profile() {
 
   return (
     <main 
-      className="min-h-screen bg-black flex flex-col items-center justify-start overflow-y-auto"
+      className="min-h-screen bg-background flex flex-col items-center justify-start overflow-y-auto"
       aria-label="Profile and Search Page"
     >
       <header 
         className="w-full flex justify-between py-4 px-6"
         aria-label="Page Navigation"
       >
-        <nav className="flex space-x-4">
+        <nav className="flex justify-between w-full space-x-4">
           <button
             onClick={() => window.open("/TransactionHistory", "_blank")}
-            className="group flex items-center gap-2 bg-zinc-900/80 backdrop-blur-sm border border-white/10 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:bg-zinc-800/80 shadow-lg"
+            className="group flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-border text-foreground font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:bg-accent shadow-lg"
             aria-label="Open Transaction History"
           >
             <svg
-              className="w-5 h-5 text-white/80 group-hover:text-white transition"
+              className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition"
               fill="none"
               stroke="currentColor"
               strokeWidth={2}
@@ -109,11 +109,11 @@ export default function Profile() {
 
           <button
             onClick={() => window.open("/history", "_blank")}
-            className="group flex items-center gap-2 bg-zinc-900/80 backdrop-blur-sm border border-white/10 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:bg-zinc-800/80 shadow-lg"
+            className="group flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-border text-foreground font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:bg-accent shadow-lg"
             aria-label="Open Search History"
           >
             <svg
-              className="w-5 h-5 text-white/80 group-hover:text-white transition"
+              className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition"
               fill="none"
               stroke="currentColor"
               strokeWidth={2}
@@ -152,9 +152,9 @@ export default function Profile() {
               role="radiogroup" 
               aria-label="Search Depth Selection"
             >
-              <div className="relative bg-zinc-900/50 backdrop-blur-sm border border-zinc-700/50 rounded-2xl p-2 shadow-2xl">
+              <div className="relative bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-2 shadow-2xl">
                 <div
-                  className="absolute top-2 bottom-2 bg-gradient-to-r from-white to-zinc-100 rounded-xl shadow-lg transition-all duration-300 ease-out"
+                  className="absolute top-2 bottom-2 bg-gradient-to-r from-foreground to-muted-foreground rounded-xl shadow-lg transition-all duration-300 ease-out"
                   style={{
                     width: `calc(50% - 4px)`,
                     left: typeofsearch === "Basic" ? "4px" : "calc(50% + 0px)",
@@ -174,8 +174,8 @@ export default function Profile() {
                         hover:scale-105 active:scale-95 min-w-[120px]
                         ${
                           typeofsearch === type
-                            ? "text-black font-bold shadow-lg"
-                            : "text-white hover:text-zinc-200"
+                            ? "text-background font-bold shadow-lg"
+                            : "text-foreground hover:text-muted-foreground"
                         }
                       `}
                     >
@@ -217,7 +217,7 @@ export default function Profile() {
 
                       <div
                         className={`text-xs mt-1 ${
-                          typeofsearch === type ? "text-zinc-600" : "text-zinc-400"
+                          typeofsearch === type ? "text-muted-foreground" : "text-muted-foreground"
                         }`}
                       >
                         {type === "Basic" ? "Quick Search" : "Deep Analysis"}
@@ -252,21 +252,21 @@ export default function Profile() {
                   <div>
                     {/* Search bar container */}
                     <div 
-                      className="flex flex-col bg-black border-2 border-white/20 rounded-2xl shadow-2xl backdrop-blur-sm"
+                      className="flex flex-col bg-background border-2 border-border rounded-2xl shadow-2xl backdrop-blur-sm"
                       role="search"
                       aria-label="Search Input"
                     >
                       {/* Inner border glow */}
-                      <div className="flex bg-gradient-to-r from-white/5 via-white/10 to-white/5 rounded-2xl w-full h-full absolute pointer-events-none" style={{zIndex: 0}}></div>
+                      <div className="flex bg-gradient-to-r from-accent/5 via-accent/10 to-accent/5 rounded-2xl w-full h-full absolute pointer-events-none" style={{zIndex: 0}}></div>
                       <div className="flex items-center w-full relative z-50">
-                        <div className="flex-shrink-0 px-6 py-2 text-white/70 flex items-center">
+                        <div className="flex-shrink-0 px-6 py-2 text-muted-foreground flex items-center">
                           <SearchIcon size={28} strokeWidth={2} aria-hidden="true" />
                         </div>
 
                         {/* Country selector for phone */}
                         {PaidSearch === "Phone" && (
                           <div 
-                            className="flex-shrink-0 relative z-100 border-r border-white/10 pr-4 flex items-center"
+                            className="flex-shrink-0 relative z-100 border-r border-border pr-4 flex items-center"
                             role="region"
                             aria-label="Country Code Selection"
                           >
@@ -283,7 +283,7 @@ export default function Profile() {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <div className="flex-1 flex items-center text-stone-500">
+                              <div className="flex-1 flex items-center text-muted-foreground">
                                 <Input
                                   type="text"
                                   placeholder={`Enter your ${input.datatype} to start searching...`}
@@ -312,7 +312,7 @@ export default function Profile() {
                                     }
                                   }}
                                   value={input.value}
-                                  className="bg-transparent border-none text-white text-2xl font-light placeholder:text-white/40 focus-visible:ring-0 px-6 py-8 w-full"
+                                  className="bg-transparent border-none text-foreground text-2xl font-light placeholder:text-muted-foreground focus-visible:ring-0 px-6 py-8 w-full"
                                   disabled={userData.credits < miniCredits}
                                   aria-label={`Enter ${input.datatype} for search`}
                                   aria-invalid={!!(emailError || phoneError)}
@@ -320,7 +320,7 @@ export default function Profile() {
                                 />
                               </div>
                             </TooltipTrigger>
-                            <TooltipContent className="bg-white text-black border-0 shadow-lg">
+                            <TooltipContent className="bg-background text-foreground border border-border shadow-lg">
                               <p className="font-medium">Enter your search query</p>
                             </TooltipContent>
                           </Tooltip>
@@ -330,7 +330,7 @@ export default function Profile() {
                         {input.value && (
                           <button
                             onClick={() => setInput((prev) => ({ ...prev, value: "" }))}
-                            className="flex-shrink-0 p-6 text-white/50 hover:text-white transition-all duration-200 hover:bg-white/5 rounded-lg mr-2 flex items-center"
+                            className="flex-shrink-0 p-6 text-muted-foreground hover:text-foreground transition-all duration-200 hover:bg-accent rounded-lg mr-2 flex items-center"
                             aria-label="Clear search input"
                           >
                             <X size={24} strokeWidth={2} aria-hidden="true" />
@@ -340,7 +340,7 @@ export default function Profile() {
                         {/* Search button integrated */}
                         <div className="flex-shrink-0 p-2 flex items-center">
                           <Button
-                            className="flex items-center relative overflow-hidden bg-white hover:bg-zinc-100 text-black font-bold px-8 py-6 text-lg rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg group border-0"
+                            className="flex items-center relative overflow-hidden bg-foreground hover:bg-muted-foreground text-background font-bold px-8 py-6 text-lg rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg group border-0"
                             onClick={() => {
                               const params = new URLSearchParams({
                                 PaidSearch: PaidSearch,
@@ -375,7 +375,7 @@ export default function Profile() {
                             aria-label="Perform Search"
                           >
                             {/* Button shine effect */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"></div>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-background/30 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none"></div>
                             <span className="relative flex items-center gap-2">
                               <Search size={20} strokeWidth={2.5} aria-hidden="true" />
                               Search
@@ -389,7 +389,7 @@ export default function Profile() {
                   {/* Search type indicator */}
                   <div className="flex justify-center mt-4">
                     <span 
-                      className="text-white/60 text-sm font-medium"
+                      className="text-muted-foreground text-sm font-medium"
                       aria-live="polite"
                     >
                       {typeofsearch} Search • {PaidSearch} Lookup
@@ -445,7 +445,7 @@ export default function Profile() {
                 aria-label="Demo Search Options"
               >
                 <button
-                  className="group flex items-center relative bg-zinc-900/80 backdrop-blur-sm hover:bg-zinc-800/80 text-white font-medium px-8 py-4 rounded-xl transition-all duration-300 border border-zinc-700/50 hover:border-zinc-600/50 hover:scale-105 w-full sm:w-auto shadow-lg"
+                  className="group flex items-center relative bg-card/80 backdrop-blur-sm hover:bg-accent text-foreground font-medium px-8 py-4 rounded-xl transition-all duration-300 border border-border hover:border-border hover:scale-105 w-full sm:w-auto shadow-lg"
                   onClick={() => {
                     if (!PaidSearch) {
                       alert("Please select a search type first");
@@ -483,7 +483,7 @@ export default function Profile() {
                 </button>
 
                 <button
-                  className="group flex items-center relative bg-zinc-900/80 backdrop-blur-sm hover:bg-zinc-800/80 text-white font-medium px-8 py-4 rounded-xl transition-all duration-300 border border-zinc-700/50 hover:border-zinc-600/50 hover:scale-105 w-full sm:w-auto shadow-lg"
+                  className="group flex items-center relative bg-card/80 backdrop-blur-sm hover:bg-accent text-foreground font-medium px-8 py-4 rounded-xl transition-all duration-300 border border-border hover:border-border hover:scale-105 w-full sm:w-auto shadow-lg"
                   onClick={() => {
                     if (!PaidSearch) {
                       alert("Please select a search type first");

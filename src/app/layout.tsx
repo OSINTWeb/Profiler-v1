@@ -20,9 +20,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />
       </head>
-      <body className="bg-black text-white">
+        <body className="bg-background text-foreground">
         <Header />
-
         {children}
         <Footer />
       </body>

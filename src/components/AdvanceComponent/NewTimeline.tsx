@@ -84,9 +84,6 @@ const isStringType = (value: string | number | boolean | undefined): value is st
 
 export const NewTimeline: React.FC<NewTimelineProps> = ({
   data,
-  isStreaming = false,
-  currentIndex = 0,
-  totalModules = 0,
   connectionStatus = "Completed",
 }) => {
   const [zoom, setZoom] = useState<number>(1);
@@ -215,12 +212,12 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-gradient-to-br from-[#0a0a0a] to-[#1a1a1a] border border-gray-800 rounded-xl w-full shadow-2xl overflow-hidden"
+      className="bg-card border border-border rounded-xl w-full shadow-2xl overflow-hidden"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-gray-800 bg-black/80 backdrop-blur-sm">
+      <div className="flex items-center justify-between p-6 border-b border-border bg-background/80 backdrop-blur-sm">
         <button
-          className="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group"
+          className="flex items-center gap-3 cursor-pointer hover:text-foreground transition-colors group"
           onClick={toggleCollapse}
           aria-expanded={!isCollapsed}
           aria-label={isCollapsed ? "Expand timeline" : "Collapse timeline"}
@@ -229,14 +226,12 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
             <MapPin className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-white group-hover:text-gray-200 transition-colors">
+            <h2 className="text-lg font-semibold text-foreground group-hover:text-muted-foreground transition-colors">
               Activity Map{" "}
-              
             </h2>
-           
           </div>
           <motion.div animate={{ rotate: isCollapsed ? 180 : 0 }} transition={{ duration: 0.3 }}>
-            <ChevronDown className="h-5 w-5 text-gray-400 group-hover:text-gray-300 transition-colors" />
+            <ChevronDown className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
           </motion.div>
         </button>
 
@@ -251,10 +246,10 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
                   ? "bg-yellow-400 animate-pulse"
                   : connectionStatus === "error"
                   ? "bg-red-400"
-                  : "bg-gray-400"
+                  : "bg-muted-foreground"
               }`}
             />
-            <span className="text-xs text-gray-400 capitalize">{connectionStatus}</span>
+            <span className="text-xs text-muted-foreground capitalize">{connectionStatus}</span>
           </div>
 
           <Button
@@ -262,7 +257,7 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
             size="sm"
             onClick={handleZoomOut}
             disabled={zoom <= ZOOM_MIN}
-            className="text-gray-400 hover:text-white hover:bg-gray-800 disabled:opacity-50 transition-all duration-200 rounded-lg"
+            className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-50 transition-all duration-200 rounded-lg"
             aria-label="Zoom out"
           >
             <ZoomOut className="h-4 w-4" />
@@ -272,7 +267,7 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
             size="sm"
             onClick={handleZoomIn}
             disabled={zoom >= ZOOM_MAX}
-            className="text-gray-400 hover:text-white hover:bg-gray-800 disabled:opacity-50 transition-all duration-200 rounded-lg"
+            className="text-muted-foreground hover:text-foreground hover:bg-accent disabled:opacity-50 transition-all duration-200 rounded-lg"
             aria-label="Zoom in"
           >
             <ZoomIn className="h-4 w-4" />
@@ -287,7 +282,7 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="overflow-hidden bg-gradient-to-br from-[#0f0f0f] to-[#1a1a1a]"
+            className="overflow-hidden bg-background"
           >
             <div ref={timelineContainerRef} className="timeline-container">
               <div className="absolute left-0 right-0 bottom-0 top-0 p-8" style={timelineStyles}>
@@ -306,11 +301,11 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
                         className="flex-none px-8"
                         style={{ width: `${group.width}px` }}
                       >
-                        <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl shadow-2xl border border-gray-700 p-4 text-center backdrop-blur-sm hover:shadow-blue-500/20 hover:border-gray-600 transition-all duration-300">
+                        <div className="bg-card rounded-xl shadow-2xl border border-border p-4 text-center backdrop-blur-sm hover:shadow-blue-500/20 hover:border-border transition-all duration-300">
                           <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                             {group.year}
                           </div>
-                          <div className="text-sm text-gray-400 mt-1">
+                          <div className="text-sm text-muted-foreground mt-1">
                             {group.items.length} {group.items.length === 1 ? "account" : "accounts"}
                           </div>
                         </div>
@@ -329,8 +324,6 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
                         zIndex: 1,
                       }}
                     >
-                      
-
                       {/* Draw connections between nodes */}
                       {timelineData.yearGroups.map((group, yearIndex) => (
                         <g key={group.year}>
@@ -416,10 +409,10 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
                                   >
                                     {/* Node Card */}
                                     <motion.div
-                                      className={`bg-gradient-to-br  from-gray-900 to-black rounded-2xl shadow-2xl border-2 p-6 cursor-pointer transition-all duration-300 ${
+                                      className={`bg-card rounded-2xl shadow-2xl border-2 p-6 cursor-pointer transition-all duration-300 ${
                                         isHovered
                                           ? "border-blue-400 shadow-2xl shadow-blue-500/30 scale-105"
-                                          : "border-gray-700 hover:border-gray-600 hover:shadow-xl hover:shadow-purple-500/10"
+                                          : "border-border hover:border-border hover:shadow-xl hover:shadow-purple-500/10"
                                       }`}
                                       style={{ width: NODE_SIZE, height: NODE_SIZE }}
                                       onClick={() => handleItemClick(item)}
@@ -433,7 +426,7 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
                                         <div
                                           className={`w-12 h-12 rounded-xl overflow-hidden transition-all duration-300 ${
                                             isHovered
-                                              ? "ring-2 ring-blue-400 ring-offset-2 ring-offset-black"
+                                              ? "ring-2 ring-blue-400 ring-offset-2 ring-offset-background"
                                               : ""
                                           }`}
                                         >
@@ -457,7 +450,7 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
                                         {/* Node Info */}
                                         <div className="text-center">
                                           <h3
-                                            className="text-xs font-semibold text-white truncate max-w-[80px]"
+                                            className="text-xs font-semibold text-foreground truncate max-w-[80px]"
                                             title={displayName}
                                           >
                                             {displayName.length > 8
@@ -465,7 +458,7 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
                                               : displayName}
                                           </h3>
                                           <p
-                                            className="text-xs text-gray-400 truncate max-w-[80px]"
+                                            className="text-xs text-muted-foreground truncate max-w-[80px]"
                                             title={moduleName}
                                           >
                                             {moduleName.length > 8
@@ -487,11 +480,11 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
                                           className="absolute -top-20 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none"
                                         >
                                           {/* Creation Date */}
-                                          <div className="bg-gradient-to-br from-gray-900 to-black rounded-lg shadow-2xl border border-gray-700 px-3 py-2 mb-2 backdrop-blur-sm">
+                                          <div className="bg-card rounded-lg shadow-2xl border border-border px-3 py-2 mb-2 backdrop-blur-sm">
                                             <div className="flex items-center gap-2 text-xs">
                                               <Calendar className="h-3 w-3 text-green-400" />
-                                              <span className="text-gray-300">Created</span>
-                                              <span className="font-medium text-white">
+                                              <span className="text-muted-foreground">Created</span>
+                                              <span className="font-medium text-foreground">
                                                 {formatDate(item.creation_date)}
                                               </span>
                                             </div>
@@ -499,11 +492,13 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
 
                                           {/* Last Seen */}
                                           {item.last_seen && (
-                                            <div className="bg-gradient-to-br from-gray-900 to-black rounded-lg shadow-2xl border border-gray-700 px-3 py-2 backdrop-blur-sm">
+                                            <div className="bg-card rounded-lg shadow-2xl border border-border px-3 py-2 backdrop-blur-sm">
                                               <div className="flex items-center gap-2 text-xs">
                                                 <Clock className="h-3 w-3 text-blue-400" />
-                                                <span className="text-gray-300">Last seen</span>
-                                                <span className="font-medium text-white">
+                                                <span className="text-muted-foreground">
+                                                  Last seen
+                                                </span>
+                                                <span className="font-medium text-foreground">
                                                   {formatDate(item.last_seen)}
                                                 </span>
                                               </div>
@@ -534,12 +529,18 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
           isDetailsOpen={isDetailsOpen}
           setIsDetailsOpen={setIsDetailsOpen}
           selectedItem={{
-            module: selectedItem.module,
+            module: selectedItem.module || "",
             pretty_name:
-              getStringValue(selectedItem.spec_format?.[0]?.name?.value) || selectedItem.module,
+              getStringValue(selectedItem.spec_format?.[0]?.name?.value) ||
+              selectedItem.module ||
+              "",
             query: selectedItem.query || "",
             spec_format: selectedItem.spec_format || [],
-            category: { name: selectedItem.module, description: "" },
+            category: { name: selectedItem.module || "", description: "" },
+            schemaModule: "",
+            status: "",
+            from: "",
+            reliable_source: false,
           }}
         />
       )}
@@ -551,7 +552,7 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
           height: ${TIMELINE_HEIGHT}px;
           overflow-x: auto !important;
           overflow-y: hidden !important;
-          background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+          background: hsl(var(--background));
           /* Ensure direct, immediate scrolling */
           scroll-behavior: auto !important;
           -webkit-overflow-scrolling: touch;
@@ -561,14 +562,14 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
 
         .timeline-container::-webkit-scrollbar {
           height: 8px;
-          background: linear-gradient(to right, #1a1a1a, #2a2a2a, #1a1a1a);
+          background: hsl(var(--background));
           border-radius: 4px;
         }
 
         .timeline-container::-webkit-scrollbar-thumb {
           background: linear-gradient(to right, #4F46E5, #7C3AED, #4F46E5);
           border-radius: 4px;
-          border: 2px solid #1a1a1a;
+          border: 2px solid hsl(var(--background));
           box-shadow: 0 0 10px rgba(79, 70, 229, 0.3);
         }
 
@@ -579,7 +580,7 @@ export const NewTimeline: React.FC<NewTimelineProps> = ({
 
         .timeline-container::-webkit-scrollbar-track {
           border-radius: 4px;
-          background: rgba(26, 26, 26, 0.5);
+          background: hsl(var(--muted));
         }
       `}</style>
     </motion.div>

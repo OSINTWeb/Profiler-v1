@@ -49,32 +49,40 @@ const ViewMoreModal = ({
 
   // Get all items with their associated data for the specific field
   const getAllItemsWithData = () => {
-    const allItemsData: Array<{ value: string; sourceData: PlatformData; spec: Record<string, unknown> }> = [];
-    
+    const allItemsData: Array<{
+      value: string;
+      sourceData: PlatformData;
+      spec: Record<string, unknown>;
+    }> = [];
+
     data.forEach((item) => {
       if (item.spec_format && Array.isArray(item.spec_format)) {
         item.spec_format.forEach((spec) => {
           const fieldKey = title.toLowerCase().replace(" ", "_");
           const field = spec[fieldKey];
-          const value = field && typeof field === 'object' && 'value' in field ? field.value : undefined;
-          
-          if (value && typeof value === 'string') {
+          const value =
+            field && typeof field === "object" && "value" in field ? field.value : undefined;
+
+          if (value && typeof value === "string") {
             allItemsData.push({
               value: title.includes("date") ? formatDate(value) : value,
               sourceData: item,
-              spec
+              spec,
             });
           }
         });
       }
     });
-    
+
     return allItemsData;
   };
 
-  const allItemsData = title === "Sources Found" 
-    ? data.filter(item => item.status === "found").map(item => ({ value: item.pretty_name || item.module, sourceData: item, spec: null }))
-    : getAllItemsWithData();
+  const allItemsData =
+    title === "Sources Found"
+      ? data
+          .filter((item) => item.status === "found")
+          .map((item) => ({ value: item.pretty_name || item.module, sourceData: item, spec: null }))
+      : getAllItemsWithData();
 
   return (
     <AnimatePresence>
@@ -93,23 +101,23 @@ const ViewMoreModal = ({
           onClick={(e) => e.stopPropagation()}
         >
           {/* Glassmorphism background */}
-          <div className="absolute inset-0 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 border border-white/20" />
+          <div className="absolute inset-0 bg-background/10 backdrop-blur-2xl backdrop-saturate-150 border border-border/20" />
 
           {/* Content */}
           <div className="relative">
-            <div className="flex items-center justify-between p-6 border-b border-white/10">
+            <div className="flex items-center justify-between p-6 border-b border-border/10">
               <div className="flex items-center gap-4">
                 <div className="h-8 w-1 bg-gradient-to-b from-blue-400 to-purple-400 rounded-full" />
-                <h2 className="text-2xl font-medium text-white">All {title}</h2>
-                <span className="px-3 py-1 bg-gray-800/50 rounded-full text-sm text-gray-300 border border-gray-700">
+                <h2 className="text-2xl font-medium text-foreground">All {title}</h2>
+                <span className="px-3 py-1 bg-muted rounded-full text-sm text-muted-foreground border border-border">
                   {allItemsData.length} items
                 </span>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl hover:bg-white/10 transition-colors"
+                className="p-2 rounded-xl hover:bg-accent transition-colors"
               >
-                <X className="w-6 h-6 text-white/70" />
+                <X className="w-6 h-6 text-muted-foreground/70" />
               </button>
             </div>
 
@@ -123,13 +131,13 @@ const ViewMoreModal = ({
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.2, delay: index * 0.02 }}
                       whileHover={{ scale: 1.05 }}
-                      className="rounded-2xl p-4 flex flex-col items-center justify-center transition-all duration-300 border border-gray-700 overflow-hidden cursor-pointer hover:bg-gray-800/50 hover:border-gray-600 min-h-[120px] bg-gray-900/50 shadow-xl"
+                      className="rounded-2xl p-4 flex flex-col items-center justify-center transition-all duration-300 border border-border overflow-hidden cursor-pointer hover:bg-accent hover:border-border min-h-[120px] bg-card shadow-xl"
                       onClick={() => onItemClick(item.sourceData)}
                     >
-                      <div className="w-16 h-16 mb-3 flex items-center justify-center bg-gray-800/50 rounded-xl border border-gray-700">
+                      <div className="w-16 h-16 mb-3 flex items-center justify-center bg-muted rounded-xl border border-border">
                         <CompanyLogo companyName={item.sourceData.module} />
                       </div>
-                      <div className="text-sm text-white font-semibold text-center line-clamp-2 leading-tight">
+                      <div className="text-sm text-foreground font-semibold text-center line-clamp-2 leading-tight">
                         {item.value}
                       </div>
                     </motion.div>
@@ -144,11 +152,11 @@ const ViewMoreModal = ({
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.2, delay: index * 0.02 }}
                       whileHover={{ scale: 1.01 }}
-                      className="relative group flex flex-row w-full border border-gray-700 justify-between p-4 rounded-2xl hover:bg-gray-800/50 hover:border-gray-600 transition-all duration-300 gap-4 bg-gray-900/50 shadow-xl"
+                      className="relative group flex flex-row w-full border border-border justify-between p-4 rounded-2xl hover:bg-accent hover:border-border transition-all duration-300 gap-4 bg-card shadow-xl"
                     >
                       <div className="flex items-start gap-3 flex-1 cursor-pointer">
                         <div className="flex-1 min-w-0">
-                          <span className="text-white text-base break-words block font-semibold">
+                          <span className="text-foreground text-base break-words block font-semibold">
                             {item.value}
                           </span>
                         </div>
@@ -159,7 +167,7 @@ const ViewMoreModal = ({
                             e.stopPropagation();
                             navigator.clipboard.writeText(item.value);
                           }}
-                          className="p-2 text-gray-200 hover:text-white rounded-xl hover:bg-gray-800/50 transition-all duration-200 flex-shrink-0 bg-gray-800/50 border border-gray-700"
+                          className="p-2 text-muted-foreground hover:text-foreground rounded-xl hover:bg-accent transition-all duration-200 flex-shrink-0 bg-muted border border-border"
                           title="Copy to clipboard"
                         >
                           <Copy size={16} />
@@ -170,7 +178,7 @@ const ViewMoreModal = ({
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => onItemClick(item.sourceData)}
-                          className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:bg-gray-800/50 transition-colors duration-300 cursor-pointer bg-gray-800/50 border border-gray-700"
+                          className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:bg-accent transition-colors duration-300 cursor-pointer bg-muted border border-border"
                         >
                           <CompanyLogo companyName={item.sourceData.module || ""} />
                         </motion.div>
@@ -187,18 +195,22 @@ const ViewMoreModal = ({
   );
 };
 
-const InfoCardsContainer = ({ 
-  data: originalData 
-}: { 
-  data: PlatformData[] 
+const InfoCardsContainer = ({
+  data: originalData,
+}: {
+  data: PlatformData[];
 }): React.JSX.Element => {
   const [copied, setCopied] = useState<number | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [curritem, setcurritem] = useState<PlatformData | null>(null);
   const [activeTab, setActiveTab] = useState("sources_found");
   const [isViewMoreOpen, setIsViewMoreOpen] = useState(false);
-  const [viewMoreData, setViewMoreData] = useState<{ title: string; items: string[]; data: PlatformData[] }>({ title: "", items: [], data: [] });
-  
+  const [viewMoreData, setViewMoreData] = useState<{
+    title: string;
+    items: string[];
+    data: PlatformData[];
+  }>({ title: "", items: [], data: [] });
+
   // Add the filtering logic as requested
   const [nonHibpData, setNonHibpData] = useState<PlatformData[]>([]);
   const [hibpCount, setHibpCount] = useState(0);
@@ -232,14 +244,14 @@ const InfoCardsContainer = ({
   // Fixed function to accurately extract and count unique values
   const extractUniqueValues = (fieldName: string): string[] => {
     const allValues: string[] = [];
-    
+
     data.forEach((item) => {
       if (item.spec_format && Array.isArray(item.spec_format)) {
         item.spec_format.forEach((spec) => {
           const field = spec[fieldName];
-          if (field && typeof field === 'object' && 'value' in field) {
+          if (field && typeof field === "object" && "value" in field) {
             const value = field.value;
-            if (typeof value === 'string' && value.trim() !== '') {
+            if (typeof value === "string" && value.trim() !== "") {
               allValues.push(value.trim());
             }
           }
@@ -350,13 +362,13 @@ const InfoCardsContainer = ({
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.2, delay: index * 0.05 }}
                         whileHover={{ scale: 1.05 }}
-                        className="rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center transition-all duration-300 border border-gray-700 overflow-hidden cursor-pointer hover:bg-gray-800/50 hover:border-gray-600 min-h-[100px] sm:min-h-[120px] bg-gray-900/50 shadow-xl"
+                        className="rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center transition-all duration-300 border border-border overflow-hidden cursor-pointer hover:bg-accent hover:border-border min-h-[100px] sm:min-h-[120px] bg-card shadow-xl"
                         onClick={() => handleImageClick(item)}
                       >
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 mb-2 sm:mb-3 flex items-center justify-center bg-gray-800/50 rounded-xl border border-gray-700">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 mb-2 sm:mb-3 flex items-center justify-center bg-muted rounded-xl border border-border">
                           <CompanyLogo companyName={item.module} />
                         </div>
-                        <div className="text-xs sm:text-sm text-white font-semibold text-center line-clamp-2 leading-tight">
+                        <div className="text-xs sm:text-sm text-foreground font-semibold text-center line-clamp-2 leading-tight">
                           {item.pretty_name || item.module}
                         </div>
                       </motion.div>
@@ -381,10 +393,13 @@ const InfoCardsContainer = ({
                   ?.map((spec, specIndex) => {
                     const fieldKey = card.title.toLowerCase().replace(" ", "_");
                     const field = spec[fieldKey];
-                    const value = field && typeof field === 'object' && 'value' in field ? field.value : undefined;
-                    
-                    if (!value || typeof value !== 'string') return null;
-                    
+                    const value =
+                      field && typeof field === "object" && "value" in field
+                        ? field.value
+                        : undefined;
+
+                    if (!value || typeof value !== "string") return null;
+
                     return (
                       <motion.div
                         key={`${index}-${specIndex}`}
@@ -392,11 +407,11 @@ const InfoCardsContainer = ({
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.2, delay: specIndex * 0.05 }}
                         whileHover={{ scale: 1.01 }}
-                        className="relative group flex flex-row w-full border border-gray-700 justify-between p-4 rounded-2xl hover:bg-gray-800/50 hover:border-gray-600 transition-all duration-300 gap-3 sm:gap-4 bg-gray-900/50 shadow-xl"
+                        className="relative group flex flex-row w-full border border-border justify-between p-4 rounded-2xl hover:bg-accent hover:border-border transition-all duration-300 gap-3 sm:gap-4 bg-card shadow-xl"
                       >
                         <div className="flex items-start gap-3 flex-1 cursor-pointer">
                           <div className="flex-1 min-w-0">
-                            <span className="text-white text-sm sm:text-base break-words block font-semibold">
+                            <span className="text-foreground text-sm sm:text-base break-words block font-semibold">
                               {card.title.includes("date") ? formatDate(value) : value}
                             </span>
                           </div>
@@ -404,7 +419,7 @@ const InfoCardsContainer = ({
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => handleCopy(value, index)}
-                            className="p-2 text-gray-200 hover:text-white rounded-xl hover:bg-gray-800/50 transition-all duration-200 flex-shrink-0 bg-gray-800/50 border border-gray-700"
+                            className="p-2 text-muted-foreground hover:text-foreground rounded-xl hover:bg-accent transition-all duration-200 flex-shrink-0 bg-muted border border-border"
                             title="Copy to clipboard"
                           >
                             {copied === index ? "✓" : <Copy size={16} />}
@@ -415,18 +430,18 @@ const InfoCardsContainer = ({
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => handleImageClick(item)}
-                            className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center group-hover:bg-gray-800/50 transition-colors duration-300 cursor-pointer bg-gray-800/50 border border-gray-700"
+                            className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center group-hover:bg-accent transition-colors duration-300 cursor-pointer bg-muted border border-border"
                           >
                             <CompanyLogo companyName={item.module || ""} />
                           </motion.div>
                         </div>
                         {/* Tooltip - only show on larger screens */}
-                        <div className="absolute -top-14 right-4 px-3 py-2 bg-black/95 border border-gray-600 text-white text-xs rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap shadow-2xl z-20 font-semibold hidden lg:block pointer-events-none">
+                        <div className="absolute -top-14 right-4 px-3 py-2 bg-background/95 border border-border text-foreground text-xs rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap shadow-2xl z-20 font-semibold hidden lg:block pointer-events-none">
                           {item.module || "Unknown Source"}
-                          <div className="text-gray-200 text-xs mt-1 font-normal">
+                          <div className="text-muted-foreground text-xs mt-1 font-normal">
                             Click to view profile
                           </div>
-                          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black rotate-45 border-b border-r border-gray-600"></div>
+                          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-background rotate-45 border-b border-r border-border"></div>
                         </div>
                       </motion.div>
                     );
@@ -444,15 +459,15 @@ const InfoCardsContainer = ({
       <div className="w-full">
         {/* Display HIBP Count if available */}
         {hibpCount > 0 && (
-          <div className="mb-4 p-4 bg-gray-900 border border-gray-700 rounded-xl">
+          <div className="mb-4 p-4 bg-card border border-border rounded-xl">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-red-600/20 rounded-lg flex items-center justify-center">
                 <span className="text-red-400 font-bold text-sm">!</span>
               </div>
               <div>
-                <h3 className="text-white font-semibold">Data Breach Alert</h3>
-                <p className="text-gray-400 text-sm">
-                  Found {hibpCount} breach{hibpCount !== 1 ? 'es' : ''} in HIBP database
+                <h3 className="text-foreground font-semibold">Data Breach Alert</h3>
+                <p className="text-muted-foreground text-sm">
+                  Found {hibpCount} breach{hibpCount !== 1 ? "es" : ""} in HIBP database
                 </p>
               </div>
             </div>
@@ -461,16 +476,16 @@ const InfoCardsContainer = ({
 
         {/* Custom Tabs Implementation */}
         <div className="flex justify-center w-full mb-4 sm:mb-6 ">
-          <div className="bg-black border border-gray-700 px-2 py-2 overflow-x-scroll overflow-y-hidden custom-scrollbar h-18 w-full flex gap-2 sm:gap-3 rounded-2xl mx-auto shadow-2xl">
+          <div className="bg-background border border-border px-2 py-2 overflow-x-scroll overflow-y-hidden custom-scrollbar h-18 w-full flex gap-2 sm:gap-3 rounded-2xl mx-auto shadow-2xl">
             {filteredCardData.map((card, index) => (
               <button
                 key={index}
                 onClick={() => setActiveTab(card.title.toLowerCase().replace(" ", "_"))}
                 className={`${
                   activeTab === card.title.toLowerCase().replace(" ", "_")
-                    ? "bg-gray-800 text-white border-gray-600"
-                    : "text-gray-300 hover:text-white hover:bg-gray-800/50"
-                } transition-all duration-300 whitespace-nowrap h-10 sm:h-12 flex-shrink-0 px-3 sm:px-5 rounded-xl border border-transparent hover:border-gray-600 focus-visible:ring-2 focus-visible:ring-gray-500 flex items-center min-w-fit font-medium cursor-pointer`}
+                    ? "bg-accent text-foreground border-border"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                } transition-all duration-300 whitespace-nowrap h-10 sm:h-12 flex-shrink-0 px-3 sm:px-5 rounded-xl border border-transparent hover:border-border focus-visible:ring-2 focus-visible:ring-ring flex items-center min-w-fit font-medium cursor-pointer`}
               >
                 <motion.div
                   whileHover={{ scale: 1.02 }}
@@ -491,7 +506,7 @@ const InfoCardsContainer = ({
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="ml-1 px-2 py-0.5 text-xs rounded-full bg-gray-700 border border-gray-600 text-gray-200 font-semibold flex-shrink-0"
+                      className="ml-1 px-2 py-0.5 text-xs rounded-full bg-muted border border-border text-muted-foreground font-semibold flex-shrink-0"
                     >
                       {card.count}
                     </motion.span>
@@ -515,13 +530,13 @@ const InfoCardsContainer = ({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="bg-black border border-gray-700 rounded-2xl p-4 sm:p-6 shadow-2xl max-h-[450px] sm:max-h-[500px] flex flex-col"
+                className="bg-background border border-border rounded-2xl p-4 sm:p-6 shadow-2xl max-h-[450px] sm:max-h-[500px] flex flex-col"
               >
-                <div className="flex flex-row sm:items-center justify-between mb-4 gap-2 sm:gap-0 flex-shrink-0 border-b border-gray-700 pb-4">
+                <div className="flex flex-row sm:items-center justify-between mb-4 gap-2 sm:gap-0 flex-shrink-0 border-b border-border pb-4">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <motion.div
                       whileHover={{ scale: 1.1, rotate: 5 }}
-                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gray-800 flex items-center justify-center flex-shrink-0 border border-gray-700"
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-muted flex items-center justify-center flex-shrink-0 border border-border"
                     >
                       <img
                         src={card.icon}
@@ -529,7 +544,7 @@ const InfoCardsContainer = ({
                         className="w-5 h-5 sm:w-6 sm:h-6 object-contain filter brightness-110"
                       />
                     </motion.div>
-                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-wide">
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground tracking-wide">
                       {card.title === "creation_date" ? "First Seen" : card.title}
                     </h3>
                   </div>
@@ -538,7 +553,7 @@ const InfoCardsContainer = ({
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.2 }}
-                      className="text-xs sm:text-sm text-gray-300 flex-shrink-0 bg-gray-800 px-3 py-1.5 rounded-full border border-gray-700 font-medium"
+                      className="text-xs sm:text-sm text-muted-foreground flex-shrink-0 bg-muted px-3 py-1.5 rounded-full border border-border font-medium"
                     >
                       {card.count} {card.count === 1 ? "item" : "items"} found
                     </motion.div>
@@ -550,10 +565,10 @@ const InfoCardsContainer = ({
                           setViewMoreData({ title: card.title, items: card.items, data });
                           setIsViewMoreOpen(true);
                         }}
-                        className="px-4 py-2 rounded-xl text-white/90 text-xs font-medium
+                        className="px-4 py-2 rounded-xl text-foreground/90 text-xs font-medium
                                   backdrop-blur-lg backdrop-saturate-150
-                                 border border-white/20  
-                                 transition-all duration-300 hover:bg-white/20 cursor-pointer"
+                                 border border-border/20  
+                                 transition-all duration-300 hover:bg-accent cursor-pointer"
                       >
                         View All
                       </motion.button>
@@ -571,7 +586,7 @@ const InfoCardsContainer = ({
         setIsDetailsOpen={setIsDetailsOpen}
         selectedItem={curritem}
       />
-      
+
       <ViewMoreModal
         isOpen={isViewMoreOpen}
         onClose={() => setIsViewMoreOpen(false)}

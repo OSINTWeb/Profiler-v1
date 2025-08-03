@@ -56,4 +56,61 @@ export interface AggregatedAccount {
   platform: string;
   url: string;
   sources: string[];
+}
+
+// Tool Result Types
+export interface TikTokData {
+  username: string;
+  followers?: number;
+  following?: number;
+  likes?: number;
+  bio?: string;
+  found_accounts?: number;
+  sites?: Site[];
+}
+
+export interface GravatarData {
+  entry?: Array<{
+    hash?: string;
+    profileUrl?: string;
+    thumbnailUrl?: string;
+    displayName?: string;
+  }>;
+}
+
+export interface LinkookData {
+  username: string;
+  found_accounts: number;
+  sites: Site[];
+  platforms?: string[];
+  profileLinks?: string[];
+}
+
+export interface InfoStealerData {
+  email?: string;
+  username?: string;
+  leaked_data?: Array<{
+    source: string;
+    details: string;
+  }>;
+  found_accounts?: number;
+  sites?: Site[];
+}
+
+export interface BreachGuardData {
+  email: string;
+  total_breaches: number;
+  breaches: Array<{
+    name: string;
+    date: string;
+    details: string;
+  }>;
+}
+
+export interface ProtonIntelData {
+  email: string;
+  account_status?: 'active' | 'inactive';
+  creation_date?: string;
+  found_accounts?: number;
+  sites?: Site[];
 } 

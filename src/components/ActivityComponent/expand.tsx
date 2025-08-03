@@ -16,7 +16,7 @@ export interface ExpandProps {
   selectedItem: PlatformData | null;
 }
 
-// Enhanced scrollbar styles for dark theme
+// Enhanced scrollbar styles for theme-aware design
 const scrollbarStyles = `
   /* For Webkit browsers (Chrome, Safari) */
   ::-webkit-scrollbar {
@@ -25,26 +25,26 @@ const scrollbarStyles = `
   }
 
   ::-webkit-scrollbar-track {
-    background: #000000;
+    background: hsl(var(--background));
     border-radius: 6px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #374151, #6B7280);
+    background: linear-gradient(135deg, hsl(var(--muted-foreground)), hsl(var(--muted-foreground) / 0.7));
     border-radius: 6px;
-    border: 2px solid #000000;
-    box-shadow: 0 0 10px rgba(55, 65, 81, 0.3);
+    border: 2px solid hsl(var(--background));
+    box-shadow: 0 0 10px hsl(var(--muted-foreground) / 0.3);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #4B5563, #9CA3AF);
-    box-shadow: 0 0 15px rgba(55, 65, 81, 0.5);
+    background: linear-gradient(135deg, hsl(var(--foreground)), hsl(var(--muted-foreground)));
+    box-shadow: 0 0 15px hsl(var(--muted-foreground) / 0.5);
   }
 
   /* For Firefox */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #374151 #000000;
+    scrollbar-color: hsl(var(--muted-foreground)) hsl(var(--background));
   }
 `;
 
@@ -68,18 +68,18 @@ const CodeBlock = ({ data }: { data: unknown }) => {
     <>
       <button
         onClick={() => settoggle(!toggle)}
-        className="rounded-xl w-full my-4 border border-gray-700 bg-gradient-to-br from-[#0f0f12] to-[#131315] hover:from-[#0d0d11] hover:to-[#131315] font-semibold text-white text-sm md:text-base py-3 transition-all duration-300 hover:shadow-lg hover:shadow-gray-500/20 cursor-pointer"
+        className="rounded-xl w-full my-4 border border-border bg-gradient-to-br from-background to-muted hover:from-muted hover:to-background font-semibold text-foreground text-sm md:text-base py-3 transition-all duration-300 hover:shadow-lg hover:shadow-muted-foreground/20 cursor-pointer"
       >
         Show JSON Data
       </button>
     </>
   ) : (
-    <div className="relative p-6 bg-gradient-to-br from-black to-gray-900 text-white rounded-xl overflow-hidden border border-gray-700 my-4">
+    <div className="relative p-6 bg-gradient-to-br from-background to-muted text-foreground rounded-xl overflow-hidden border border-border my-4">
       <style>{scrollbarStyles}</style>
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <button
           onClick={() => settoggle(!toggle)}
-          className="rounded-xl border border-gray-700 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 font-semibold text-white text-sm md:text-base px-6 py-2 transition-all duration-300 cursor-pointer"
+          className="rounded-xl border border-border bg-gradient-to-r from-muted to-background hover:from-accent hover:to-muted font-semibold text-foreground text-sm md:text-base px-6 py-2 transition-all duration-300 cursor-pointer"
         >
           Hide JSON
         </button>
@@ -90,7 +90,7 @@ const CodeBlock = ({ data }: { data: unknown }) => {
           className={`rounded-xl border px-6 py-2 flex items-center justify-center gap-2 text-sm md:text-base font-semibold transition-all duration-300 cursor-pointer min-w-[140px] ${
             copied 
               ? "bg-gradient-to-r from-green-500 to-emerald-600 border-green-400 text-white shadow-lg shadow-green-500/25" 
-              : "bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 border-gray-700 text-white hover:shadow-lg hover:shadow-gray-500/30"
+              : "bg-gradient-to-r from-muted to-accent hover:from-accent hover:to-muted border-border text-foreground hover:shadow-lg hover:shadow-muted-foreground/30"
           }`}
         >
           <AnimatePresence mode="wait">
@@ -114,7 +114,7 @@ const CodeBlock = ({ data }: { data: unknown }) => {
           </AnimatePresence>
         </motion.button>
       </div>
-      <div className="overflow-x-auto custom-scrollbar bg-black rounded-lg p-4 border border-gray-800">
+      <div className="overflow-x-auto custom-scrollbar bg-background rounded-lg p-4 border border-border">
         <JSONPretty id="json-pretty" data={data}></JSONPretty>
       </div>
     </div>
@@ -180,7 +180,7 @@ const CopyButton = ({
     className={`rounded-lg transition-all duration-300 p-2 border cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center ${
       isCopied 
         ? "bg-gradient-to-r from-green-500 to-emerald-600 border-green-400 shadow-lg shadow-green-500/25" 
-        : "hover:bg-gray-800 border-gray-700 hover:shadow-md"
+        : "hover:bg-muted border-border hover:shadow-md"
     }`}
   >
     <AnimatePresence mode="wait">
@@ -202,7 +202,7 @@ const CopyButton = ({
           exit={{ opacity: 0, scale: 0.5 }}
           transition={{ duration: 0.2 }}
         >
-          <Copy size={size} className="text-gray-300" />
+          <Copy size={size} className="text-muted-foreground" />
         </motion.div>
       )}
     </AnimatePresence>
@@ -235,10 +235,10 @@ const renderItemDetails = (
   };
 
   return (
-    <div className="w-full h-[calc(100vh-200px)] overflow-x-hidden md:h-[70vh] p-6 text-base md:text-lg overflow-y-auto custom-scrollbar border border-white/20 rounded-2xl">
+    <div className="w-full h-[calc(100vh-200px)] overflow-x-hidden md:h-[70vh] p-6 text-base md:text-lg overflow-y-auto custom-scrollbar border border-border rounded-2xl">
       <style>{scrollbarStyles}</style>
       <div className=" ">
-        <div className="flex flex-col space-y-6 w-full text-white">
+        <div className="flex flex-col space-y-6 w-full text-foreground">
           {/* Dynamic Fields from spec_format */}
           {spec &&
             Object.entries(spec).map(
@@ -246,15 +246,15 @@ const renderItemDetails = (
                 key !== "platform_variables" && isSpecFormatValue(value) && (
                   <div
                     key={key}
-                    className="flex flex-row items-center  justify-between gap-4 sm:gap-6 border-b border-gray-800 pb-4 bg-gradient-to-br from-[#0f0f12] to-[#131315] rounded-lg p-4"
+                    className="flex flex-row items-center  justify-between gap-4 sm:gap-6 border-b border-border pb-4 bg-gradient-to-br from-background to-muted rounded-lg p-4"
                   >
-                    <div className="text-sm sm:text-base  text-gray-300 font-semibold min-w-[120px] ">
+                    <div className="text-sm sm:text-base  text-muted-foreground font-semibold min-w-[120px] ">
                       {formatTitle(key)}:
                     </div>
                     <div className="flex items-center w-full gap-3 justify-start ">
                       {key === "id" && isStringValue(value) ? (
                         <>
-                          <span className="text-white font-mono text-sm sm:text-base break-all bg-black border border-gray-700 px-4 py-2 rounded-lg flex-1 max-w-xs">
+                          <span className="text-foreground font-mono text-sm sm:text-base break-all bg-background border border-border px-4 py-2 rounded-lg flex-1 max-w-xs">
                             {value.value}
                           </span>
                           <CopyButton
@@ -264,13 +264,13 @@ const renderItemDetails = (
                         </>
                       ) : key.includes("url") && isStringValue(value) ? (
                         <div className="flex items-center gap-3 flex-1">
-                          <span className="font-mono text-sm sm:text-base break-all bg-black border border-gray-700 px-4 py-2 rounded-lg flex-1">
+                          <span className="font-mono text-sm sm:text-base break-all bg-background border border-border px-4 py-2 rounded-lg flex-1">
                             {" "}
                             <a
                               href={value.value}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-gray-300 hover:text-white transition-colors break-all text-sm sm:text-base font-medium underline decoration-gray-400/30 hover:decoration-white cursor-pointer"
+                              className="text-muted-foreground hover:text-foreground transition-colors break-all text-sm sm:text-base font-medium underline decoration-muted-foreground/30 hover:decoration-foreground cursor-pointer"
                             >
                               {value.value}
                             </a>
@@ -283,7 +283,7 @@ const renderItemDetails = (
                       ) : (key === "last_seen" || key === "creation_date") &&
                         isStringValue(value) ? (
                         <div className="flex items-center gap-3">
-                          <span className="text-white font-medium bg-gradient-to-r from-gray-600/20 to-gray-700/20 border border-gray-500/30 px-4 py-2 rounded-lg">
+                          <span className="text-foreground font-medium bg-gradient-to-r from-muted/20 to-accent/20 border border-border/30 px-4 py-2 rounded-lg">
                             {formatDate(value.value)}
                           </span>
                           <CopyButton
@@ -302,11 +302,11 @@ const renderItemDetails = (
                           {value.value ? "Yes" : "No"}
                         </span>
                       ) : isStringValue(value) ? (
-                        <span className="text-white text-sm sm:text-base font-medium bg-gray-900/50 px-4 py-2 rounded-lg border border-gray-800">
+                        <span className="text-foreground text-sm sm:text-base font-medium bg-muted/50 px-4 py-2 rounded-lg border border-border">
                           {value.value}
                         </span>
                       ) : isNumberValue(value) ? (
-                        <span className="text-white text-sm sm:text-base font-medium bg-gray-900/50 px-4 py-2 rounded-lg border border-gray-800">
+                        <span className="text-foreground text-sm sm:text-base font-medium bg-muted/50 px-4 py-2 rounded-lg border border-border">
                           {value.value.toString()}
                         </span>
                       ) : null}
@@ -316,25 +316,25 @@ const renderItemDetails = (
             )}
 
           {/* Platform Information */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-gray-800 pb-4 bg-gradient-to-br from-[#0f0f12] to-[#131315] rounded-lg p-4">
-            <span className="text-gray-300 text-sm sm:text-base font-semibold min-w-[120px]">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-border pb-4 bg-gradient-to-br from-background to-muted rounded-lg p-4">
+            <span className="text-muted-foreground text-sm sm:text-base font-semibold min-w-[120px]">
               Platform:
             </span>
-            <span className="text-white text-sm sm:text-base font-medium bg-gray-900/50 px-4 py-2 rounded-lg border border-gray-800">
+            <span className="text-foreground text-sm sm:text-base font-medium bg-muted/50 px-4 py-2 rounded-lg border border-border">
               {website }
             </span>
           </div>
 
           {/* Website */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-gray-800 pb-4 bg-gradient-to-br from-[#0f0f12] to-[#131315] rounded-lg p-4">
-            <span className="text-gray-300 text-sm sm:text-base font-semibold min-w-[120px]">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-border pb-4 bg-gradient-to-br from-background to-muted rounded-lg p-4">
+            <span className="text-muted-foreground text-sm sm:text-base font-semibold min-w-[120px]">
               Website:
             </span>
             <a
               href={`https://${website || platformName}.com`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base font-medium underline decoration-gray-400/30 hover:decoration-white cursor-pointer"
+              className="text-muted-foreground hover:text-foreground transition-colors text-sm sm:text-base font-medium underline decoration-muted-foreground/30 hover:decoration-foreground cursor-pointer"
             >
               {(website || platformName).toUpperCase()}.com
             </a>
@@ -342,12 +342,12 @@ const renderItemDetails = (
 
           {/* Query */}
           {query && (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-gray-800 pb-4 bg-gradient-to-br from-[#0f0f12] to-[#131315] rounded-lg p-4">
-              <span className="text-gray-300 text-sm sm:text-base font-semibold min-w-[120px]">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-border pb-4 bg-gradient-to-br from-background to-muted rounded-lg p-4">
+              <span className="text-muted-foreground text-sm sm:text-base font-semibold min-w-[120px]">
                 Query Searched:
               </span>
               <div className="flex items-center gap-3 flex-1">
-                <span className="font-mono text-sm sm:text-base break-all bg-black border border-gray-700 px-4 py-2 rounded-lg flex-1">
+                <span className="font-mono text-sm sm:text-base break-all bg-background border border-border px-4 py-2 rounded-lg flex-1">
                   {query}
                 </span>
                 <CopyButton
@@ -360,12 +360,12 @@ const renderItemDetails = (
 
           {/* ID */}
           {id && (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-gray-800 pb-4 bg-gradient-to-br from-[#0f0f12] to-[#131315] rounded-lg p-4">
-              <span className="text-gray-300 text-sm sm:text-base font-semibold min-w-[120px]">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-border pb-4 bg-gradient-to-br from-background to-muted rounded-lg p-4">
+              <span className="text-muted-foreground text-sm sm:text-base font-semibold min-w-[120px]">
                 ID:
               </span>
               <div className="flex items-center gap-3 flex-1">
-                <span className="font-mono text-sm sm:text-base break-all bg-black border border-gray-700 px-4 py-2 rounded-lg flex-1">
+                <span className="font-mono text-sm sm:text-base break-all bg-background border border-border px-4 py-2 rounded-lg flex-1">
                   {id}
                 </span>
                 <CopyButton
@@ -378,12 +378,12 @@ const renderItemDetails = (
 
           {/* Last Seen */}
           {last_seen && (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-gray-800 pb-4 bg-gradient-to-br from-[#0f0f12] to-[#131315] rounded-lg p-4">
-              <span className="text-gray-300 text-sm sm:text-base font-semibold min-w-[120px]">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-border pb-4 bg-gradient-to-br from-background to-muted rounded-lg p-4">
+              <span className="text-muted-foreground text-sm sm:text-base font-semibold min-w-[120px]">
                 Last Seen:
               </span>
               <div className="flex items-center gap-3">
-                <span className="text-white font-medium bg-gradient-to-r from-gray-600/20 to-gray-700/20 border border-gray-500/30 px-4 py-2 rounded-lg">
+                <span className="text-foreground font-medium bg-gradient-to-r from-muted/20 to-accent/20 border border-border/30 px-4 py-2 rounded-lg">
                   {formatDate(last_seen)}
                 </span>
                 <CopyButton
@@ -396,12 +396,12 @@ const renderItemDetails = (
 
           {/* Username */}
           {username && (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-gray-800 pb-4 bg-gradient-to-br from-[#0f0f12] to-[#131315] rounded-lg p-4">
-              <span className="text-gray-300 text-sm sm:text-base font-semibold min-w-[120px]">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-border pb-4 bg-gradient-to-br from-background to-muted rounded-lg p-4">
+              <span className="text-muted-foreground text-sm sm:text-base font-semibold min-w-[120px]">
                 Username:
               </span>
               <div className="flex items-center gap-3 flex-1">
-                <span className="text-white text-sm sm:text-base font-medium bg-gray-900/50 px-4 py-2 rounded-lg border border-gray-800 flex-1">
+                <span className="text-foreground text-sm sm:text-base font-medium bg-muted/50 px-4 py-2 rounded-lg border border-border flex-1">
                   {username}
                 </span>
                 <CopyButton
@@ -414,12 +414,12 @@ const renderItemDetails = (
 
           {/* Location */}
           {location && (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-gray-800 pb-4 bg-gradient-to-br from-[#0f0f12] to-[#131315] rounded-lg p-4">
-              <span className="text-gray-300 text-sm sm:text-base font-semibold min-w-[120px]">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-border pb-4 bg-gradient-to-br from-background to-muted rounded-lg p-4">
+              <span className="text-muted-foreground text-sm sm:text-base font-semibold min-w-[120px]">
                 Location:
               </span>
               <div className="flex items-center gap-3 flex-1">
-                <span className="text-white text-sm sm:text-base font-medium bg-gray-900/50 px-4 py-2 rounded-lg border border-gray-800 flex-1">
+                <span className="text-foreground text-sm sm:text-base font-medium bg-muted/50 px-4 py-2 rounded-lg border border-border flex-1">
                   {location}
                 </span>
                 <CopyButton
@@ -432,12 +432,12 @@ const renderItemDetails = (
 
           {/* Phone Number */}
           {phone_number && (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-gray-800 pb-4 bg-gradient-to-br from-[#0f0f12] to-[#131315] rounded-lg p-4">
-              <span className="text-gray-300 text-sm sm:text-base font-semibold min-w-[120px]">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-4 border-b border-border pb-4 bg-gradient-to-br from-background to-muted rounded-lg p-4">
+              <span className="text-muted-foreground text-sm sm:text-base font-semibold min-w-[120px]">
                 Phone Number:
               </span>
               <div className="flex items-center gap-3 flex-1">
-                <span className="text-white text-sm sm:text-base font-medium bg-gray-900/50 px-4 py-2 rounded-lg border border-gray-800 flex-1">
+                <span className="text-foreground text-sm sm:text-base font-medium bg-muted/50 px-4 py-2 rounded-lg border border-border flex-1">
                   {phone_number}
                 </span>
                 <CopyButton
@@ -469,14 +469,14 @@ export const Expand: React.FC<ExpandProps> = ({
   };
   return (
     <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-      <DialogContent className="max-w-[95vw] md:max-w-5xl bg-gradient-to-br from-black to-slate-900 rounded-2xl shadow-2xl h-[90vh] md:h-[85vh] overflow-y-auto border-2 border-white/20 custom-scrollbar flex flex-col">
+      <DialogContent className="max-w-[95vw] md:max-w-5xl bg-gradient-to-br from-background to-muted rounded-2xl shadow-2xl h-[90vh] md:h-[85vh] overflow-y-auto border-2 border-border custom-scrollbar flex flex-col">
         <style>{scrollbarStyles}</style>
-        <DialogHeader className="border border-white/20 p-6 bg-gradient-to-r from-gray-900/80 to-black/80 rounded-2xl">
-          <DialogTitle className="text-white text-xl font-bold">
+        <DialogHeader className="border border-border p-6 bg-gradient-to-r from-muted/80 to-background/80 rounded-2xl">
+          <DialogTitle className="text-foreground text-xl font-bold">
             <div className="flex flex-col sm:flex-row items-center gap-6 text-base md:text-lg font-medium text-center">
               {selectedItem?.spec_format?.[0]?.picture_url &&
               isPictureUrl(selectedItem.spec_format[0].picture_url) ? (
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-gray-800 to-black p-3 flex items-center justify-center border border-gray-700 shadow-lg cursor-pointer">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-muted to-background p-3 flex items-center justify-center border border-border shadow-lg cursor-pointer">
                   <img
                     src={selectedItem.spec_format[0].picture_url.value}
                     alt="Platform Logo"
@@ -484,41 +484,41 @@ export const Expand: React.FC<ExpandProps> = ({
                   />
                 </div>
               ) : (
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center border border-gray-700 shadow-lg">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-accent to-muted flex items-center justify-center border border-border shadow-lg">
                   <CompanyLogo companyName={selectedItem?.module} />
                 </div>
               )}
-              <div className="flex-1">
-                <div className="text-2xl md:text-3xl text-white font-bold capitalize mb-2">
-                  {selectedItem?.pretty_name || selectedItem?.module}
-                </div>
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-sm md:text-base font-medium">
-                  {selectedItem?.spec_format?.[0]?.gender?.value && (
-                    <div className="bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-600 px-4 py-2 rounded-full text-white capitalize shadow-md">
-                      {selectedItem.spec_format[0].gender.value}
-                    </div>
-                  )}
-                  {selectedItem?.spec_format?.[0]?.language?.value && (
-                    <div className="bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-600 px-4 py-2 rounded-full text-white capitalize shadow-md">
-                      {selectedItem.spec_format[0].language.value}
-                    </div>
-                  )}
-                  <div
-                    className={`border-2 px-4 py-2 rounded-full font-semibold shadow-md ${
-                      selectedItem?.spec_format?.[0]?.breach?.value
-                        ? "bg-gradient-to-r from-red-600 to-red-700 border-red-500 text-white"
-                        : "bg-gradient-to-r from-green-600 to-green-700 border-green-500 text-white"
-                    }`}
-                  >
-                    {selectedItem?.spec_format?.[0]?.breach?.value ? "Breached" : "Not Breached"}
+                              <div className="flex-1">
+                  <div className="text-2xl md:text-3xl text-foreground font-bold capitalize mb-2">
+                    {selectedItem?.pretty_name || selectedItem?.module}
                   </div>
-                  {selectedItem?.spec_format?.[0]?.location?.value && (
-                    <div className="bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-600 px-4 py-2 rounded-full text-white capitalize shadow-md">
-                      {selectedItem.spec_format[0].location.value}
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-sm md:text-base font-medium">
+                    {selectedItem?.spec_format?.[0]?.gender?.value && (
+                      <div className="bg-gradient-to-r from-muted to-background border border-border px-4 py-2 rounded-full text-foreground capitalize shadow-md">
+                        {selectedItem.spec_format[0].gender.value}
+                      </div>
+                    )}
+                    {selectedItem?.spec_format?.[0]?.language?.value && (
+                      <div className="bg-gradient-to-r from-muted to-background border border-border px-4 py-2 rounded-full text-foreground capitalize shadow-md">
+                        {selectedItem.spec_format[0].language.value}
+                      </div>
+                    )}
+                    <div
+                      className={`border-2 px-4 py-2 rounded-full font-semibold shadow-md ${
+                        selectedItem?.spec_format?.[0]?.breach?.value
+                          ? "bg-gradient-to-r from-destructive to-destructive/80 border-destructive text-destructive-foreground"
+                          : "bg-gradient-to-r from-green-600 to-green-700 border-green-500 text-white"
+                      }`}
+                    >
+                      {selectedItem?.spec_format?.[0]?.breach?.value ? "Breached" : "Not Breached"}
                     </div>
-                  )}
+                    {selectedItem?.spec_format?.[0]?.location?.value && (
+                      <div className="bg-gradient-to-r from-muted to-background border border-border px-4 py-2 rounded-full text-foreground capitalize shadow-md">
+                        {selectedItem.spec_format[0].location.value}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
             </div>
           </DialogTitle>
         </DialogHeader>

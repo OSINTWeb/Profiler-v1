@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import SelectInfo from "./SelectInfo";
 import CategoryCard from "./categoryCard";
 import GridView from "./GridView";
 import ListView from "./ListView";
@@ -17,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BarChart, Grid, List, XCircle, FileDown, Ban, Check, X, CheckCircle2 } from "lucide-react";
+import { ActionBar } from "../Card/ActionBar";
 
 interface PlatformVariable {
   key: string;
@@ -75,6 +75,90 @@ interface InfoCardListProps {
   sethidebutton: React.Dispatch<React.SetStateAction<boolean>>;
   fulldata: PlatformData[];
 }
+
+
+
+interface PlatformData {
+  module: string;
+  pretty_name?: string;
+  pretty_data?: Record<string, unknown>;
+  query: string;
+  status: string;
+  from: string;
+  reliable_source: boolean;
+  data?: {
+    phone_number?: string;
+    qq_id?: string;
+    email?: string;
+    region?: string;
+    league_of_legends_id?: string;
+    weibo_link?: string;
+    weibo_id?: string;
+    profile_pic?: string;
+    first_name?: string;
+    last_name?: string;
+    user?: string;
+    avatar?: string;
+    active?: boolean;
+    private?: boolean;
+    objectID?: string;
+    friends_with?: unknown[];
+    [key: string]: unknown;
+  };
+  category: {
+    name: string;
+    description: string;
+  };
+  spec_format: {
+    registered?: { value: boolean };
+    breach?: { value: boolean };
+    name?: { value: string };
+    picture_url?: { value: string };
+    website?: { value: string };
+    id?: { value: string };
+    bio?: { value: string };
+    creation_date?: { value: string };
+    gender?: { value: string };
+    last_seen?: { value: string };
+    username?: { value: string };
+    location?: { value: string };
+    phone_number?: { value: string };
+    phone?: { value: string };
+    email?: { value: string };
+    birthday?: { value: string };
+    language?: { value: string };
+    age?: { value: number };
+    platform_variables?: Array<{
+      key: string;
+      proper_key?: string;
+      value: string;
+      type?: string;
+    }>;
+  }[];
+  front_schemas?: {
+    module?: string;
+    image?: string;
+    body?: Record<string, unknown>;
+    tags?: Array<{
+      tag: string;
+      url?: string;
+    }>;
+  }[];
+}
+
+interface SelectInfoProps {
+  data?: PlatformData[];
+  selectedData?: PlatformData[];
+  hidebutton: boolean;
+  sethidebutton: (hidebutton: boolean) => void;
+  setenableselect: (enableselect: boolean) => void;
+  enableselect: boolean;
+  filteredUsers: PlatformData[];
+  selectedCount?: number;
+  exportMode?: "selected" | "excluding_deleted" | "all";
+  exportCount?: number;
+}
+
 
 const InfoCardList: React.FC<InfoCardListProps> = ({
   users,
@@ -212,16 +296,16 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
   }));
 
   return (
-    <div className="border border-gray-800 rounded-lg p-6">
+    <div >
       {/* ActionBar with export functionality */}
-      <SelectInfo
-        data={fulldata}
+      <ActionBar 
+        data={fulldata || []} 
         selectedData={convertedExportData}
         hidebutton={hidebutton}
         sethidebutton={sethidebutton}
         setenableselect={setenableselect}
         enableselect={enableselect}
-        filteredUsers={filteredUsers}
+        resultCount={fulldata?.length || 0}
         selectedCount={selectedCount}
         exportMode={enableselect ? "selected" : deletebutton ? "excluding_deleted" : "all"}
         exportCount={exportCount}
@@ -231,13 +315,13 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
       <div className="flex flex-col gap-4 my-4">
         {/* View Toggle */}
         <div className="flex justify-between items-center">
-          <div className="flex rounded-lg border border-gray-600 bg-black p-1">
+          <div className="flex rounded-lg border border-border bg-background p-1">
             <button
               onClick={() => setViewMode("grid")}
               className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
                 viewMode === "grid"
-                  ? "bg-white text-black shadow-lg"
-                  : "text-gray-300 hover:text-white hover:bg-gray-800"
+                  ? "bg-foreground text-background shadow-lg"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
               }`}
             >
               <Grid size={16} />
@@ -247,8 +331,8 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
               onClick={() => setViewMode("list")}
               className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
                 viewMode === "list"
-                  ? "bg-white text-black shadow-lg"
-                  : "text-gray-300 hover:text-white hover:bg-gray-800"
+                  ? "bg-foreground text-background shadow-lg"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
               }`}
             >
               <List size={16} />
@@ -258,8 +342,8 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
               onClick={() => setViewMode("graph")}
               className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
                 viewMode === "graph"
-                  ? "bg-white text-black shadow-lg"
-                  : "text-gray-300 hover:text-white hover:bg-gray-800"
+                  ? "bg-foreground text-background shadow-lg"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
               }`}
             >
               <BarChart size={16} />
@@ -288,7 +372,7 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
                     className={`flex items-center gap-2 px-6 py-2.5 rounded-lg transition-all duration-200 font-medium shadow-lg hover:shadow-xl relative group overflow-hidden ${
                       enableselect
                         ? "bg-emerald-500 text-white hover:bg-emerald-600"
-                        : "bg-black text-white border border-gray-600 hover:bg-gray-900"
+                        : "bg-background text-foreground border border-border hover:bg-accent"
                     }`}
                   >
                     <div className="flex items-center gap-2 relative z-10">
@@ -304,18 +388,18 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
                         </>
                       )}
                       {enableselect && selectedCount > 0 && (
-                        <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full text-sm font-semibold flex items-center gap-1">
+                        <span className="bg-background/20 backdrop-blur-sm px-2 py-0.5 rounded-full text-sm font-semibold flex items-center gap-1">
                           <Check size={14} />
                           {selectedCount}
                         </span>
                       )}
                     </div>
                     <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
-                      enableselect ? "bg-emerald-600" : "bg-gray-900"
+                      enableselect ? "bg-emerald-600" : "bg-accent"
                     }`} />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent className="bg-black text-white border border-gray-600">
+                <TooltipContent className="bg-background text-foreground border border-border">
                   <p>
                     {enableselect
                       ? "Cancel selection mode"
@@ -344,7 +428,7 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
                     className={`flex items-center gap-2 px-6 py-2.5 rounded-lg transition-all duration-200 font-medium shadow-lg hover:shadow-xl relative group overflow-hidden ${
                       deletebutton
                         ? "bg-red-500 text-white hover:bg-red-600"
-                        : "bg-black text-white border border-gray-600 hover:bg-gray-900"
+                        : "bg-background text-foreground border border-border hover:bg-accent"
                     }`}
                   >
                     <div className="flex items-center gap-2 relative z-10">
@@ -360,18 +444,18 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
                         </>
                       )}
                       {deletebutton && selectedCount > 0 && (
-                        <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full text-sm font-semibold flex items-center gap-1 ml-1">
+                        <span className="bg-background/20 backdrop-blur-sm px-2 py-0.5 rounded-full text-sm font-semibold flex items-center gap-1 ml-1">
                           <XCircle size={14} />
                           {selectedCount}
                         </span>
                       )}
                     </div>
                     <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
-                      deletebutton ? "bg-red-600" : "bg-gray-900"
+                      deletebutton ? "bg-red-600" : "bg-accent"
                     }`} />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent className="bg-black text-white border border-gray-600">
+                <TooltipContent className="bg-background text-foreground border border-border">
                   <p>
                     {deletebutton
                       ? "Cancel exclude mode"
@@ -392,7 +476,7 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
                   ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
                   : deletebutton
                     ? "bg-red-500/10 border-red-500/20 text-red-500"
-                    : "bg-gray-800 border-gray-600 text-gray-200"
+                    : "bg-muted border-border text-muted-foreground"
               }`}
             >
               {enableselect ? (
@@ -454,28 +538,28 @@ const InfoCardList: React.FC<InfoCardListProps> = ({
 
         {/* Permanent delete confirmation dialog */}
         {selectedIndices.length > 0 && deletebutton && (
-          <div className="px-2">
+          <div >
             <AlertDialog>
-              <AlertDialogTrigger className="text-white font-medium bg-gray-700 hover:bg-gray-600 px-6 py-2.5 rounded-lg text-center transition-all duration-200 shadow-lg">
+              <AlertDialogTrigger className="text-foreground font-medium bg-muted hover:bg-accent px-6 py-2.5 rounded-lg text-center transition-all duration-200 shadow-lg">
                 Permanently Delete Selected ({selectedIndices.length})
               </AlertDialogTrigger>
-              <AlertDialogContent className="bg-black border border-gray-600">
+              <AlertDialogContent className="bg-background border border-border">
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="text-xl font-bold text-white">
+                  <AlertDialogTitle className="text-xl font-bold text-foreground">
                     Are you absolutely sure?
                   </AlertDialogTitle>
-                  <AlertDialogDescription className="text-gray-300">
+                  <AlertDialogDescription className="text-muted-foreground">
                     This action cannot be undone. This will permanently delete{" "}
                     {selectedIndices.length} selected record(s) from your data.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className="bg-gray-800 text-gray-200 hover:bg-gray-700 border border-gray-600">
+                  <AlertDialogCancel className="bg-muted text-muted-foreground hover:bg-accent border border-border">
                     Cancel
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={permanentlyDeleteSelectedCards}
-                    className="bg-gray-600 hover:bg-gray-500 text-white font-medium"
+                    className="bg-muted hover:bg-accent text-foreground font-medium"
                   >
                     Delete {selectedIndices.length} Record(s)
                   </AlertDialogAction>

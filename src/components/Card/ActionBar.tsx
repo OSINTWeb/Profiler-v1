@@ -739,7 +739,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
 
   return (
     <div className="flex w-full max-w-full items-stretch gap-5 font-medium text-center flex-wrap justify-between px-2 max-md:max-w-full mb-4">
-      <div className=" border flex w-full items-stretch gap-5 text-xl text-[rgba(84,143,155,1)] font-medium text-center leading-none flex-wrap justify-between px-[35px] py-[34px] rounded-lg border-[rgba(51,53,54,1)] border-solid max-md:max-w-full max-md:mr-2.5 max-md:px-5">
+      <div className=" border flex w-full items-stretch gap-5 text-xl text-foreground font-medium text-center leading-none flex-wrap justify-between px-[35px] py-[34px] rounded-lg border-border border-solid max-md:max-w-full max-md:mr-2.5 max-md:px-5">
         <div className="flex gap-[9px] items-center justify-center max-md:text-lg">
           <img
             src="https://cdn.builder.io/api/v1/image/assets/08f1489d1012429aa8532f7dba7fd4a0/e03434cdb0512efa4dac167482ef1507f4ba547658fc4e584099d26d4362fd4a?placeholderIfAbsent=true"
@@ -748,7 +748,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           />
           <div>{resultCount} Results</div>
           {exportMode === "selected" && selectedCount > 0 && (
-            <div className="text-[rgba(84,143,155,1)] text-sm">
+            <div className="text-foreground text-sm">
               • {selectedCount} Selected for Export
             </div>
           )}
@@ -759,13 +759,13 @@ export const ActionBar: React.FC<ActionBarProps> = ({
           )}
         </div>
 
-        <div className="flex items-stretch gap-[13px] text-sm text-[rgba(207,207,207,1)] max-md:flex-wrap max-md:justify-center">
+        <div className="flex items-stretch gap-[13px] text-sm text-muted-foreground max-md:flex-wrap max-md:justify-center">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className={`flex bg-[rgba(19,19,21,1)] gap-1 border whitespace-nowrap px-4 py-2.5 rounded-lg border-[#163941] transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-lg hover:shadow-[rgba(84,143,155,0.5)] justify-center items-center max-md:flex-1 max-md:min-w-[120px] ${
-                    hidebutton ? "shadow-lg shadow-[rgba(84,143,155,0.5)]" : ""
+                  className={`flex bg-background gap-1 border whitespace-nowrap px-4 py-2.5 rounded-lg border-border transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-lg hover:shadow-foreground/20 justify-center items-center max-md:flex-1 max-md:min-w-[120px] ${
+                    hidebutton ? "shadow-lg shadow-foreground/20" : ""
                   }`}
                   aria-label="Export PDF"
                   onClick={() => handleExport("pdf")}
@@ -784,8 +784,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className={`flex bg-[rgba(19,19,21,1)] gap-1 border whitespace-nowrap px-4 py-2.5 rounded-lg border-[#163941] transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-lg hover:shadow-[rgba(84,143,155,0.5)] justify-center items-center max-md:flex-1 max-md:min-w-[120px] ${
-                    hidebutton ? "shadow-lg shadow-[rgba(84,143,155,0.5)]" : ""
+                  className={`flex bg-background gap-1 border whitespace-nowrap px-4 py-2.5 rounded-lg border-border transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-lg hover:shadow-foreground/20 justify-center items-center max-md:flex-1 max-md:min-w-[120px] ${
+                    hidebutton ? "shadow-lg shadow-foreground/20" : ""
                   }`}
                   aria-label="Export CSV"
                   onClick={() => handleExport("csv")}
@@ -804,8 +804,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className={`flex bg-[rgba(19,19,21,1)] gap-1 border whitespace-nowrap px-4 py-2.5 rounded-lg border-[#163941] transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-lg hover:shadow-[rgba(84,143,155,0.5)] justify-center items-center max-md:flex-1 max-md:min-w-[120px] ${
-                    hidebutton ? "shadow-lg shadow-[rgba(84,143,155,0.5)]" : ""
+                  className={`flex bg-background gap-1 border whitespace-nowrap px-4 py-2.5 rounded-lg border-border transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-lg hover:shadow-foreground/20 justify-center items-center max-md:flex-1 max-md:min-w-[120px] ${
+                    hidebutton ? "shadow-lg shadow-foreground/20" : ""
                   }`}
                   aria-label="Export DOC"
                   onClick={() => handleExport("docx")}
@@ -824,8 +824,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  className={`flex bg-[rgba(19,19,21,1)] gap-1 border whitespace-nowrap px-4 py-2.5 rounded-lg border-[#163941] transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-lg hover:shadow-[rgba(84,143,155,0.5)] justify-center items-center max-md:flex-1 max-md:min-w-[120px] ${
-                    hidebutton ? "shadow-lg shadow-[rgba(84,143,155,0.5)]" : ""
+                  className={`flex bg-background gap-1 border whitespace-nowrap px-4 py-2.5 rounded-lg border-border transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-lg hover:shadow-foreground/20 justify-center items-center max-md:flex-1 max-md:min-w-[120px] ${
+                    hidebutton ? "shadow-lg shadow-foreground/20" : ""
                   }`}
                   aria-label="Export JSON"
                   onClick={() => handleExport("json")}

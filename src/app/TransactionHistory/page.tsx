@@ -110,7 +110,7 @@ export default function TransactionHistoryPage() {
       case "razorpay":
         return "bg-green-500/20 text-green-400 border-green-500/30";
       default:
-        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
+        return "bg-muted text-muted-foreground border-border";
     }
   };
 
@@ -126,8 +126,8 @@ export default function TransactionHistoryPage() {
     return (
       <div className="flex items-center justify-center min-h-96">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white/70">Loading...</p>
+          <div className="w-12 h-12 border-4 border-muted border-t-foreground rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -136,7 +136,7 @@ export default function TransactionHistoryPage() {
   if (!user) {
     return (
       <div className="text-center py-12">
-        <p className="text-white/70 text-lg">Please log in to view your transaction history.</p>
+        <p className="text-muted-foreground text-lg">Please log in to view your transaction history.</p>
       </div>
     );
   }
@@ -147,16 +147,16 @@ export default function TransactionHistoryPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-4">
           <Link href="/">
-            <Button variant="outline" size="sm" className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800">
+            <Button variant="outline" size="sm" className="bg-card border-border hover:bg-accent">
               <Home className="w-4 h-4 mr-2" />
               Back to Home
             </Button>
           </Link>
-          <div className="flex items-center gap-2 text-gray-400">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <Mail className="w-4 h-4" />
             <span className="text-sm">{userEmail}</span>
           </div>
-          <div className="flex items-center gap-2 text-gray-400">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <span className="text-sm">Total: {totalItems} transactions</span>
           </div>
         </div>
@@ -165,7 +165,7 @@ export default function TransactionHistoryPage() {
           disabled={loading}
           variant="outline"
           size="sm"
-          className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800"
+          className="bg-card border-border hover:bg-accent"
         >
           <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
           Refresh
@@ -187,12 +187,12 @@ export default function TransactionHistoryPage() {
       {loading && (
         <div className="grid gap-4">
           {[...Array(3)].map((_, i) => (
-            <Card key={i} className="bg-zinc-900/50 border-zinc-800 animate-pulse">
+            <Card key={i} className="bg-card/50 border-border animate-pulse">
               <CardContent className="pt-6">
                 <div className="space-y-3">
-                  <div className="h-4 bg-zinc-700 rounded w-1/4"></div>
-                  <div className="h-3 bg-zinc-700 rounded w-1/2"></div>
-                  <div className="h-3 bg-zinc-700 rounded w-3/4"></div>
+                  <div className="h-4 bg-muted rounded w-1/4"></div>
+                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                  <div className="h-3 bg-muted rounded w-3/4"></div>
                 </div>
               </CardContent>
             </Card>
@@ -204,19 +204,19 @@ export default function TransactionHistoryPage() {
       {!loading && transactions.length > 0 && (
         <div className="grid gap-4">
           {transactions.map((transaction, index) => (
-            <Card key={index} className="bg-zinc-900/50 border-zinc-800 hover:bg-zinc-900/70 transition-colors">
+            <Card key={index} className="bg-card/50 border-border hover:bg-card/70 transition-colors">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className={`px-3 py-1 rounded-full text-xs font-medium border ${getSourceColor(transaction.source)}`}>
                       {transaction.source.toUpperCase()}
                     </div>
-                    <div className="text-lg font-semibold text-white">
+                    <div className="text-lg font-semibold text-foreground">
                       {formatCurrency(transaction.amount, transaction.currency)}
                     </div>
                   </div>
                   {transaction.payment_id && (
-                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <CreditCard className="w-3 h-3" />
                       <span>{transaction.payment_id}</span>
                       <ExternalLink className="w-3 h-3" />
@@ -226,17 +226,17 @@ export default function TransactionHistoryPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <Calendar className="w-4 h-4 text-gray-400" />
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Calendar className="w-4 h-4 text-muted-foreground" />
                     <span>{formatDate(transaction.timestamp)}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-300">
-                    <MapPin className="w-4 h-4 text-gray-400" />
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <MapPin className="w-4 h-4 text-muted-foreground" />
                     <span>{getCountryFlag(transaction.country)} {transaction.country}</span>
                   </div>
                   {transaction.phone_number && (
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <Phone className="w-4 h-4 text-gray-400" />
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Phone className="w-4 h-4 text-muted-foreground" />
                       <span>{transaction.phone_number}</span>
                     </div>
                   )}
@@ -249,11 +249,11 @@ export default function TransactionHistoryPage() {
 
       {/* Empty state */}
       {!loading && transactions.length === 0 && !error && (
-        <Card className="bg-zinc-900/50 border-zinc-800">
+        <Card className="bg-card/50 border-border">
           <CardContent className="pt-6 text-center py-12">
-            <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">No transactions found</h3>
-            <p className="text-gray-400">You haven't made any transactions yet.</p>
+            <CreditCard className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">No transactions found</h3>
+            <p className="text-muted-foreground">You haven&apos;t made any transactions yet.</p>
           </CardContent>
         </Card>
       )}
@@ -266,7 +266,7 @@ export default function TransactionHistoryPage() {
             disabled={currentPage === 1 || loading}
             variant="outline"
             size="sm"
-            className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800"
+            className="bg-card border-border hover:bg-accent"
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
@@ -284,8 +284,8 @@ export default function TransactionHistoryPage() {
                   size="sm"
                   className={
                     isCurrentPage
-                      ? "bg-white text-black"
-                      : "bg-zinc-900 border-zinc-700 hover:bg-zinc-800"
+                      ? "bg-foreground text-background"
+                      : "bg-card border-border hover:bg-accent"
                   }
                   disabled={loading}
                 >
@@ -300,7 +300,7 @@ export default function TransactionHistoryPage() {
             disabled={currentPage === totalPages || loading}
             variant="outline"
             size="sm"
-            className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800"
+            className="bg-card border-border hover:bg-accent"
           >
             <ChevronRight className="w-4 h-4" />
           </Button>

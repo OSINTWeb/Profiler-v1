@@ -49,17 +49,6 @@ const LoadingScreen = () => (
   </div>
 );
 
-
-/**
- * AdvanceResultPage Component
- * 
- * Improved implementation with:
- * - Centralized type management
- * - Custom hooks for separation of concerns
- * - Better error handling and retry logic
- * - Performance optimizations
- * - Cleaner component structure
- */
 export default function AdvanceResultPage() {
   const [searchData, setSearchData] = useState<SearchData | null>(null);
   const [hideButton, setHideButton] = useState(false);
