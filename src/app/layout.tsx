@@ -1,4 +1,3 @@
-
 import "./globals.css";
 import { Header } from "@/components/Crucial/Header";
 import { Footer } from "@/components/Crucial/Footer";
@@ -11,7 +10,6 @@ const metadata = {
     "Profiler.me is a platform for searching and finding information about people." as const,
 };
 
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -20,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />
       </head>
-        <body className="bg-background text-foreground">
+      <body className="bg-background text-foreground">
         <Header />
         {children}
         <Footer />

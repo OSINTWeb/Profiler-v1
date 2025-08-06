@@ -39,7 +39,7 @@ const ResultCard = ({ result }: ResultCardProps) => {
 
   return (
     <div className="animate-fade-in w-full">
-      <Card className="overflow-hidden border-white/20 p-6  bg-[#17181a] shadow-xl">
+      <Card className="overflow-hidden border-white/20 p-6 bg-black/50 shadow-xl backdrop-blur-sm">
         <div>
           {/* Header Section */}
           <div className="flex items-center justify-between mb-6">
@@ -49,12 +49,12 @@ const ResultCard = ({ result }: ResultCardProps) => {
             </div>
             <div className="flex items-center gap-2">
               {result.isOfficialDomain ? (
-                <span className="flex items-center gap-1 text-sm bg-green-500/20 text-green-400 px-3 py-1 rounded-full">
+                <span className="flex items-center gap-1 text-sm bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/30">
                   <CheckCircle className="w-4 h-4" />
                   Official Domain
                 </span>
               ) : (
-                <span className="flex items-center gap-1 text-sm bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full">
+                <span className="flex items-center gap-1 text-sm bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full border border-blue-500/30">
                   <Shield className="w-4 h-4" />
                   Custom Domain
                 </span>
@@ -62,11 +62,11 @@ const ResultCard = ({ result }: ResultCardProps) => {
             </div>
           </div>
 
-          <Separator className="mb-6 bg-[#2a3442]" />
+          <Separator className="mb-6 bg-white/20" />
 
           {/* Key ID Section */}
           <div className="space-y-6">
-            <div className="bg-[#1d2127] rounded-lg p-4 backdrop-blur-sm border border-[#2a3442]">
+            <div className="bg-white/5 rounded-lg p-4 backdrop-blur-sm border border-white/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Key className="w-5 h-5 text-gray-400" />
@@ -76,7 +76,7 @@ const ResultCard = ({ result }: ResultCardProps) => {
                   variant="ghost"
                   size="sm"
                   onClick={() => copyToClipboard(result.keyId, "Key ID")}
-                  className="hover:bg-[#2a3442] text-gray-400"
+                  className="hover:bg-white/10 text-gray-400"
                 >
                   <Copy className="w-4 h-4" />
                 </Button>
@@ -85,7 +85,7 @@ const ResultCard = ({ result }: ResultCardProps) => {
             </div>
 
             {/* Creation Date Section */}
-            <div className="bg-[#1d2127] rounded-lg p-4 backdrop-blur-sm border border-[#2a3442]">
+            <div className="bg-white/5 rounded-lg p-4 backdrop-blur-sm border border-white/20">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="w-5 h-5 text-gray-400" />
                 <span className="text-gray-400 font-medium">CREATION DATE</span>
@@ -101,7 +101,7 @@ const ResultCard = ({ result }: ResultCardProps) => {
             </div>
 
             {/* Key Status Section */}
-            <div className="bg-[#1d2127] rounded-lg p-4 backdrop-blur-sm border border-[#2a3442]">
+            <div className="bg-white/5 rounded-lg p-4 backdrop-blur-sm border border-white/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {isRecentKey(result.creationDate) && !isFutureKey(result.creationDate) ? (
@@ -116,10 +116,10 @@ const ResultCard = ({ result }: ResultCardProps) => {
                 <span
                   className={`px-3 py-1 rounded-full text-sm ${
                     isRecentKey(result.creationDate) && !isFutureKey(result.creationDate)
-                      ? "bg-green-500/20 text-green-400"
+                      ? "bg-green-500/20 text-green-400 border border-green-500/30"
                       : isOldKey(result.creationDate)
-                      ? "bg-yellow-500/20 text-yellow-400"
-                      : "bg-blue-500/20 text-blue-400"
+                      ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                      : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
                   }`}
                 >
                   {isRecentKey(result.creationDate) && !isFutureKey(result.creationDate)

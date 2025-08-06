@@ -22,7 +22,7 @@ interface ErrorBoundaryProps {
 const ErrorBoundary = ({ error, onRetry, children }: ErrorBoundaryProps) => {
   if (error) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-white flex items-center justify-center">
         <div className="text-center space-y-4">
           <h2 className="text-2xl font-bold text-red-400">Streaming Error</h2>
           <p className="text-gray-300">{error}</p>
@@ -41,7 +41,7 @@ const ErrorBoundary = ({ error, onRetry, children }: ErrorBoundaryProps) => {
 
 // Loading Component
 const LoadingScreen = () => (
-  <div className="min-h-screen bg-black text-white flex items-center justify-center">
+  <div className="min-h-screen bg-background text-white flex items-center justify-center">
     <div className="text-center space-y-4">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
       <div className="text-xl">Loading search data...</div>
@@ -97,7 +97,7 @@ export default function AdvanceResultPage() {
   // Handle missing search data
   if (!searchData?.query || !searchData?.type || !searchData?.PaidSearch) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-white flex items-center justify-center">
         <div className="text-center space-y-4">
           <h2 className="text-2xl font-bold text-red-400">Invalid Search Data</h2>
           <p className="text-gray-300">Missing required search parameters</p>
@@ -114,7 +114,7 @@ export default function AdvanceResultPage() {
 
   return (
     <ErrorBoundary error={streamingState.error} onRetry={streamingState.retryConnection}>
-      <div className="min-h-screen bg-black text-white p-8">
+      <div className="min-h-screen bg-background text-white p-8">
         {/* Streaming Status Indicator */}
 
         {/* Main Content */}

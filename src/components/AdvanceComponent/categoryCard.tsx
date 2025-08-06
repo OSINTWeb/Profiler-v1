@@ -3,28 +3,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { UserRoundCheck, ChevronRight, TrendingUp } from "lucide-react";
 import CompanyLogo from "@/components/ActivityComponent/Logo";
 import { Expand } from "@/components/ActivityComponent/expand";
-
-interface SpecFormatValue {
-  value: string | boolean | number;
-}
-
-interface SpecFormat {  
-  [key: string]: SpecFormatValue;
-}
-
-interface PlatformData {
-  module: string;
-  pretty_name: string;
-  query: string;
-  category: {
-    name: string;
-    description: string;
-  };
-  spec_format: SpecFormat[];
-  front_schemas?: {
-    image?: string;
-  }[];
-}
+import { PlatformData } from "@/types/streaming";
 
 interface CategoryCardProps {
   CardData: Array<{
@@ -72,16 +51,16 @@ const CategoryCard: React.FC<CategoryCardProps> = memo(({ CardData }) => {
           width: 8px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(31, 41, 55, 0.2);
+          background: rgba(255, 255, 255, 0.1);
           border-radius: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(107, 114, 128, 0.6);
+          background: rgba(255, 255, 255, 0.3);
           border-radius: 4px;
           transition: all 0.3s ease;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(107, 114, 128, 0.8);
+          background: rgba(255, 255, 255, 0.5);
         }
         .custom-scrollbar::-webkit-scrollbar-corner {
           background: transparent;
@@ -90,7 +69,7 @@ const CategoryCard: React.FC<CategoryCardProps> = memo(({ CardData }) => {
         /* Firefox scrollbar */
         .custom-scrollbar {
           scrollbar-width: thin;
-          scrollbar-color: rgba(107, 114, 128, 0.6) rgba(31, 41, 55, 0.2);
+          scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
         }
 
         /* Ensure proper flex layout for cards */
@@ -141,18 +120,18 @@ const CategoryCard: React.FC<CategoryCardProps> = memo(({ CardData }) => {
       `}</style>
 
       {/* Header Section */}
-      <div className="relative overflow-hidden bg-black">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-900/20 via-slate-900/20 to-zinc-900/20 blur-3xl" />
+      <div className="relative overflow-hidden mt-10 rounded-2xl bg-black/50 backdrop-blur-sm">
+        <div className="absolute inset-0  blur-3xl" />
 
         <div className="relative text-white py-16 px-4">
           <div className="flex items-center justify-center gap-4 mb-6">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-600 to-gray-700 rounded-full blur-lg opacity-30 animate-pulse" />
-              <UserRoundCheck className="relative w-16 h-16 text-slate-300" />
+              <div className="absolute inset-0 bg-gradient-to-r from-teal-400/30 to-blue-400/30 rounded-full blur-lg opacity-30 animate-pulse" />
+              <UserRoundCheck className="relative w-16 h-16 text-teal-400" />
             </div>
           </div>
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-center bg-gradient-to-r from-white via-gray-200 to-slate-300 bg-clip-text text-transparent leading-tight tracking-tight">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center bg-gradient-to-r from-white via-gray-200 to-gray-300 bg-clip-text text-transparent leading-tight tracking-tight">
             Account Checkers & Data Aggregators
           </h1>
 
@@ -161,11 +140,8 @@ const CategoryCard: React.FC<CategoryCardProps> = memo(({ CardData }) => {
             platforms
           </p>
           <div className="flex items-center justify-center gap-2 mt-6">
-            <TrendingUp
-              className="w
--5 h-5 text-slate-400"
-            />
-            <span className="text-sm text-slate-400 font-medium">
+            <TrendingUp className="w-5 h-5 text-teal-400" />
+            <span className="text-sm text-white font-medium">
               {Object.keys(groupedByCategory).length} Categories • {CardData.length} Tools Available
             </span>
           </div>
@@ -173,31 +149,31 @@ const CategoryCard: React.FC<CategoryCardProps> = memo(({ CardData }) => {
       </div>
 
       {/* Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 py-12 px-4 bg-black">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 py-12 px-4  backdrop-blur-sm">
         {Object.entries(groupedByCategory).map(([category, data]) => (
           <Card
             key={category}
-            className={`group relative bg-gradient-to-br from-[#050505] via-[#0a0a0a] to-[#0f0f0f] text-white overflow-hidden border transition-all duration-300 ease-out rounded-2xl card-container ${
+            className={`group relative bg-black/50 text-white overflow-hidden border border-white/20 transition-all duration-300 ease-out rounded-2xl card-container backdrop-blur-sm ${
               hoveredCard === category
-                ? "border-slate-500/50 shadow-2xl shadow-slate-500/20 scale-[1.02] -translate-y-2"
-                : "border-gray-800/50 hover:border-slate-600/50 hover:shadow-xl hover:shadow-slate-500/10"
+                ? "border-teal-400/50 shadow-2xl shadow-teal-400/20 scale-[1.02] -translate-y-2"
+                : "border-white/20 hover:border-teal-400/30 hover:shadow-xl hover:shadow-teal-400/10"
             }`}
             onMouseEnter={() => setHoveredCard(category)}
             onMouseLeave={() => setHoveredCard(null)}
           >
             {/* Simplified Background Effects */}
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-800/5 via-slate-800/5 to-zinc-800/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-500 via-gray-600 to-zinc-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-teal-400/5 to-blue-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-400 via-blue-400 to-purple-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
 
             {/* Card Header */}
-            <div className="card-header-sticky bg-gradient-to-br from-[#050505]/95 via-[#0a0a0a]/95 to-[#0f0f0f]/95 border-b border-gray-800/50 backdrop-blur-xl">
+            <div className="card-header-sticky bg-gradient-to-br from-black/95 via-black/90 to-black/95 border-b border-white/20 backdrop-blur-xl">
               <CardHeader className="pb-6 pt-8 space-y-4">
                 <div className="flex items-start justify-between">
-                  <CardTitle className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-gray-200 to-slate-300 bg-clip-text text-transparent leading-tight">
+                  <CardTitle className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-300 bg-clip-text text-transparent leading-tight">
                     {category}
                   </CardTitle>
-                  <div className="flex items-center gap-1 text-xs text-slate-400 bg-slate-800/30 px-3 py-1 rounded-full border border-slate-700/30">
-                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-pulse" />
+                  <div className="flex items-center gap-1 text-xs text-white bg-white/10 px-3 py-1 rounded-full border border-white/20">
+                    <span className="w-2 h-2 bg-teal-400 rounded-full animate-pulse" />
                     {data.items.length} tools
                   </div>
                 </div>
@@ -214,16 +190,16 @@ const CategoryCard: React.FC<CategoryCardProps> = memo(({ CardData }) => {
                   {data.items.map((item) => (
                     <div
                       key={`${item.module}-${item.pretty_name}`}
-                      className="scroll-item group/item relative flex flex-col items-center justify-center p-4 rounded-xl hover:bg-gradient-to-br hover:from-white/[0.04] hover:to-slate-500/[0.03] transition-all duration-300 border border-transparent hover:border-slate-600/30 hover:shadow-lg hover:shadow-slate-500/10 cursor-pointer transform hover:scale-[1.02]"
+                      className="scroll-item group/item relative flex flex-col items-center justify-center p-4 rounded-xl hover:bg-gradient-to-br hover:from-white/5 hover:to-teal-400/5 transition-all duration-300 border border-transparent hover:border-teal-400/30 hover:shadow-lg hover:shadow-teal-400/10 cursor-pointer transform hover:scale-[1.02]"
                       onClick={() => handleItemClick(item)}
                     >
                       {/* Simplified Hover Glow Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-slate-600/10 to-gray-600/10 rounded-xl opacity-0 group-hover/item:opacity-100 transition-opacity duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 rounded-xl opacity-0 group-hover/item:opacity-100 transition-opacity duration-300" />
 
                       {/* Optimized Logo Container */}
                       <div className="relative transform transition-transform duration-300 ease-out group-hover/item:scale-105">
-                        <div className="absolute inset-0 bg-gradient-to-r from-slate-600/20 to-gray-600/20 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity duration-300" />
-                        <div className="relative bg-white/[0.02] p-3 rounded-lg border border-gray-800/50 group-hover/item:border-slate-600/40 transition-colors duration-200">
+                        <div className="absolute inset-0 bg-gradient-to-r from-teal-400/20 to-blue-400/20 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity duration-300" />
+                        <div className="relative bg-white/5 p-3 rounded-lg border border-white/20 group-hover/item:border-teal-400/40 transition-colors duration-200">
                           <CompanyLogo companyName={item.module || item.pretty_name} />
                         </div>
                       </div>
@@ -234,7 +210,7 @@ const CategoryCard: React.FC<CategoryCardProps> = memo(({ CardData }) => {
                           {item.pretty_name || item.module}
                         </div>
                         <div className="flex items-center justify-center mt-2 opacity-0 group-hover/item:opacity-100 transition-opacity duration-200">
-                          <ChevronRight className="w-4 h-4 text-slate-400" />
+                          <ChevronRight className="w-4 h-4 text-teal-400" />
                         </div>
                       </div>
                     </div>
@@ -269,6 +245,10 @@ const CategoryCard: React.FC<CategoryCardProps> = memo(({ CardData }) => {
                 name: selectedItem.category.name,
                 description: selectedItem.category.description,
               },
+              schemaModule: "",
+              status: selectedItem.status,
+              from: "",
+              reliable_source: false,
             } as PlatformData
           }
         />

@@ -13,7 +13,7 @@ interface BreachGuardResultsProps {
 type ViewMode = 'grid' | 'list';
 
 const BreachGuardResults: React.FC<BreachGuardResultsProps> = ({ data }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
 
   if (!data) {
     return null;
@@ -52,12 +52,10 @@ const BreachGuardResults: React.FC<BreachGuardResultsProps> = ({ data }) => {
     return '📄';
   };
 
-
-
   const GridView = () => (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {breachData.map((breach, index) => (
-        <div key={index} className="bg-black border border-white rounded-lg p-4 hover:border-teal-400 transition-colors">
+        <div key={index} className="bg-black/50 border border-white/20 rounded-lg p-4 hover:border-teal-400/50 transition-colors backdrop-blur-sm">
           {/* Header */}
           <div className="flex items-center gap-3 mb-3">
             {breach.LogoPath ? (
@@ -99,12 +97,12 @@ const BreachGuardResults: React.FC<BreachGuardResultsProps> = ({ data }) => {
           {/* Status Badges */}
           <div className="flex flex-wrap gap-1 mb-3">
             {breach.IsVerified && (
-              <span className="px-2 py-1 bg-teal-400 text-black text-xs rounded border border-teal-400">
+              <span className="px-2 py-1 bg-teal-400/20 text-teal-400 text-xs rounded border border-teal-400/30">
                 Verified
               </span>
             )}
             {breach.IsSensitive && (
-              <span className="px-2 py-1 bg-white text-black text-xs rounded border border-white">
+              <span className="px-2 py-1 bg-white/20 text-white text-xs rounded border border-white/30">
                 Sensitive
               </span>
             )}
@@ -125,13 +123,13 @@ const BreachGuardResults: React.FC<BreachGuardResultsProps> = ({ data }) => {
             <p className="text-xs text-teal-400 mb-2">Compromised Data:</p>
             <div className="flex flex-wrap gap-1">
               {breach.DataClasses.slice(0, 4).map((dataClass, i) => (
-                <span key={i} className="inline-flex items-center gap-1 px-2 py-1 bg-white/10 text-xs rounded">
+                <span key={i} className="inline-flex items-center gap-1 px-2 py-1 bg-white/10 text-xs rounded border border-white/20">
                   <span>{getDataClassIcon(dataClass)}</span>
                   <span className="text-white">{dataClass}</span>
                 </span>
               ))}
               {breach.DataClasses.length > 4 && (
-                <span className="px-2 py-1 bg-white/10 text-xs rounded text-white/60">
+                <span className="px-2 py-1 bg-white/10 text-xs rounded text-white/60 border border-white/20">
                   +{breach.DataClasses.length - 4} more
                 </span>
               )}
@@ -150,7 +148,7 @@ const BreachGuardResults: React.FC<BreachGuardResultsProps> = ({ data }) => {
   const ListView = () => (
     <div className="space-y-3">
       {breachData.map((breach, index) => (
-        <div key={index} className="bg-black border border-white rounded-lg p-4 hover:border-teal-400 transition-colors">
+        <div key={index} className="bg-black/50 border border-white/20 rounded-lg p-4 hover:border-teal-400/50 transition-colors backdrop-blur-sm">
           <div className="flex items-start gap-4">
             {/* Logo */}
             <div className="flex-shrink-0">
@@ -180,12 +178,12 @@ const BreachGuardResults: React.FC<BreachGuardResultsProps> = ({ data }) => {
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {breach.IsVerified && (
-                    <span className="px-2 py-1 bg-teal-400 text-black text-xs rounded border border-teal-400">
+                    <span className="px-2 py-1 bg-teal-400/20 text-teal-400 text-xs rounded border border-teal-400/30">
                       Verified
                     </span>
                   )}
                   {breach.IsSensitive && (
-                    <span className="px-2 py-1 bg-white text-black text-xs rounded border border-white">
+                    <span className="px-2 py-1 bg-white/20 text-white text-xs rounded border border-white/30">
                       Sensitive
                     </span>
                   )}
@@ -213,7 +211,7 @@ const BreachGuardResults: React.FC<BreachGuardResultsProps> = ({ data }) => {
                 <p className="text-xs text-teal-400 mb-2">Compromised Data:</p>
                 <div className="flex flex-wrap gap-1">
                   {breach.DataClasses.map((dataClass, i) => (
-                    <span key={i} className="inline-flex items-center gap-1 px-2 py-1 bg-white/10 text-xs rounded">
+                    <span key={i} className="inline-flex items-center gap-1 px-2 py-1 bg-white/10 text-xs rounded border border-white/20">
                       <span>{getDataClassIcon(dataClass)}</span>
                       <span className="text-white">{dataClass}</span>
                     </span>
@@ -233,20 +231,20 @@ const BreachGuardResults: React.FC<BreachGuardResultsProps> = ({ data }) => {
   );
 
   return (
-        <div className="w-full flex flex-col items-center justify-center">
+    <div className="w-full flex flex-col items-center justify-center">
       <div className="w-full mx-auto mt-8 overflow-hidden animate-slide-up">
-        <div className="border border-white rounded-xl p-6 bg-black backdrop-blur-sm">
+        <div className="border border-white/20 rounded-xl p-6 bg-black/50 backdrop-blur-sm">
           <div className="space-y-6">
             {/* Header Section */}
             <div className="text-center space-y-2">
-              <span className="inline-block px-3 py-1 rounded bg-teal-400 text-black text-sm font-medium">
+              <span className="inline-block px-3 py-1 rounded-full bg-teal-400/20 text-teal-400 text-sm font-medium border border-teal-400/30">
                 Breach Guard
               </span>
               <h1 className="text-3xl font-bold text-white">Data Breach Report</h1>
             </div>
 
             {/* Summary Statistics with View Toggle */}
-            <div className="bg-white/5 rounded-lg p-4 border border-white/20 flex flex-col md:flex-row items-center justify-center gap-4 text-center">
+            <div className="bg-white/5 rounded-lg p-4 border border-white/20 flex flex-col md:flex-row items-center justify-center gap-4 text-center backdrop-blur-sm">
               <div className="flex-1 flex flex-col items-center gap-1">
                 <span className="text-2xl font-bold text-teal-400">
                   {breachData.length}

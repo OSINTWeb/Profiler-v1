@@ -42,18 +42,18 @@ const InfoStealerLookupResults: React.FC<InfoStealerLookupResultsProps> = ({ dat
 
   return (
     <div className="w-full max-w-4xl mx-auto mt-8 overflow-hidden animate-slide-up">
-      <div className="rounded-xl p-6 bg-[#18181B] shadow-xl">
+      <div className="rounded-xl p-6 bg-black/50 shadow-xl backdrop-blur-sm border border-white/20">
         <div className="space-y-6">
           {/* Header Section */}
           <div className="text-center space-y-1">
-            <span className="inline-block px-2 py-0.5 rounded bg-teal-400/10 text-teal-400 text-xs font-medium border border-teal-400/20">
+            <span className="inline-block px-2 py-0.5 rounded-full bg-teal-400/10 text-teal-400 text-xs font-medium border border-teal-400/20">
               Info-Stealer Lookup
             </span>
             <h1 className="text-2xl font-bold text-white">Analysis Complete</h1>
           </div>
 
           {/* Message Alert */}
-          <div className="bg-[#232326] rounded-lg p-4 flex items-center gap-3">
+          <div className="bg-white/5 rounded-lg p-4 flex items-center gap-3 border border-white/10">
             <AlertCircle className="h-6 w-6 text-teal-400" />
             <div>
               <h3 className="text-base font-semibold text-teal-400 mb-1">Result</h3>
@@ -64,7 +64,7 @@ const InfoStealerLookupResults: React.FC<InfoStealerLookupResultsProps> = ({ dat
           </div>
 
           {/* Summary Statistics */}
-          <div className="bg-[#18181B] rounded-lg p-4 flex flex-col md:flex-row items-center justify-center gap-2 text-center border border-teal-400/10">
+          <div className="bg-black/30 rounded-lg p-4 flex flex-col md:flex-row items-center justify-center gap-2 text-center border border-teal-400/10 backdrop-blur-sm">
             <div className="flex-1 flex flex-col items-center gap-1">
               <span className="text-lg font-bold text-teal-400">
                 {infoStealerData.total_corporate_services}
@@ -97,7 +97,7 @@ const InfoStealerLookupResults: React.FC<InfoStealerLookupResultsProps> = ({ dat
               {infoStealerData.stealers.map((stealer, index) => (
                 <div
                   key={index}
-                  className="bg-[#232326] rounded-md border border-teal-400/10 px-3 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-sm"
+                  className="bg-white/5 rounded-lg border border-teal-400/10 px-3 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-sm backdrop-blur-sm"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 font-semibold text-white truncate">

@@ -601,8 +601,8 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
     <div className="w-full flex flex-col items-center space-y-8">
       {/* Main Results Card */}
       <div className="w-full max-w-3xl mx-auto">
-        <Card className="bg-black text-white border border-zinc-800 overflow-hidden">
-          <CardHeader className="osint-gradient">
+        <Card className="bg-black/50 text-white border border-white/20 overflow-hidden backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-black/50 to-black/30 border-b border-white/20">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
                 <CardTitle className="text-xl font-bold">
@@ -642,7 +642,7 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
                     </div>
                   </AccordionTrigger>
                   
-                  <AccordionContent className="px-3 sm:px-6 py-2 bg-black/80">
+                  <AccordionContent className="px-3 sm:px-6 py-2 bg-black/30 backdrop-blur-sm">
                     {site.linked_accounts && site.linked_accounts.length > 0 ? (
                       <div className="space-y-2 py-2">
                         <h4 className="text-sm text-zinc-400 mb-2">Linked Accounts:</h4>
@@ -654,7 +654,7 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
                             
                             return (
                               <li key={accIndex} className="flex items-start gap-2">
-                                <div className="w-8 h-8 rounded-full bg-osint-accent/50 flex items-center justify-center flex-shrink-0">
+                                <div className="w-8 h-8 rounded-full bg-teal-400/50 flex items-center justify-center flex-shrink-0">
                                   <span className="text-xs font-bold">{platform.charAt(0)}</span>
                                 </div>
                                 <div className="overflow-hidden">
@@ -687,8 +687,8 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
       {/* Aggregated Linked Accounts */}
       {aggregatedAccounts.length > 0 && (
         <div className="w-full max-w-3xl mx-auto">
-          <Card className="bg-black text-white border border-zinc-800 overflow-hidden">
-            <CardHeader className="osint-gradient">
+          <Card className="bg-black/50 text-white border border-white/20 overflow-hidden backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-black/50 to-black/30 border-b border-white/20">
               <CardTitle className="text-xl font-bold">
                 All Connected Accounts
               </CardTitle>
@@ -701,7 +701,7 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
               {Array.from(groupedAccounts.entries()).map(([platform, accounts]) => (
                 <div key={platform} className="mb-6 last:mb-0">
                   <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 rounded-full bg-osint-accent/70 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-teal-400/70 flex items-center justify-center flex-shrink-0">
                       <span className="text-xs font-bold">{platform.charAt(0)}</span>
                     </div>
                     <h3 className="text-base sm:text-lg font-semibold">{platform}</h3>
@@ -736,8 +736,8 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
 
       {/* Enhanced Interactive Account Connection Map */}
       <div className="w-full max-w-3xl mx-auto h-fit">
-        <Card className="bg-black text-white border border-zinc-800 overflow-hidden">
-          <CardHeader className="osint-gradient">
+        <Card className="bg-black/50 text-white border border-white/20 overflow-hidden backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-black/50 to-black/30 border-b border-white/20">
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-xl font-bold">Interactive Connection Map</CardTitle>
@@ -753,7 +753,7 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
             <div className="p-2 sm:p-4">
               <canvas 
                 ref={canvasRef} 
-                className="w-full border border-gray-600 rounded-lg bg-black"
+                className="w-full border border-white/20 rounded-lg bg-black"
 
                 style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
               />
@@ -761,22 +761,22 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
               {/* Legend */}
               <div className="mt-4 flex flex-wrap gap-4 text-xs text-gray-400">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full bg-white border border-gray-600"></div>
+                  <div className="w-4 h-4 rounded-full bg-white border border-white/20"></div>
                   <span className="text-gray-300">Sites</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full bg-gray-400 border border-gray-600"></div>
+                  <div className="w-4 h-4 rounded-full bg-gray-400 border border-white/20"></div>
                   <span className="text-gray-300">Platforms</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-0.5 bg-gray-500"></div>
+                  <div className="w-6 h-0.5 bg-white/50"></div>
                   <span className="text-gray-300">Connections</span>
                 </div>
               </div>
               
               {/* Info panel for selected node */}
               {selectedNode && (
-                <div className="mt-4 p-4 bg-black/80 rounded-lg border border-gray-600 backdrop-blur-sm">
+                <div className="mt-4 p-4 bg-black/50 rounded-lg border border-white/20 backdrop-blur-sm">
                   {(() => {
                     const node = nodesRef.current.find(n => n.id === selectedNode);
                     if (!node) return null;
@@ -810,7 +810,7 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
         </Card>
 
         <Dialog open={isExpanded} onOpenChange={setIsExpanded}>
-          <DialogContent className="max-w-[95vw] w-[95vw] sm:max-w-[90vw] sm:w-[1200px] h-[80vh] sm:h-[90vh] p-0 bg-black border-gray-600">
+          <DialogContent className="max-w-[95vw] w-[95vw] sm:max-w-[90vw] sm:w-[1200px] h-[80vh] sm:h-[90vh] p-0 bg-black/90 border-white/20 backdrop-blur-sm">
             <DialogTitle className="sr-only">Expanded Interactive Connection Map</DialogTitle>
             <div className="w-full h-full p-2 sm:p-6">
               <div className="flex justify-between items-center mb-4">
@@ -819,7 +819,7 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
               </div>
               <canvas 
                 ref={expandedCanvasRef} 
-                className="w-full h-[calc(100%-60px)] border border-gray-600 rounded-lg bg-black"
+                className="w-full h-[calc(100%-60px)] border border-white/20 rounded-lg bg-black"
                
                 style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
               />
