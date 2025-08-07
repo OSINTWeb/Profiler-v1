@@ -15,8 +15,7 @@ import {
 } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Link, Maximize2, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Link } from "lucide-react";
 
 interface LinkookResultsProps {
   data: OsintResult | null;
@@ -30,7 +29,7 @@ interface GraphNode {
   vy: number;
   radius: number;
   color: string;
-  type: 'site' | 'platform';
+  type: 'site' | 'account';
   label: string;
   connections: number;
   url?: string;
@@ -53,7 +52,6 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
   const [zoom, setZoom] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [animationFrame, setAnimationFrame] = useState<number | null>(null);
   const [isStable, setIsStable] = useState(false);
   const [iterationCount, setIterationCount] = useState(0);
@@ -80,16 +78,17 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
     const nodes: GraphNode[] = [];
     const connections: GraphConnection[] = [];
     const nodeMap = new Map<string, GraphNode>();
+    const accountNodeMap = new Map<string, GraphNode>();
     
     // Create site nodes
     data.sites.forEach((site) => {
       const siteNode: GraphNode = {
         id: site.site,
-        x: Math.random() * 400 + 200, // Smaller initial spread
-        y: Math.random() * 300 + 150,
+        x: Math.random() * 600 + 300, // Increased initial spread
+        y: Math.random() * 500 + 250,
         vx: 0,
         vy: 0,
-        radius: Math.max(25, Math.min(45, (site.linked_accounts?.length || 0) * 8 + 25)),
+        radius: Math.max(30, Math.min(55, (site.linked_accounts?.length || 0) * 6 + 30)),
         color: '#ffffff', // white
         type: 'site',
         label: site.site,
@@ -101,51 +100,51 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
       nodeMap.set(site.site, siteNode);
     });
 
-    // Create platform nodes and connections
-    const platformMap = new Map<string, Set<string>>();
-    
+    // Create account nodes and connections
     data.sites.forEach((site) => {
       if (site.linked_accounts) {
         site.linked_accounts.forEach((accountStr) => {
           const parts = accountStr.split(": ");
           if (parts.length === 2) {
             const platform = parts[0].trim();
+            const accountUrl = parts[1].trim();
             
-            if (!platformMap.has(platform)) {
-              platformMap.set(platform, new Set());
+            // Create unique ID for account node
+            const accountId = `account_${platform}_${accountUrl}`;
+            
+            // Create account node if it doesn't exist
+            if (!accountNodeMap.has(accountId)) {
+              const accountNode: GraphNode = {
+                id: accountId,
+                x: Math.random() * 600 + 300,
+                y: Math.random() * 500 + 250,
+                vx: 0,
+                vy: 0,
+                radius: Math.max(18, Math.min(28, 22)), // Slightly larger radius for account nodes
+                color: '#e5e5e5', // light gray for account nodes
+                type: 'account',
+                label: `${platform}: ${accountUrl}`,
+                connections: 1,
+                url: accountUrl
+              };
+              nodes.push(accountNode);
+              accountNodeMap.set(accountId, accountNode);
+            } else {
+              // Increment connection count for existing account node
+              const existingNode = accountNodeMap.get(accountId)!;
+              existingNode.connections += 1;
             }
-            platformMap.get(platform)!.add(site.site);
+            
+            // Create connection between site and account
+            connections.push({
+              source: site.site,
+              target: accountId,
+              strength: 1,
+              color: '#666666' // gray
+            });
           }
         });
       }
-    });
-
-    // Create platform nodes
-    Array.from(platformMap.entries()).forEach(([platform, connectedSites]) => {
-      const platformNode: GraphNode = {
-        id: `platform_${platform}`,
-        x: Math.random() * 400 + 200, // Smaller initial spread
-        y: Math.random() * 300 + 150,
-        vx: 0,
-        vy: 0,
-        radius: Math.max(20, Math.min(35, connectedSites.size * 5 + 20)),
-        color: '#ffffff', // white for platforms too
-        type: 'platform',
-        label: platform,
-        connections: connectedSites.size
-      };
-      nodes.push(platformNode);
-      nodeMap.set(`platform_${platform}`, platformNode);
-
-      // Create connections between sites and platforms
-      connectedSites.forEach((siteName) => {
-        connections.push({
-          source: siteName,
-          target: `platform_${platform}`,
-          strength: 1,
-          color: '#666666' // gray
-        });
-      });
     });
 
     return { nodes, connections };
@@ -183,10 +182,10 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
           const dx = node.x - other.x;
           const dy = node.y - other.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
-          const minDistance = node.radius + other.radius + 40; // Increased minimum distance
+          const minDistance = node.radius + other.radius + 80; // Significantly increased minimum distance
           
           if (distance < minDistance && distance > 0) {
-            const force = (minDistance - distance) / distance * 0.15; // Adjusted repulsion strength
+            const force = (minDistance - distance) / distance * 0.2; // Increased repulsion strength
             fx += (dx / distance) * force;
             fy += (dy / distance) * force;
           }
@@ -204,10 +203,10 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
             const dx = other.x - node.x;
             const dy = other.y - node.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
-            const optimalDistance = 150; // Increased optimal distance
+            const optimalDistance = 250; // Significantly increased optimal distance
             
             if (distance > 0) {
-              const force = (distance - optimalDistance) / distance * 0.03; // Gentler spring force
+              const force = (distance - optimalDistance) / distance * 0.02; // Gentler spring force
               fx += (dx / distance) * force;
               fy += (dy / distance) * force;
             }
@@ -235,7 +234,7 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
       node.y += node.vy;
 
       // Improved boundary constraints with padding
-      const padding = Math.max(50, node.radius + 20);
+      const padding = Math.max(80, node.radius + 40);
       node.x = Math.max(padding, Math.min(width - padding, node.x));
       node.y = Math.max(padding, Math.min(height - padding, node.y));
     });
@@ -267,15 +266,37 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
     // Clear canvas with gradient background
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Background gradient - Black theme
+    // Enhanced background gradient - Dark theme with subtle pattern
     const gradient = ctx.createRadialGradient(
       canvas.width / 2, canvas.height / 2, 0,
       canvas.width / 2, canvas.height / 2, Math.max(canvas.width, canvas.height) / 2
     );
-    gradient.addColorStop(0, '#000000');
-    gradient.addColorStop(1, '#0a0a0a');
+    gradient.addColorStop(0, '#0a0a0a');
+    gradient.addColorStop(0.3, '#111111');
+    gradient.addColorStop(0.7, '#0d0d0d');
+    gradient.addColorStop(1, '#000000');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Add subtle grid pattern for better visual depth
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth = 0.5;
+    ctx.globalAlpha = 0.3;
+    
+    const gridSize = 50;
+    for (let x = 0; x < canvas.width; x += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
 
     // Apply zoom and offset
     ctx.save();
@@ -304,9 +325,9 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
         // Highlight connection if related node is hovered
         const isHighlighted = hoveredNode === source.id || hoveredNode === target.id;
         
-        ctx.globalAlpha = isHighlighted ? 0.9 : 0.4;
-        ctx.strokeStyle = isHighlighted ? '#ffffff' : '#666666'; // white for highlight, gray for normal
-        ctx.lineWidth = isHighlighted ? 4 : 2;
+        ctx.globalAlpha = isHighlighted ? 0.9 : 0.3;
+        ctx.strokeStyle = isHighlighted ? '#ffffff' : '#444444'; // white for highlight, darker gray for normal
+        ctx.lineWidth = isHighlighted ? 3 : 1.5;
         
         // Animated dash for highlighted connections (only when stable)
         if (isHighlighted && isStable) {
@@ -320,7 +341,7 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
         // Curved connections for better visual appeal
         const midX = (source.x + target.x) / 2;
         const midY = (source.y + target.y) / 2;
-        const curveOffset = 25;
+        const curveOffset = 35; // Increased curve for better spacing
         ctx.quadraticCurveTo(midX + curveOffset, midY - curveOffset, target.x, target.y);
         ctx.stroke();
         
@@ -354,46 +375,62 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
       
       ctx.save();
       
-      // Node glow effect - White glow
+      // Enhanced node glow effect
       if (isHovered || isSelected) {
         ctx.shadowColor = '#ffffff'; // white glow
-        ctx.shadowBlur = 25;
+        ctx.shadowBlur = 30;
         ctx.globalAlpha = 1;
+      } else {
+        // Subtle glow for all nodes
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 8;
+        ctx.globalAlpha = 0.8;
       }
       
-      // Outer ring for hovered/selected nodes
+      // Enhanced outer ring for hovered/selected nodes
       if (isHovered || isSelected) {
+        // Primary ring
         ctx.beginPath();
-        ctx.arc(node.x, node.y, node.radius + 8, 0, 2 * Math.PI);
+        ctx.arc(node.x, node.y, node.radius + 10, 0, 2 * Math.PI);
         ctx.strokeStyle = '#ffffff'; // white ring
         ctx.lineWidth = 3;
         ctx.stroke();
         
-        // Additional outer glow ring
+        // Secondary glow ring
         ctx.beginPath();
-        ctx.arc(node.x, node.y, node.radius + 12, 0, 2 * Math.PI);
+        ctx.arc(node.x, node.y, node.radius + 15, 0, 2 * Math.PI);
         ctx.strokeStyle = '#cccccc'; // light gray
         ctx.lineWidth = 1;
-        ctx.globalAlpha = 0.5;
+        ctx.globalAlpha = 0.6;
+        ctx.stroke();
+        
+        // Tertiary outer ring
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.radius + 20, 0, 2 * Math.PI);
+        ctx.strokeStyle = '#999999'; // darker gray
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = 0.3;
         ctx.stroke();
       }
       
-      // Main node circle with black and white gradient
+      // Enhanced main node circle with improved gradients
       const nodeGradient = ctx.createRadialGradient(
         node.x - node.radius / 3, node.y - node.radius / 3, 0,
         node.x, node.y, node.radius
       );
       
       if (node.type === 'site') {
-        // Site nodes - White to light gray gradient
+        // Site nodes - Enhanced white to light gray gradient
         nodeGradient.addColorStop(0, '#ffffff'); // white
-        nodeGradient.addColorStop(0.7, '#f5f5f5'); // very light gray
-        nodeGradient.addColorStop(1, '#e5e5e5'); // light gray
+        nodeGradient.addColorStop(0.4, '#f8f8f8'); // very light gray
+        nodeGradient.addColorStop(0.8, '#e8e8e8'); // light gray
+        nodeGradient.addColorStop(1, '#d8d8d8'); // medium light gray
       } else {
-        // Platform nodes - Light gray to gray gradient
-        nodeGradient.addColorStop(0, '#e5e5e5'); // light gray
-        nodeGradient.addColorStop(0.7, '#cccccc'); // medium gray
-        nodeGradient.addColorStop(1, '#b3b3b3'); // darker gray
+        // Account nodes - Enhanced light gray to gray gradient
+        nodeGradient.addColorStop(0, '#f0f0f0'); // very light gray
+        nodeGradient.addColorStop(0.4, '#e0e0e0'); // light gray
+        nodeGradient.addColorStop(0.8, '#d0d0d0'); // medium gray
+        nodeGradient.addColorStop(1, '#c0c0c0'); // darker gray
       }
       
       ctx.globalAlpha = 1;
@@ -402,9 +439,9 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
       ctx.fillStyle = nodeGradient;
       ctx.fill();
       
-      // Node border - Black border
+      // Enhanced node border
       ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 2;
       ctx.stroke();
       
       // Inner highlight border
@@ -412,23 +449,28 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
       ctx.lineWidth = 1;
       ctx.stroke();
       
+      // Additional subtle inner border for depth
+      ctx.strokeStyle = '#e0e0e0';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+      
       ctx.restore();
       
-      // Node label - Black text
+      // Enhanced node label
       ctx.save();
       ctx.fillStyle = '#000000'; // Black text
-      ctx.font = `bold ${Math.max(10, Math.min(16, node.radius / 2.5))}px Inter, Arial`;
+      ctx.font = `bold ${Math.max(11, Math.min(18, node.radius / 2.2))}px Inter, Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       
-      // Add text shadow for better readability
+      // Enhanced text shadow for better readability
       ctx.shadowColor = '#ffffff';
-      ctx.shadowBlur = 2;
+      ctx.shadowBlur = 3;
       ctx.shadowOffsetX = 1;
       ctx.shadowOffsetY = 1;
       
-      // Multi-line text for long labels
-      const maxWidth = node.radius * 1.4;
+      // Enhanced multi-line text for long labels
+      const maxWidth = node.radius * 1.6;
       const words = node.label.split(' ');
       let line = '';
       let y = node.y;
@@ -439,9 +481,9 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
         for (let n = 0; n < words.length; n++) {
           const testLine = line + words[n] + ' ';
           if (ctx.measureText(testLine).width > maxWidth && n > 0) {
-            ctx.fillText(line, node.x, y - 8);
+            ctx.fillText(line, node.x, y - 10);
             line = words[n] + ' ';
-            y += 16;
+            y += 18;
           } else {
             line = testLine;
           }
@@ -449,28 +491,37 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
         ctx.fillText(line, node.x, y);
       }
       
-      // Connection count badge - Black badge with white text
+      // Enhanced connection count badge
       if (node.connections > 0) {
-        const badgeX = node.x + node.radius * 0.6;
-        const badgeY = node.y - node.radius * 0.6;
+        const badgeX = node.x + node.radius * 0.7;
+        const badgeY = node.y - node.radius * 0.7;
         
         ctx.shadowColor = 'transparent';
         ctx.shadowBlur = 0;
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
         
-        // Badge background
+        // Badge background with gradient
+        const badgeGradient = ctx.createRadialGradient(
+          badgeX - 8, badgeY - 8, 0,
+          badgeX, badgeY, 12
+        );
+        badgeGradient.addColorStop(0, '#000000');
+        badgeGradient.addColorStop(1, '#333333');
+        
         ctx.beginPath();
-        ctx.arc(badgeX, badgeY, 10, 0, 2 * Math.PI);
-        ctx.fillStyle = '#000000'; // black badge
+        ctx.arc(badgeX, badgeY, 12, 0, 2 * Math.PI);
+        ctx.fillStyle = badgeGradient;
         ctx.fill();
+        
+        // Badge border
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 2;
         ctx.stroke();
         
         // Badge text
         ctx.fillStyle = '#ffffff'; // white text
-        ctx.font = 'bold 12px Inter, Arial';
+        ctx.font = 'bold 13px Inter, Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(node.connections.toString(), badgeX, badgeY);
@@ -503,7 +554,7 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
       const container = canvas.parentElement;
       if (container) {
         canvas.width = container.clientWidth;
-        const height = window.innerWidth < 640 ? 500 : 700;
+        const height = window.innerWidth < 640 ? 600 : 800; // Increased height
         canvas.height = height;
         
         // Start animation
@@ -529,8 +580,8 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
     const expandedCanvas = expandedCanvasRef.current;
     if (!expandedCanvas) return;
 
-    expandedCanvas.width = expandedCanvas.parentElement?.clientWidth || 1200;
-    expandedCanvas.height = expandedCanvas.parentElement?.clientHeight || 800;
+    expandedCanvas.width = expandedCanvas.parentElement?.clientWidth || 1400;
+    expandedCanvas.height = expandedCanvas.parentElement?.clientHeight || 900;
 
     const frameId = requestAnimationFrame(() => drawGraph(expandedCanvas, true));
     setAnimationFrame(frameId);
@@ -742,7 +793,7 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
               <div>
                 <CardTitle className="text-xl font-bold">Interactive Connection Map</CardTitle>
                 <CardDescription className="text-muted-foreground mt-1">
-                  Force-directed graph showing account relationships • Click nodes to visit • Drag to pan • Scroll to zoom
+                  Force-directed graph showing sites and their linked accounts • Click nodes to visit • Drag to pan • Scroll to zoom
                 </CardDescription>
               </div>
 
@@ -753,7 +804,7 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
             <div className="p-2 sm:p-4">
               <canvas 
                 ref={canvasRef} 
-                className="w-full border border-white/20 rounded-lg bg-black"
+                className="w-full border border-white/20 rounded-lg bg-black shadow-2xl"
 
                 style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
               />
@@ -766,7 +817,7 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full bg-gray-400 border border-white/20"></div>
-                  <span className="text-gray-300">Platforms</span>
+                  <span className="text-gray-300">Linked Accounts</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-0.5 bg-white/50"></div>
@@ -785,7 +836,7 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
                       <div>
                         <h4 className="font-semibold text-white mb-2">{node.label}</h4>
                         <p className="text-sm text-gray-300 mb-1">
-                          Type: <span className="text-gray-100">{node.type === 'site' ? 'Website/Platform' : 'Social Media Platform'}</span>
+                          Type: <span className="text-gray-100">{node.type === 'site' ? 'Website/Platform' : 'Linked Account'}</span>
                         </p>
                         <p className="text-sm text-gray-300 mb-2">
                           Connections: <span className="text-white font-semibold">{node.connections}</span>
@@ -819,7 +870,7 @@ export default function LinkookResults({ data }: LinkookResultsProps) {
               </div>
               <canvas 
                 ref={expandedCanvasRef} 
-                className="w-full h-[calc(100%-60px)] border border-white/20 rounded-lg bg-black"
+                className="w-full h-[calc(100%-60px)] border border-white/20 rounded-lg bg-black shadow-2xl"
                
                 style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
               />

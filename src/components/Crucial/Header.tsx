@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import "@/app/globals.css";
 import { Sun, Moon } from "lucide-react";
 
